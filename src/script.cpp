@@ -231,7 +231,7 @@ const char* GetOpName(opcodetype opcode)
 
     // expanson
     case OP_NOP1                   : return "OP_NOP1";
-    case OP_NOP2                   : return "OP_NOP2";
+    case OP_CHECKLOCKTIMEVERIFY    : return "OP_CHECKLOCKTIMEVERIFY";
     case OP_NOP3                   : return "OP_NOP3";
     case OP_NOP4                   : return "OP_NOP4";
     case OP_NOP5                   : return "OP_NOP5";
@@ -2203,7 +2203,7 @@ void CScript::SetMultisig(int nRequired, const std::vector<CPubKey>& keys)
 
 bool CScriptCompressor::IsToKeyID(CKeyID &hash) const
 {
-    if (script.size() == 25 && script[0] == OP_DUP && script[1] == OP_HASH160 
+    if (script.size() == 25 && script[0] == OP_DUP && script[1] == OP_HASH160
                             && script[2] == 20 && script[23] == OP_EQUALVERIFY
                             && script[24] == OP_CHECKSIG) {
         memcpy(&hash, &script[3], 20);

@@ -1422,6 +1422,16 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
     unsigned int flags = SCRIPT_VERIFY_NOCACHE;
 
+    //TODO: Check on this commit later
+    //if (IsProtocolV3(nTime))
+    //{
+    //    flags |= SCRIPT_VERIFY_NULLDUMMY |
+    //             SCRIPT_VERIFY_STRICTENC |
+    //             SCRIPT_VERIFY_ALLOW_EMPTY_SIG |
+    //             SCRIPT_VERIFY_FIX_HASHTYPE |
+    //             SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY;
+    //}
+
     //// issue here: it doesn't know the version
     unsigned int nTxPos;
     if (fJustCheck)
@@ -1803,7 +1813,7 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
 // ppcoin: total coin age spent in transaction, in the unit of coin-days.
 // Only those coins meeting minimum age requirement counts. As those
 // transactions not in main chain are not currently indexed so we
-// might not find out about their coin age. Older transactions are 
+// might not find out about their coin age. Older transactions are
 // guaranteed to be in main chain by sync-checkpoint. This rule is
 // introduced to help nodes establish a consistent view of the coin
 // age (trust score) of competing branches.

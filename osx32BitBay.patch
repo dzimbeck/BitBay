@@ -1,0 +1,64 @@
+From db9af1edb1805c6f3a1c0065b9c576e06e54673c Mon Sep 17 00:00:00 2001
+From: admin0 <admin0@mac6.localnet>
+Date: Tue, 5 Apr 2016 08:58:57 -0700
+Subject: [PATCH] update
+
+---
+ src/makefile.osx | 6 +++---
+ src/protocol.cpp | 6 ++++++
+ 2 files changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/makefile.osx b/src/makefile.osx
+index 6788f48..6a4d82e 100644
+--- a/src/makefile.osx
++++ b/src/makefile.osx
+@@ -6,7 +6,7 @@
+ # Mac OS X makefile for blackcoin
+ # Originally by Laszlo Hanyecz (solar@heliacal.net)
+ 
+-CXX=llvm-g++
++CXX=g++
+ DEPSDIR=/opt/local
+ 
+ INCLUDEPATHS= \
+@@ -53,13 +53,13 @@ ifdef RELEASE
+ # Compile for maximum compatibility and smallest size.
+ # This requires that dependencies are compiled
+ # the same way.
+-CFLAGS = -mmacosx-version-min=10.5 -arch x86_64 -O2 -msse2
++CFLAGS = -mmacosx-version-min=10.5 -arch i386 -O2 -msse2
+ else
+ CFLAGS = -g -msse2
+ endif
+ 
+ # ppc doesn't work because we don't support big-endian
+-CFLAGS += -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-unused-parameter \
++CFLAGS += -Wall -Wextra -Wformat -Wformat-security -Wno-unused-parameter \
+     $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
+ 
+ OBJS= \
+diff --git a/src/protocol.cpp b/src/protocol.cpp
+index d48dfab..05edfe3 100644
+--- a/src/protocol.cpp
++++ b/src/protocol.cpp
+@@ -6,11 +6,17 @@
+ #include "protocol.h"
+ #include "util.h"
+ #include "netbase.h"
++#include <algorithm>
+ 
+ #ifndef WIN32
+ # include <arpa/inet.h>
+ #endif
+ 
++size_t strnlen(const char *str, size_t strsz)
++{
++    return std::find(str, str + strsz, 0) - str;
++}
++
+ static const char* ppszTypeName[] =
+ {
+     "ERROR",
+-- 
+2.8.0
+

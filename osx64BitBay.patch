@@ -1,0 +1,25 @@
+From f1d772fc5a6781d8c9c394bc2396efb0fbb443d4 Mon Sep 17 00:00:00 2001
+From: admin0 <admin0@mac11.localnet>
+Date: Wed, 6 Apr 2016 03:07:50 -0700
+Subject: [PATCH] update
+
+---
+ src/makefile.osx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/makefile.osx b/src/makefile.osx
+index 6788f48..ef5f3ae 100644
+--- a/src/makefile.osx
++++ b/src/makefile.osx
+@@ -53,7 +53,7 @@ ifdef RELEASE
+ # Compile for maximum compatibility and smallest size.
+ # This requires that dependencies are compiled
+ # the same way.
+-CFLAGS = -mmacosx-version-min=10.5 -arch x86_64 -O2 -msse2
++CFLAGS = -mmacosx-version-min=10.7 -arch x86_64 -O2 -msse2 -stdlib=libc++
+ else
+ CFLAGS = -g -msse2
+ endif
+-- 
+2.8.0
+

@@ -9,7 +9,6 @@ src/build.h
 *.rej
 *.orig
 *.o
-*.patch
 .bitbay
 #compilation and Qt preprocessor part
 *.qm

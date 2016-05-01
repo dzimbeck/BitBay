@@ -1,0 +1,62 @@
+From 95e3d4d2c5ace5f62ed4f4d0bd470a0e64308750 Mon Sep 17 00:00:00 2001
+From: Pavel Kokolemin <pavelkok@gmail.com>
+Date: Wed, 6 Apr 2016 13:51:45 +0000
+Subject: [PATCH] update
+
+---
+ src/makefile.linux-mingw | 23 ++++++++++-------------
+ 1 file changed, 10 insertions(+), 13 deletions(-)
+
+diff --git a/src/makefile.linux-mingw b/src/makefile.linux-mingw
+index d9ae1e1..4131b70 100644
+--- a/src/makefile.linux-mingw
++++ b/src/makefile.linux-mingw
+@@ -5,11 +5,11 @@
+ TARGET_PLATFORM:=i686
+ #TARGET_PLATFORM:=x86_64
+ 
+-DEPSDIR:=/usr/$(TARGET_PLATFORM)-w64-mingw32
+-CC:=$(TARGET_PLATFORM)-w64-mingw32-gcc
+-CXX:=$(TARGET_PLATFORM)-w64-mingw32-g++
+-RANLIB=$(TARGET_PLATFORM)-w64-mingw32-ranlib
+-STRIP=$(TARGET_PLATFORM)-w64-mingw32-strip
++DEPSDIR:=$$HOME/mxe/usr/i686-w64-mingw32.static
++CC:=$$HOME/mxe/usr/bin/i686-w64-mingw32.static-gcc
++CXX:=$$HOME/mxe/usr/bin/i686-w64-mingw32.static-g++
++RANLIB=$$HOME/mxe/usr/bin/i686-w64-mingw32.static-ranlib
++STRIP=$$HOME/mxe/usr/bin/i686-w64-mingw32.static-strip
+ 
+ USE_UPNP:=0
+ USE_WALLET:=1
+@@ -17,15 +17,10 @@ USE_WALLET:=1
+ INCLUDEPATHS= \
+  -I"$(CURDIR)" \
+  -I"$(CURDIR)"/obj \
+- -I"$(DEPSDIR)/boost_1_55_0" \
+- -I"$(DEPSDIR)/db-6.0.20/build_unix" \
+- -I"$(DEPSDIR)/openssl-1.0.1f/include" \
+- -I"$(DEPSDIR)"
++ -I"$(DEPSDIR)/include/" \
+ 
+ LIBPATHS= \
+- -L"$(DEPSDIR)/boost_1_55_0/stage/lib" \
+- -L"$(DEPSDIR)/db-6.0.20/build_unix" \
+- -L"$(DEPSDIR)/openssl-1.0.1f"
++ -L"$(DEPSDIR)/lib" \
+ 
+ LIBS= \
+  -l boost_system-mt \
+@@ -36,7 +31,9 @@ LIBS= \
+  -l db_cxx \
+  -l ssl \
+  -l crypto \
+- -l z
++ -l z \
++ -l pthread \
++ 
+ 
+ DEFS=-D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE
+ DEBUGFLAGS=-g
+-- 
+2.1.4
+

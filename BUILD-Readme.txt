@@ -44,8 +44,33 @@ common:
     # su
     # echo "$(whoami) ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+== Auto Build With Dependencies ==
+
+# ~/<RELEASE_NAME>.sh --reset --build
+
 == Build ==
 
-# cd ~
-# git clone http://hostname/git/blackcoin/
-# ~/blackcoin/<RELEASE_NAME>.sh --reset --build
+Linux i386:
+
+git clone https://github.com/dzimbeck/BitBay.git
+cd BitBay
+chmod +x linuxBitBay.sh
+./linuxBitBay.sh --build
+
+Linux x86_64:
+
+git clone https://github.com/dzimbeck/BitBay.git
+cd BitBay
+chmod +x linuxBitBay64.sh
+./linuxBitBay64.sh --build
+
+Options:
+--reset: update dependencies, clone BitBay repository
+--force: if you are using other versions such as Debian version > 7
+
+Example with options:
+./linuxBitBay64.sh --reset --force --build
+
+After successful build, bitbayd can be found in BitBay/src/
+
+Generated source code is automatically stored in the home directory

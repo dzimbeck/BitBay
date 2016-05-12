@@ -10,7 +10,7 @@ function realpath
 
 SCRIPT_PATH="$(realpath ""$0"")"
 PATCH_PATH="${SCRIPT_PATH/sh/patch}"
-BASE_DIR="$HOME/src2"
+BASE_DIR="$HOME/bitbay"
 
 function force
 {
@@ -53,7 +53,7 @@ function reset
 
 function build
 {
-    cd "$HOME/src2/bitbay/src"
+    cd "$HOME/bitbay/bitbay/src"
     
     make STATIC=1 USE_UPNP=1 -f makefile.unix
     

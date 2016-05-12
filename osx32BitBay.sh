@@ -10,7 +10,7 @@ function realpath
 
 SCRIPT_PATH="$(realpath ""$0"")"
 PATCH_PATH="${SCRIPT_PATH/sh/patch}"
-BASE_DIR="$HOME/src2"
+BASE_DIR="$HOME/bitbay"
 
 function force
 {
@@ -59,7 +59,7 @@ function reset
 
 function build
 {
-    cd "$HOME/src2/blackcoin/src"
+    cd "$HOME/bitbay/blackcoin/src"
     
     make RELEASE=1 STATIC=1 -f makefile.osx
 }

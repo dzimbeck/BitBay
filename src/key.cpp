@@ -407,15 +407,7 @@ bool CKey::CheckSignatureElement(const unsigned char *vch, int len, bool half) {
            CompareBigEndian(vch, len, half ? vchMaxModHalfOrder : vchMaxModOrder, 32) <= 0;
 }
 
-const unsigned char vchOrder[32] = {
-    0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xfe,0xba,0xae,0xdc,0xe6,0xaf,0x48,0xa0,0x3b,0xbf,0xd2,0x5e,0x8c,0xd0,0x36,0x41,0x41
-};
-
-const unsigned char vchHalfOrder[32] = {
-    0x7f,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0x5d,0x57,0x6e,0x73,0x57,0xa4,0x50,0x1d,0xdf,0xe9,0x2f,0x46,0x68,0x1b,0x20,0xa0
-};
-
-bool EnsureLowS(std::vector<unsigned char>& vchSig) {
+bool CKey::ReserealizeSignature(std::vector<unsigned char>& vchSig) {
     unsigned char *pos;
 
     if (vchSig.empty())
@@ -426,22 +418,19 @@ bool EnsureLowS(std::vector<unsigned char>& vchSig) {
     if (sig == NULL)
         return false;
 
-    BIGNUM *order = BN_bin2bn(vchOrder, sizeof(vchOrder), NULL);
-    BIGNUM *halforder = BN_bin2bn(vchHalfOrder, sizeof(vchHalfOrder), NULL);
+    bool ret = false;
+    int nSize = i2d_ECDSA_SIG(sig, NULL);
+    if (nSize > 0) {
+        vchSig.resize(nSize); // grow or shrink as needed
 
-    if (BN_cmp(sig->s, halforder) > 0) {
-        // enforce low S values, by negating the value (modulo the order) if above order/2.
-        BN_sub(sig->s, order, sig->s);
+        pos = &vchSig[0];
+        i2d_ECDSA_SIG(sig, &pos);
+
+        ret = true;
     }
 
-    BN_free(halforder);
-    BN_free(order);
-
-    pos = &vchSig[0];
-    unsigned int nSize = i2d_ECDSA_SIG(sig, &pos);
     ECDSA_SIG_free(sig);
-    vchSig.resize(nSize); // Shrink to fit actual size
-    return true;
+    return ret;
 }
 
 void CKey::MakeNewKey(bool fCompressedIn) {

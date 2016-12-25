@@ -312,8 +312,8 @@ bool IsDERSignature(const valtype &vchSig, bool haveHashType) {
     return true;
 }
 
-bool IsLowDERSignature(const valtype &vchSig, bool haveHashType) {
-    if (!IsDERSignature(vchSig, haveHashType)) {
+bool static IsLowDERSignature(const valtype &vchSig) {
+    if (!IsDERSignature(vchSig)) {
         return false;
     }
     unsigned int nLenR = vchSig[3];

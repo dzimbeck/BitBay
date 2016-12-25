@@ -62,14 +62,14 @@ Linux x86_64:
 git clone https://github.com/dzimbeck/BitBay.git
 cd BitBay
 chmod +x linuxBitBay64.sh
-./linuxBitBay64.sh --build
+./linux64BitBay.sh --build
 
 Options:
 --reset: update dependencies, clone BitBay repository
 --force: if you are using other versions such as Debian version > 7
 
 Example with options:
-./linuxBitBay64.sh --reset --force --build
+./linux64BitBay.sh --reset --force --build
 
 After successful build, bitbayd can be found in BitBay/src/
 

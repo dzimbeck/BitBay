@@ -115,7 +115,7 @@ public:
             obj.push_back(Pair("addresses", a));
             if (whichType == TX_MULTISIG)
                 obj.push_back(Pair("sigsrequired", nRequired));
-            }
+        }
         return obj;
     }
 };

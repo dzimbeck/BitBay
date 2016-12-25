@@ -8,6 +8,7 @@
 #include "key.h"
 #include "sync.h"
 #include "script.h"     // for CNoDestination
+
 #include <boost/signals2/signal.hpp>
 #include <boost/variant.hpp>
 
@@ -102,6 +103,7 @@ public:
     virtual bool AddCScript(const CScript& redeemScript);
     virtual bool HaveCScript(const CScriptID &hash) const;
     virtual bool GetCScript(const CScriptID &hash, CScript& redeemScriptOut) const;
+
     virtual bool AddWatchOnly(const CTxDestination &dest);
     virtual bool HaveWatchOnly(const CTxDestination &dest) const;
 };

@@ -70,10 +70,10 @@ Value getstakesubsidy(const Array& params, bool fHelp)
 
     uint64_t nCoinAge;
     CTxDB txdb("r");
-    if (!tx.GetCoinAge(txdb, nCoinAge))
+    if (!tx.GetCoinAge(txdb, pindexBest, nCoinAge))
         throw JSONRPCError(RPC_MISC_ERROR, "GetCoinAge failed");
 
-    return (uint64_t)GetProofOfStakeReward(nCoinAge, 0);
+    return (uint64_t)GetProofOfStakeReward(pindexBest, nCoinAge, 0);
 }
 
 Value getmininginfo(const Array& params, bool fHelp)
@@ -249,7 +249,7 @@ Value getworkex(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(-10, "BitBay is downloading blocks...");
 
-    if (pindexBest->GetBlockTime() >= LAST_POW_TIME)
+    if (pindexBest->nHeight >= Params().LastPOWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
@@ -383,7 +383,7 @@ Value getwork(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "BitBay is downloading blocks...");
 
-    if (pindexBest->GetBlockTime() >= LAST_POW_TIME)
+    if (pindexBest->nHeight >= Params().LastPOWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     typedef map<uint256, pair<CBlock*, CScript> > mapNewBlock_t;
@@ -527,7 +527,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "BitBay is downloading blocks...");
 
-    if (pindexBest->GetBlockTime() >= LAST_POW_TIME)
+    if (pindexBest->nHeight >= Params().LastPOWBlock())
         throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
 
     // Update block
@@ -657,6 +657,7 @@ Value submitblock(const Array& params, bool fHelp)
     catch (std::exception &e) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "Block decode failed");
     }
+
     if (params.size() > 1)
     {
         const Object& oparam = params[1].get_obj();

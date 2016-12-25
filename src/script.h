@@ -53,9 +53,11 @@ enum
     SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS = (1U << 2),
 
     SCRIPT_VERIFY_STRICTENC = (1U << 3),
-    // TODO add to MANDATORY_SCRIPT_VERIFY_FLAGS after the IsProtocolV3 fork (the commit was added to BitBay)
+
+    // TODO add to MANDATORY_SCRIPT_VERIFY_FLAGS after the IsProtocolV3 fork
     SCRIPT_VERIFY_ALLOW_EMPTY_SIG = (1U << 4),
     SCRIPT_VERIFY_FIX_HASHTYPE = (1U << 5),
+
     // Verify CHECKLOCKTIMEVERIFY (BIP65)
     //
     SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY = (1U << 6),
@@ -75,8 +77,8 @@ enum isminetype
 // Failing one of these tests may trigger a DoS ban - see ConnectInputs() for
 // details.
 static const unsigned int MANDATORY_SCRIPT_VERIFY_FLAGS = SCRIPT_VERIFY_NULLDUMMY |
-                                                           SCRIPT_VERIFY_STRICTENC |
-                                                           SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY;
+                                                          SCRIPT_VERIFY_STRICTENC |
+                                                          SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY;
 
 // Standard script verification flags that standard transactions will comply
 // with. However scripts violating these flags may still be present in valid
@@ -717,6 +719,8 @@ public:
 
 
 bool IsDERSignature(const valtype &vchSig, bool haveHashType = true);
+bool IsLowDERSignature(const valtype &vchSig, bool haveHashType = true);
+bool IsCompressedOrUncompressedPubKey(const valtype &vchPubKey);
 bool EvalScript(std::vector<std::vector<unsigned char> >& stack, const CScript& script, const CTransaction& txTo, unsigned int nIn, unsigned int flags, int nHashType);
 bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet);
 int ScriptSigArgsExpected(txnouttype t, const std::vector<std::vector<unsigned char> >& vSolutions);

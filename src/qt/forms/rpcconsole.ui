@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>BlackCoin - Debug window</string>
+   <string>BitBay - Debug window</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -299,7 +299,7 @@
        <item row="14" column="0">
         <widget class="QPushButton" name="openDebugLogfileButton">
          <property name="toolTip">
-          <string>Open the BlackCoin debug log file from the current data directory. This can take a few seconds for large log files.</string>
+          <string>Open the BitBay debug log file from the current data directory. This can take a few seconds for large log files.</string>
          </property>
          <property name="text">
           <string>&amp;Open</string>
@@ -325,7 +325,7 @@
        <item row="16" column="0">
         <widget class="QPushButton" name="showCLOptionsButton">
          <property name="toolTip">
-          <string>Show the BlackCoin-Qt help message to get a list with possible BlackCoin command-line options.</string>
+          <string>Show the BitBay-Qt help message to get a list with possible BitBay command-line options.</string>
          </property>
          <property name="text">
           <string>&amp;Show</string>

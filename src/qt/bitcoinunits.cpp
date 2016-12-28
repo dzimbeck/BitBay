@@ -45,9 +45,9 @@ QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
-    case BTC: return QString("BitBays");
-    case mBTC: return QString("Milli-BitBays (1 / 1,000)");
-    case uBTC: return QString("Micro-BitBays (1 / 1,000,000)");
+    case BTC: return QString("BitBay");
+    case mBTC: return QString("Milli-BitBay (1 / 1,000)");
+    case uBTC: return QString("Micro-BitBay (1 / 1,000,000)");
     default: return QString("???");
     }
 }
@@ -112,14 +112,9 @@ QString BitcoinUnits::format(int unit, qint64 n, bool fPlus)
     return quotient_str + QString(".") + remainder_str;
 }
 
-QString BitcoinUnits::formatWithUnit(int unit, qint64 amount, bool plussign, bool rtf)
+QString BitcoinUnits::formatWithUnit(int unit, qint64 amount, bool plussign)
 {
-    if (!rtf)
-    {
-        return format(unit, amount, plussign) + QString(" <span style='font-size:10pt;'>") + name(unit) + QString("</span>");
-    }else{
-        return format(unit, amount, plussign) + QString(" ") + name(unit);
-    }
+    return format(unit, amount, plussign) + QString(" ") + name(unit);
 }
 
 bool BitcoinUnits::parse(int unit, const QString &value, qint64 *val_out)

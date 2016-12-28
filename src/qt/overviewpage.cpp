@@ -1,6 +1,7 @@
 #include "overviewpage.h"
 #include "ui_overviewpage.h"
 
+#include "clientmodel.h"
 #include "walletmodel.h"
 #include "bitcoinunits.h"
 #include "optionsmodel.h"
@@ -11,15 +12,9 @@
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
-#include <QFont>
-#include <QLabel>
-#include <QFrame>
-#include <QStaticText>
-#include <QFont>
-#include <QFontDatabase>
 
 #define DECORATION_SIZE 64
-#define NUM_ITEMS 3
+#define NUM_ITEMS 6
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -56,16 +51,7 @@ public:
             foreground = qvariant_cast<QColor>(value);
         }
 
-        painter->setPen(foreground);
-
-        int fontID = QFontDatabase::addApplicationFont(":/fonts/Ubuntu-Medium");
-        QStringList fontFamilies = QFontDatabase::applicationFontFamilies(fontID);
-        QString fUbuntu = fontFamilies.at(0);
-
-        QFont * Ubuntu;
-        Ubuntu = new QFont(fUbuntu, 8, QFont::Normal, false);
-
-        painter->setFont(*Ubuntu);
+        painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
 
         if(amount < 0)
@@ -80,15 +66,15 @@ public:
         {
             foreground = option.palette.color(QPalette::Text);
         }
-        painter->setPen(foreground);
-        QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true, true);
+        painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
+        QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
         }
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
-        painter->setPen(option.palette.color(QPalette::Text));
+        painter->setPen(fUseBlackTheme ? QColor(96, 101, 110) : option.palette.color(QPalette::Text));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
@@ -107,6 +93,8 @@ public:
 OverviewPage::OverviewPage(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::OverviewPage),
+    clientModel(0),
+    walletModel(0),
     currentBalance(-1),
     currentStake(0),
     currentUnconfirmedBalance(-1),
@@ -115,28 +103,6 @@ OverviewPage::OverviewPage(QWidget *parent) :
     filter(0)
 {
     ui->setupUi(this);
-
-    QFont overviewHeaders("Ubuntu", 10, QFont::Normal);
-    QFont overviewSpend("Ubuntu", 20, QFont::Normal);
-    QFont overviewBalances("Ubuntu", 14, QFont::Normal);
-
-    ui->label->setFont(overviewHeaders);
-    ui->label_3->setFont(overviewHeaders);
-    ui->label_4->setFont(overviewHeaders);
-    ui->label_6->setFont(overviewHeaders);
-    ui->labelImmatureText->setFont(overviewHeaders);
-    ui->labelTotalText->setFont(overviewHeaders);
-
-    ui->labelBalance->setFont(overviewSpend);
-    ui->labelBalance->setContentsMargins(0,0,0,5);
-    ui->labelStake->setFont(overviewBalances);
-    ui->labelStake->setContentsMargins(0,0,0,5);
-    ui->labelImmature->setFont(overviewBalances);
-    ui->labelImmature->setContentsMargins(0,0,0,5);
-    ui->labelUnconfirmed->setFont(overviewBalances);
-    ui->labelUnconfirmed->setContentsMargins(0,0,0,5);
-    ui->labelTotal->setFont(overviewBalances);
-    ui->labelTotal->setContentsMargins(0,0,0,5);
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
@@ -152,6 +118,16 @@ OverviewPage::OverviewPage(QWidget *parent) :
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
+
+    if (fUseBlackTheme)
+    {
+        const char* whiteLabelQSS = "QLabel { color: rgb(255,255,255); }";
+        ui->labelBalance->setStyleSheet(whiteLabelQSS);
+        ui->labelStake->setStyleSheet(whiteLabelQSS);
+        ui->labelUnconfirmed->setStyleSheet(whiteLabelQSS);
+        ui->labelImmature->setStyleSheet(whiteLabelQSS);
+        ui->labelTotal->setStyleSheet(whiteLabelQSS);
+    }
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -167,7 +143,7 @@ OverviewPage::~OverviewPage()
 
 void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance)
 {
-    int unit = model->getOptionsModel()->getDisplayUnit();
+    int unit = walletModel->getOptionsModel()->getDisplayUnit();
     currentBalance = balance;
     currentStake = stake;
     currentUnconfirmedBalance = unconfirmedBalance;
@@ -185,9 +161,20 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelImmatureText->setVisible(showImmature);
 }
 
-void OverviewPage::setModel(WalletModel *model)
+void OverviewPage::setClientModel(ClientModel *model)
 {
-    this->model = model;
+    this->clientModel = model;
+    if(model)
+    {
+        // Show warning if this is a prerelease version
+        connect(model, SIGNAL(alertsChanged(QString)), this, SLOT(updateAlerts(QString)));
+        updateAlerts(model->getStatusBarWarnings());
+    }
+}
+
+void OverviewPage::setWalletModel(WalletModel *model)
+{
+    this->walletModel = model;
     if(model && model->getOptionsModel())
     {
         // Set up transaction list
@@ -215,16 +202,22 @@ void OverviewPage::setModel(WalletModel *model)
 
 void OverviewPage::updateDisplayUnit()
 {
-    if(model && model->getOptionsModel())
+    if(walletModel && walletModel->getOptionsModel())
     {
         if(currentBalance != -1)
-            setBalance(currentBalance, model->getStake(), currentUnconfirmedBalance, currentImmatureBalance);
+            setBalance(currentBalance, walletModel->getStake(), currentUnconfirmedBalance, currentImmatureBalance);
 
         // Update txdelegate->unit with the current unit
-        txdelegate->unit = model->getOptionsModel()->getDisplayUnit();
+        txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();
 
         ui->listTransactions->update();
     }
+}
+
+void OverviewPage::updateAlerts(const QString &warnings)
+{
+    this->ui->labelAlerts->setVisible(!warnings.isEmpty());
+    this->ui->labelAlerts->setText(warnings);
 }
 
 void OverviewPage::showOutOfSyncWarning(bool fShow)

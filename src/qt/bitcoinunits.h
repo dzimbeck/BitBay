@@ -9,6 +9,8 @@
 */
 class BitcoinUnits: public QAbstractListModel
 {
+    Q_OBJECT
+
 public:
     explicit BitcoinUnits(QObject *parent);
 
@@ -43,7 +45,7 @@ public:
     //! Format as string
     static QString format(int unit, qint64 amount, bool plussign=false);
     //! Format as string (with unit)
-    static QString formatWithUnit(int unit, qint64 amount, bool plussign=false, bool rtf=false);
+    static QString formatWithUnit(int unit, qint64 amount, bool plussign=false);
     //! Parse string to coin amount
     static bool parse(int unit, const QString &value, qint64 *val_out);
     ///@}
@@ -58,6 +60,7 @@ public:
     int rowCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
     ///@}
+
 private:
     QList<BitcoinUnits::Unit> unitlist;
 };

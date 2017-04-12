@@ -43,10 +43,12 @@ function reset
 
     git clone https://github.com/dzimbeck/bitbay
     
-    cd bitbay/src/leveldb
-    chmod 755 build_detect_platform
-    make
-    make libmemenv.a 
+    #cd src/leveldb
+    #chmod 755 build_detect_platform
+    #make
+    #make libmemenv.a
+    cp LevelDB/libleveldb.a src/leveldb/libleveldb.a
+    cp LevelDB/libmemenv.a src/leveldb/libmemenv.a
     #cd bitbay
     #git am "$PATCH_PATH"
 }

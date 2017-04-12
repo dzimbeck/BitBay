@@ -65,6 +65,8 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
+
+        //Change the text and nTime below if you wish to make a new genesis
         const char* pszTimestamp = "BitBay gonna make an Impact on the altcoin market never seen before";
         CTransaction txNew;
         txNew.nTime = 1414351032;
@@ -79,33 +81,25 @@ public:
         genesis.nTime    = 1414351032;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact();
         genesis.nNonce   = 1491418;
-        //block.nNonce   = 1491418;
-		//if(fTestNet)
+
+        // Uncommenting this will make a new genesis which you can change the info above
+        //uint256 hashTarget = CBigNum().SetCompact(genesis.nBits).getuint256();
+        //printf("Making genesis");
+        //while (genesis.GetHash() > hashTarget)
         //{
-        //    block.nNonce   = 21739;
+        //  ++genesis.nNonce;
+        //  if (genesis.nNonce == 0)
+        //             {
+        //                  printf("NONCE WRAPPED, incrementing time");
+        //                  ++genesis.nTime;
+        //             }
         //}
-        //if (false  && (block.GetHash() != hashGenesisBlock)) {
-
-        // This will figure out a valid hash and Nonce if you're
-        // creating a different genesis block:
-        //    uint256 hashTarget = CBigNum().SetCompact(block.nBits).getuint256();
-        //    while (block.GetHash() > hashTarget)
-        //       {
-        //           ++block.nNonce;
-        //           if (block.nNonce == 0)
-        //           {
-        //               printf("NONCE WRAPPED, incrementing time");
-        //               ++block.nTime;
-        //           }
-        //       }
-        //}
-        //block.print();
-        printf("block.GetHash() == %s\n", genesis.GetHash().ToString().c_str());
-        //printf("block.hashMerkleRoot == %s\n", block.hashMerkleRoot.ToString().c_str());
-        //printf("block.nTime = %u \n", block.nTime);
-        //printf("block.nNonce = %u \n", block.nNonce);
-
-        //// debug print
+        //printf("genesis.GetHash() == %s\n", genesis.GetHash().ToString().c_str());
+        //printf("genesis.hashMerkleRoot == %s\n", genesis.hashMerkleRoot.ToString().c_str());
+        //printf("genesis.nTime = %u \n", genesis.nTime);
+        //printf("genesis.nNonce = %u \n", genesis.nNonce);
+        //hashGenesisBlock = genesis.GetHash();
+        //assert(hashGenesisBlock == uint256("0x0"));
 
         hashGenesisBlock = genesis.GetHash();
         assert(hashGenesisBlock == uint256("0x0000075685d3be1f253ce777174b1594354e79954d2a32a6f77fe9cba00e6467"));

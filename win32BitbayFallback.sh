@@ -51,10 +51,12 @@ function reset
     
     git am "$PATCH_PATH"
     
-    cd src/leveldb
-    chmod 755 build_detect_platform
-    make
-    make libmemenv.a
+    #cd src/leveldb
+    #chmod 755 build_detect_platform
+    #make
+    #make libmemenv.a
+    cp LevelDB/libleveldb.a src/leveldb/libleveldb.a
+    cp LevelDB/libmemenv.a src/leveldb/libmemenv.a
 }
 
 function build

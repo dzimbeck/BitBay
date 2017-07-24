@@ -112,15 +112,18 @@ public:
         vSeeds.push_back(CDNSSeedData("bbaynode (node2)", "194.135.84.161"));
         vSeeds.push_back(CDNSSeedData("bbaynode (node3)", "23.227.190.163"));
 
-        // reliable nodes from chainz
-        vSeeds.push_back(CDNSSeedData("bbaynode (node4)", "104.172.24.79"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node5)", "106.187.50.153"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node6)", "158.69.27.82"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node7)", "24.37.11.106"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node8)", "40.112.149.192"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node9)", "45.56.109.7"));
+        // most reliable node from chainz
+        vSeeds.push_back(CDNSSeedData("bbaynode (node4)", "45.56.109.7"));
+        // more chainz nodes
+        vSeeds.push_back(CDNSSeedData("bbaynode (node5)", "104.172.24.79"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (node6)", "106.187.50.153"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (node7)", "158.69.27.82"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (node8)", "24.37.11.106"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (node9)", "40.112.149.192"));        
         vSeeds.push_back(CDNSSeedData("bbaynode (node10)", "69.254.222.98"));
         vSeeds.push_back(CDNSSeedData("bbaynode (node11)", "85.25.146.74"));
+        // new nodes
+        vSeeds.push_back(CDNSSeedData("bbaynode (node12)", "195.181.242.206"));      
 
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);

@@ -278,17 +278,13 @@ Value getblock(const Array& params, bool fHelp)
 
     LOCK(cs_main);
 
+    //std::string strHash = params[0].get_str();
+    //uint256 hash(strHash);
     std::string strHash = params[0].get_str();
-    uint256 hash(strHash);
+	uint256 hash(uint256S(strHash));
 
     int verbosity = 1;
-	
-	std::string check_verbosity = params[1].get_str();
     if (params.size() > 1) {
-        //if(params[1].isNum())
-		if(params[1].get_int())
-            verbosity = params[1].get_int();
-        else
             verbosity = params[1].get_bool() ? 1 : 0;
     }
 
@@ -297,17 +293,51 @@ Value getblock(const Array& params, bool fHelp)
 
     CBlock block;
     CBlockIndex* pblockindex = mapBlockIndex[hash];
+	
+	if(!block.ReadFromDisk(pblockindex, true)){
+        // Block not found on disk. This could be because we have the block
+        // header in our index but don't have the block (for example if a
+        // non-whitelisted node sends us an unrequested long chain of valid
+        // blocks, we add the headers to our index, but don't accept the
+        // block).
+		throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
+	}
 
+	block.ReadFromDisk(pblockindex, true);
+	
     if (verbosity <= 0)
     {
         CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION);
         ssBlock << block;
         std::string strHex = HexStr(ssBlock.begin(), ssBlock.end());
+		//strHex.insert(0, "testar ");
         return strHex;
     }
 
-    return blockToJSON(block, pblockindex, verbosity >= 2);
+    //return blockToJSON(block, pblockindex, verbosity >= 2);
+	return blockToJSON(block, pblockindex, params.size() > 1 ? params[1].get_bool() : false);
 }
+Value getblock_old(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "getblock <hash> [txinfo]\n"
+            "txinfo optional to print more detailed tx info\n"
+            "Returns details of a block with given block-hash.");
+
+    std::string strHash = params[0].get_str();
+    uint256 hash(strHash);
+
+    if (mapBlockIndex.count(hash) == 0)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
+
+    CBlock block;
+    CBlockIndex* pblockindex = mapBlockIndex[hash];
+    block.ReadFromDisk(pblockindex, true);
+
+    return blockToJSON(block, pblockindex, params.size() > 1 ? params[1].get_bool() : false);
+}
+
 Value getblockbynumber(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)

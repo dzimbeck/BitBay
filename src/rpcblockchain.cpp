@@ -228,10 +228,10 @@ Value getblockhash(const Array& params, bool fHelp)
     return pblockindex->phashBlock->GetHex();
 }
 
-Value getblock(const JSONRPCRequest& request)
+Value getblock(const Array& params, bool fHelp)
 {
-    if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
-        throw std::runtime_error(
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
             "getblock \"blockhash\" ( verbosity ) \n"
             "\nIf verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.\n"
             "If verbosity is 1, returns an Object with information about block <hash>.\n"
@@ -274,21 +274,22 @@ Value getblock(const JSONRPCRequest& request)
             "  ,...                     Same output as verbosity = 1.\n"
             "}\n"
             "\nExamples:\n"
-            + HelpExampleCli("getblock", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"")
-            + HelpExampleRpc("getblock", "\"00000000c937983704a73af28acdec37b049d214adbda81d7e2a3dd146f6ed09\"")
         );
 
     LOCK(cs_main);
 
-    std::string strHash = request.params[0].get_str();
-    uint256 hash(uint256S(strHash));
+    std::string strHash = params[0].get_str();
+    uint256 hash(strHash);
 
     int verbosity = 1;
-    if (request.params.size() > 1) {
-        if(request.params[1].isNum())
-            verbosity = request.params[1].get_int();
+	
+	std::string check_verbosity = params[1].get_str();
+    if (params.size() > 1) {
+        //if(params[1].isNum())
+		if(params[1].get_int())
+            verbosity = params[1].get_int();
         else
-            verbosity = request.params[1].get_bool() ? 1 : 0;
+            verbosity = params[1].get_bool() ? 1 : 0;
     }
 
     if (mapBlockIndex.count(hash) == 0)
@@ -297,20 +298,9 @@ Value getblock(const JSONRPCRequest& request)
     CBlock block;
     CBlockIndex* pblockindex = mapBlockIndex[hash];
 
-    if (fHavePruned && !(pblockindex->nStatus & BLOCK_HAVE_DATA) && pblockindex->nTx > 0)
-        throw JSONRPCError(RPC_MISC_ERROR, "Block not available (pruned data)");
-
-    if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
-        // Block not found on disk. This could be because we have the block
-        // header in our index but don't have the block (for example if a
-        // non-whitelisted node sends us an unrequested long chain of valid
-        // blocks, we add the headers to our index, but don't accept the
-        // block).
-        throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
-
     if (verbosity <= 0)
     {
-        CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION | RPCSerializationFlags());
+        CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION);
         ssBlock << block;
         std::string strHex = HexStr(ssBlock.begin(), ssBlock.end());
         return strHex;

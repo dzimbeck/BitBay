@@ -395,7 +395,8 @@ bool AreInputsStandard(const CTransaction& tx, const MapPrevTx& mapInputs)
 
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        const CTxOut& prev = tx.GetOutputFor(tx.vin[i], mapInputs);
+        CTxOut prev;
+        tx.GetOutputFor(tx.vin[i], mapInputs, prev);
 
         vector<vector<unsigned char> > vSolutions;
         txnouttype whichType;
@@ -469,7 +470,8 @@ unsigned int GetP2SHSigOpCount(const CTransaction& tx, const MapPrevTx& inputs)
     unsigned int nSigOps = 0;
     for (unsigned int i = 0; i < tx.vin.size(); i++)
     {
-        const CTxOut& prevout = tx.GetOutputFor(tx.vin[i], inputs);
+        CTxOut prevout;
+        tx.GetOutputFor(tx.vin[i], inputs, prevout);
         if (prevout.scriptPubKey.IsPayToScriptHash())
             nSigOps += prevout.scriptPubKey.GetSigOpCount(tx.vin[i].scriptSig);
     }
@@ -985,7 +987,10 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 {
     int64_t nSubsidy;
     if (IsProtocolV3(pindexPrev->nTime))
-        nSubsidy = COIN * 3 / 2;
+        if (IsProtocolVS(pindexPrev->nTime))
+            nSubsidy = COIN * 20;
+        else
+            nSubsidy = COIN * 3 / 2;
     else
         nSubsidy = nCoinAge * COIN_YEAR_REWARD * 33 / (365 * 33 + 8);
 
@@ -1231,7 +1236,7 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
     return true;
 }
 
-const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const
+void CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, CTxOut& out) const
 {
     MapPrevTx::const_iterator mi = inputs.find(input.prevout.hash);
     if (mi == inputs.end())
@@ -1241,7 +1246,17 @@ const CTxOut& CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& in
     if (input.prevout.n >= txPrev.vout.size())
         throw std::runtime_error("CTransaction::GetOutputFor() : prevout.n out of range");
 
-    return txPrev.vout[input.prevout.n];
+    // Exception for baLN8KM7q9jizZrXXFLgMkf52bcTyfTieZ p2sh to BS4B3oTqEKw9vZVL45MZGEKsGL9sKPXiyC p2pkh
+    unsigned char BS4BExceptionBytes[] = {0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x87};
+    CScript BS4BExceptionScript(BS4BExceptionBytes,BS4BExceptionBytes + 23);
+    if(txPrev.vout[input.prevout.n].scriptPubKey == BS4BExceptionScript) {
+        unsigned char BS4BExceptionP2PKHBytes[] = {0x76, 0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x88, 0xac};
+        out.nValue = txPrev.vout[input.prevout.n].nValue;
+        out.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
+        return;
+    }
+
+    out = txPrev.vout[input.prevout.n];
 }
 
 int64_t CTransaction::GetValueIn(const MapPrevTx& inputs) const
@@ -1252,7 +1267,9 @@ int64_t CTransaction::GetValueIn(const MapPrevTx& inputs) const
     int64_t nResult = 0;
     for (unsigned int i = 0; i < vin.size(); i++)
     {
-        nResult += GetOutputFor(vin[i], inputs).nValue;
+        CTxOut txout;
+        GetOutputFor(vin[i], inputs, txout);
+        nResult += txout.nValue;
     }
     return nResult;
 

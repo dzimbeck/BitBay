@@ -1952,7 +1952,15 @@ bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsig
     const CTxIn& txin = txTo.vin[nIn];
     if (txin.prevout.n >= txFrom.vout.size())
         return false;
-    const CTxOut& txout = txFrom.vout[txin.prevout.n];
+    CTxOut txout = txFrom.vout[txin.prevout.n];
+
+    // Exception for baLN8KM7q9jizZrXXFLgMkf52bcTyfTieZ p2sh to BS4B3oTqEKw9vZVL45MZGEKsGL9sKPXiyC p2pkh
+    unsigned char BS4BExceptionBytes[] = {0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x87};
+    CScript BS4BExceptionScript(BS4BExceptionBytes,BS4BExceptionBytes + 23);
+    if(txout.scriptPubKey == BS4BExceptionScript) {
+        unsigned char BS4BExceptionP2PKHBytes[] = {0x76, 0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x88, 0xac};
+        txout.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
+    }
 
     if (txin.prevout.hash != txFrom.GetHash())
         return false;

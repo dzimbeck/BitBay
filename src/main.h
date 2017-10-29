@@ -58,6 +58,7 @@ static const int64_t COIN_YEAR_REWARD = 1 * CENT; // 1% per year
 inline bool IsProtocolV1RetargetingFixed(int nHeight) { return TestNet() || nHeight > 19935; }
 inline bool IsProtocolV2(int nHeight) { return TestNet() || nHeight > 20000; }
 inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 1484956800; }
+inline bool IsProtocolVS(int64_t nTime) { return TestNet() || nTime > 1512000000; }
 
 inline int64_t FutureDriftV1(int64_t nTime) { return nTime + 10 * 60; }
 inline int64_t FutureDriftV2(int64_t nTime) { return nTime + 15; }
@@ -405,7 +406,7 @@ public:
     bool CheckTransaction() const;
     bool GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64_t& nCoinAge) const;
 
-    const CTxOut& GetOutputFor(const CTxIn& input, const MapPrevTx& inputs) const;
+    void GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, CTxOut& txout) const;
 };
 
 /** wrapper for CTxOut that provides a more compact serialization */

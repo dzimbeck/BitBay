@@ -61,7 +61,7 @@ Linux x86_64:
 
 git clone https://github.com/dzimbeck/BitBay.git
 cd BitBay
-chmod +x linuxBitBay64.sh
+chmod +x linux64BitBay.sh
 ./linux64BitBay.sh --build
 
 Options:

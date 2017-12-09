@@ -1,6 +1,17 @@
 TEMPLATE = app
 TARGET = bitbay-qt
 VERSION = 1.2.2
+
+INCLUDEPATH += /usr/local/opt/db/include
+INCLUDEPATH += /usr/local/opt/boost/include
+INCLUDEPATH += /usr/local/opt/openssl/include
+INCLUDEPATH += /usr/local/opt/miniupnpc/include
+
+LIBS += -L/usr/local/opt/db/lib
+LIBS += -L/usr/local/opt/boost/lib
+LIBS += -L/usr/local/opt/openssl/lib
+LIBS += -L/usr/local/opt/miniupnpc/lib
+
 INCLUDEPATH += src src/json src/qt
 QT += network
 DEFINES += ENABLE_WALLET
@@ -367,7 +378,7 @@ isEmpty(BDB_LIB_PATH) {
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
-    macx:BDB_LIB_SUFFIX = -4.8
+    macx:BDB_LIB_SUFFIX = -6.2
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
@@ -402,9 +413,9 @@ macx:LIBS += -framework Foundation -framework ApplicationServices -framework App
 macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
 macx:ICON = src/qt/res/icons/bitcoin.icns
 macx:TARGET = "BitBay-Qt"
-macx:QMAKE_CFLAGS_THREAD += -pthread
-macx:QMAKE_LFLAGS_THREAD += -pthread
-macx:QMAKE_CXXFLAGS_THREAD += -pthread
+#macx:QMAKE_CFLAGS_THREAD += -pthread
+#macx:QMAKE_LFLAGS_THREAD += -pthread
+#macx:QMAKE_CXXFLAGS_THREAD += -pthread
 macx:QMAKE_INFO_PLIST = share/qt/Info.plist
 
 # Set libraries and includes at end, to use platform-defined defaults if not overridden
@@ -429,3 +440,11 @@ contains(RELEASE, 1) {
 }
 
 system($$QMAKE_LRELEASE -silent $$_PRO_FILE_)
+
+DISTFILES += \
+    src/makefile.bsd \
+    src/makefile.linux-mingw \
+    src/makefile.linux-mingw2 \
+    src/makefile.mingw \
+    src/makefile.osx \
+    src/makefile.unix

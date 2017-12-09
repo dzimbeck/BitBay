@@ -26,7 +26,7 @@ static int64_t nTimeOffset = 0;
 //
 int64_t GetTimeOffset()
 {
-    LOCK(cs_nTimeOffset);
+    //LOCK(cs_nTimeOffset);
     return nTimeOffset;
 }
 

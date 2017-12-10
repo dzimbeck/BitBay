@@ -1,0 +1,22 @@
+version: '{build}'
+
+install:
+  - set QTDIR=C:\Qt\5.9.2\mingw53_32
+  - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin;%PATH%
+build_script:
+  - curl -fsSL -o db-4.8.30.NC.tar.gz http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+  - 7z x db-4.8.30.NC.tar.gz -so | 7z x -si -ttar > nul
+  - move db-4.8.30.NC db
+  - cd db\build_unix
+  - sh ../dist/configure --enable-mingw --enable-cxx
+  - make
+  - qmake bitbay-qt.pro
+  - make
+  - cd release
+  - windeployqt bitbay-qt.exe --no-translations --no-system-d3d-compiler --no-webkit2 --no-angle
+  - dir
+  - cd ..
+  - 7z a bitbay-qt.zip release
+artifacts:
+  - path: bitbay-qt.zip
+    name: bitbay-qt.zip

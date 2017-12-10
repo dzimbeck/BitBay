@@ -2,15 +2,15 @@ TEMPLATE = app
 TARGET = bitbay-qt
 VERSION = 1.2.2
 
-INCLUDEPATH += /usr/local/opt/db/include
-INCLUDEPATH += /usr/local/opt/boost/include
-INCLUDEPATH += /usr/local/opt/openssl/include
-INCLUDEPATH += /usr/local/opt/miniupnpc/include
+macx:INCLUDEPATH += /usr/local/opt/db/include
+macx:INCLUDEPATH += /usr/local/opt/boost/include
+macx:INCLUDEPATH += /usr/local/opt/openssl/include
+macx:INCLUDEPATH += /usr/local/opt/miniupnpc/include
 
-LIBS += -L/usr/local/opt/db/lib
-LIBS += -L/usr/local/opt/boost/lib
-LIBS += -L/usr/local/opt/openssl/lib
-LIBS += -L/usr/local/opt/miniupnpc/lib
+macx:LIBS += -L/usr/local/opt/db/lib
+macx:LIBS += -L/usr/local/opt/boost/lib
+macx:LIBS += -L/usr/local/opt/openssl/lib
+macx:LIBS += -L/usr/local/opt/miniupnpc/lib
 
 INCLUDEPATH += src src/json src/qt
 QT += network

@@ -5,8 +5,8 @@ install:
   - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin;C:\MinGW\msys\1.0\bin
 build_script:
   - curl -fsSL -o db-4.8.30.NC.tar.gz http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
-  - 7z x db-4.1.25.tar.gz -so | 7z x -si -ttar > nul
-  - move db-4.1.25 db
+  - 7z x db-4.8.30.NC.tar.gz -so | 7z x -si -ttar > nul
+  - move db-4.8.30.NC db
   - cd db\build_unix
   - sh ../dist/configure --enable-mingw --enable-cxx
   - make

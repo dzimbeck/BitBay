@@ -447,4 +447,5 @@ DISTFILES += \
     src/makefile.linux-mingw2 \
     src/makefile.mingw \
     src/makefile.osx \
-    src/makefile.unix
+    src/makefile.unix \
+    .travis.yml

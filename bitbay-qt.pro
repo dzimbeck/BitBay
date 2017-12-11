@@ -2,6 +2,7 @@ TEMPLATE = app
 TARGET = bitbay-qt
 VERSION = 1.2.2
 
+# mac: default path to brew packages
 macx:INCLUDEPATH += /usr/local/opt/db/include
 macx:INCLUDEPATH += /usr/local/opt/boost/include
 macx:INCLUDEPATH += /usr/local/opt/openssl/include
@@ -447,4 +448,5 @@ DISTFILES += \
     src/makefile.linux-mingw2 \
     src/makefile.mingw \
     src/makefile.osx \
-    src/makefile.unix
+    src/makefile.unix \
+    .travis.yml

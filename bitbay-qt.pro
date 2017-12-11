@@ -12,7 +12,7 @@ macx:LIBS += -L/usr/local/opt/boost/lib
 macx:LIBS += -L/usr/local/opt/openssl/lib
 macx:LIBS += -L/usr/local/opt/miniupnpc/lib
 
-INCLUDEPATH += src src/json src/qt
+INCLUDEPATH += src src/json src/qt $$PWD
 QT += network
 DEFINES += ENABLE_WALLET
 DEFINES += BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE

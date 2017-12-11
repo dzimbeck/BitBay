@@ -3,7 +3,7 @@ version: '{build}'
 install:
   - set QTDIR=C:\Qt\5.9.2\mingw53_32
   - set PATH_ORIG=%PATH%
-  - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;
+  - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%PATH%
 build_script:
   - curl -fsSL -o db-6.2.32.NC.tar.gz http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz
   - 7z x db-6.2.32.NC.tar.gz -so | 7z x -si -ttar > nul

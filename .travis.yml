@@ -6,7 +6,7 @@ compiler:
 - clang
 env:
   matrix:
-  - QT=59 BREW=@5.9 PPA=beineri/opt-qt591-trusty
+  - QT=510 BREW=@5.10
 before_install:
 - '[ "$TRAVIS_OS_NAME" != osx   ] || brew update'
 install:

@@ -26,10 +26,11 @@ build_script:
   - move miniupnpc-2.0 miniupnpc
   - cd miniupnpc
   - perl -i -pe 's/CC \?= gcc/CC = gcc/m' Makefile.mingw
+  - copy C:\MinGW\msys\1.0\bin\echo.exe upx.exe
   - mingw32make.bat
   - cd ..
   - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin
-  - qmake "CICD=appveyor" bitbay-qt.pro
+  - qmake CICD=appveyor BOOST_INCLUDE_PATH=C:\Libraries\boost_1_63_0 BDB_INCLUDE_PATH=%cd%\db\build_unix OPENSSL_INCLUDE_PATH=%cd%\openssl\include bitbay-qt.pro
   - make
   - cd release
   - windeployqt bitbay-qt.exe --no-translations --no-system-d3d-compiler --no-webkit2 --no-angle

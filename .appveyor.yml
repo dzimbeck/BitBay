@@ -1,5 +1,5 @@
 version: '{build}'
-image: Visual Studio 2017
+image: Visual Studio 2015
 
 install:
   - set QTDIR=C:\Qt\5.9.2\mingw53_32
@@ -7,13 +7,13 @@ install:
   - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%PATH%
 build_script:
   - set BITBAYPATH=%cd%
-  - cd C:\Libraries\boost_1_65_1
+  - cd C:\Libraries\boost_1_63_0
   - cd tools\build
   - .\bootstrap.bat gcc
-  - .\b2.exe install toolset=gcc --prefix=C:\Libraries\boost_1_65_1\b2_mingw
+  - .\b2.exe install toolset=gcc --prefix=C:\Libraries\boost_1_63_0\b2_mingw
   - cd ..
   - cd ..
-  - set PATH=%PATH%;C:\Libraries\boost_1_65_1\b2_mingw\bin
+  - set PATH=%PATH%;C:\Libraries\boost_1_63_0\b2_mingw\bin
   - b2 toolset=gcc --build-type=complete stage --with-system --with-filesystem --with-program_options --with-thread --with-chrono
   - cd %BITBAYPATH%
   - curl -fsSL -o db-6.2.32.NC.tar.gz http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz
@@ -41,7 +41,7 @@ build_script:
   - mingw32make.bat
   - cd ..
   - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin
-  - qmake CICD=appveyor BOOST_INCLUDE_PATH=C:\Libraries\boost_1_65_1 BDB_INCLUDE_PATH=%cd%\db\build_unix OPENSSL_INCLUDE_PATH=%cd%\openssl\include BOOST_LIB_PATH=C:\Libraries\boost_1_65_1\stage\lib BDB_LIB_PATH=%cd%\db\build_unix MINIUPNPC_LIB_PATH=%cd%\miniupnpc OPENSSL_LIB_PATH=%cd%\openssl bitbay-qt.pro
+  - qmake CICD=appveyor BOOST_INCLUDE_PATH=C:\Libraries\boost_1_63_0 BDB_INCLUDE_PATH=%cd%\db\build_unix OPENSSL_INCLUDE_PATH=%cd%\openssl\include BOOST_LIB_PATH=C:\Libraries\boost_1_63_0\stage\lib BDB_LIB_PATH=%cd%\db\build_unix MINIUPNPC_LIB_PATH=%cd%\miniupnpc OPENSSL_LIB_PATH=%cd%\openssl bitbay-qt.pro
   - make
   - cd release
   - windeployqt bitbay-qt.exe --no-translations --no-system-d3d-compiler --no-webkit2 --no-angle

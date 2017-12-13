@@ -28,6 +28,10 @@
           </dict>
         </array>
         <key>LSAppNapIsDisabled</key>
-          <string>True</string>
+        <string>True</string>
+        <key>NSPrincipalClass</key>
+        <string>NSApplication</string>
+        <key>NSHighResolutionCapable</key>
+        <string>True</string>
 </dict>
 </plist>

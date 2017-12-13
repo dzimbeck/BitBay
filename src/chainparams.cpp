@@ -147,7 +147,7 @@ protected:
     CBlock genesis;
     vector<CAddress> vFixedSeeds;
 };
-static CMainParams mainParams;
+static CMainParams *mainParams = nullptr;
 
 
 //
@@ -192,7 +192,7 @@ public:
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
-static CTestNetParams testNetParams;
+static CTestNetParams *testNetParams = nullptr;
 
 
 //
@@ -220,24 +220,31 @@ public:
     virtual bool RequireRPCPassword() const { return false; }
     virtual Network NetworkID() const { return CChainParams::REGTEST; }
 };
-static CRegTestParams regTestParams;
+static CRegTestParams *regTestParams = nullptr;
 
-static CChainParams *pCurrentParams = &mainParams;
+static CChainParams *pCurrentParams = mainParams;
 
 const CChainParams &Params() {
     return *pCurrentParams;
 }
 
+void InitParamsOnStart() {
+	mainParams = new CMainParams();
+	testNetParams = new CTestNetParams(); 
+	regTestParams = new CRegTestParams();
+	pCurrentParams = mainParams;
+}
+
 void SelectParams(CChainParams::Network network) {
     switch (network) {
         case CChainParams::MAIN:
-            pCurrentParams = &mainParams;
+            pCurrentParams = mainParams;
             break;
         case CChainParams::TESTNET:
-            pCurrentParams = &testNetParams;
+            pCurrentParams = testNetParams;
             break;
         case CChainParams::REGTEST:
-            pCurrentParams = &regTestParams;
+            pCurrentParams = regTestParams;
             break;
         default:
             assert(false && "Unimplemented network");

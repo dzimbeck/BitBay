@@ -10,7 +10,7 @@ env:
 before_install:
 - '[ "$TRAVIS_OS_NAME" != osx   ] || brew update'
 install:
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install db boost openssl miniupnpc qt$BREW'
+- '[ "$TRAVIS_OS_NAME" != osx ] || brew install boost openssl miniupnpc qt$BREW'
 - '[ "$TRAVIS_OS_NAME" != osx ] || brew link --force qt$BREW'
 - qmake -v
 before_script:
@@ -19,7 +19,17 @@ before_script:
 - qmake "CICD=travis_mac" bitbay-qt.pro
 script:
 - cd "$TRAVIS_BUILD_DIR"
-- make
+- curl -fsSL -o db-4.8.30.NC.tar.gz http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+- tar -zxf db-4.8.30.NC.tar.gz
+- move db-4.8.30.NC db
+- cd db
+- patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch
+- cd build_unix
+- CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure --enable-cxx
+- make -j2
+- cd ..
+- cd ..
+- make -j2
 - macdeployqt BitBay-Qt.app
 - ls
 - zip -r bitbay-qt_mac.zip BitBay-Qt.app

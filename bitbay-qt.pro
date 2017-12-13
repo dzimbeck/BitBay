@@ -3,12 +3,12 @@ TARGET = bitbay-qt
 VERSION = 1.2.2
 
 # mac: default path to brew packages
-macx:INCLUDEPATH += /usr/local/opt/db/include
+macx:INCLUDEPATH += $$PWD/db/build_unix
 macx:INCLUDEPATH += /usr/local/opt/boost/include
 macx:INCLUDEPATH += /usr/local/opt/openssl/include
 macx:INCLUDEPATH += /usr/local/opt/miniupnpc/include
 
-macx:LIBS += -L/usr/local/opt/db/lib
+macx:LIBS += -L$$PWD/db/build_unix
 macx:LIBS += -L/usr/local/opt/boost/lib
 macx:LIBS += -L/usr/local/opt/openssl/lib
 macx:LIBS += -L/usr/local/opt/miniupnpc/lib
@@ -376,15 +376,15 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = /opt/local/lib/db48
+    macx:BDB_LIB_PATH = $$PWD/db/build_unix
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
-    macx:BDB_LIB_SUFFIX = -6.2
+    #macx:BDB_LIB_SUFFIX = -4.8
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = /opt/local/include/db48
+    macx:BDB_INCLUDE_PATH = $$PWD/db
 }
 
 isEmpty(BOOST_LIB_PATH) {

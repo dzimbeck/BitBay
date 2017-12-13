@@ -22,12 +22,12 @@ script:
 - make
 - macdeployqt BitBay-Qt.app
 - ls
-- zip -r BitBay-Qt.zip BitBay-Qt.app
+- zip -r bitbay-qt_mac.zip BitBay-Qt.app
 deploy:
   provider: releases
   api_key:
     secure: HjYrssBPHzUv9nGC/NOwgSpVfEihPVg2o6gMeEk18sD3Cxe3f9pYZq9HMWwT4Iwf7rlnIvYnUtYxWHiffYllrf9+aSmCVHZQBldqCwM0Rq4csZebaXi36je5GrKlGzIHofe3u0Mo+9GqUNNcnS1vL1ENzVxesFl8qLCKKO21SE9GTvQ0Yp05LARjfRJ6YA4Pxbu1wZsWjQFgOfddSoStKcdEx9oH1myjouo0S+EPOkkFR/yfTlTxPxVdFHJBD6oE62y4RNEg22d7HTQE30BTE4KHmkqooanPkFevIWpTyG+1yDbA1RDsB+ajkyZZ9HBgF0J2R2soUqb7oJzTnTxzrcByz6sIoAtQiqpSABdIwkqzVhMb/McyLF6081/TWf8rh8iPLw3zsocI/ebbgXCaOJlT8uaVbQKbOoV3nyFen/ubtuz1RjFBwZ8MpyFGez6Gsu3flGIdGRMHBz/KjDknLOwV2JArpPZ/8sdryWIcPc1itZ/pYnfQZBhnem4uLCsLDndfRBh9YmDyXyNdZHa6tUI4hW1yRUW8Fb/yuo3kSKgkgHJpi1JCWJkWTlpzfW+1ulGv0FLtJihojgj3XtuEZPySZmLEam/wiDZvRd7hVh69SXfy5lCwLBWa3p1JGRbQZ5qN4y6YzeyKn9NLwCyC5HPGHhCaHw9hyfF9UMr2BXs=
-  file: $TRAVIS_BUILD_DIR/BitBay-Qt.zip
+  file: $TRAVIS_BUILD_DIR/bitbay-qt_mac.zip
   skip_cleanup: true
   on:
     repo: yshurik/BitBay

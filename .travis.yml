@@ -25,8 +25,9 @@ script:
 - cd db
 - patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch
 - cd build_unix
-- CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure --enable-cxx
+- CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure --enable-cxx --prefix=`pwd`/inst
 - make -j2
+- make install
 - cd ..
 - cd ..
 - make -j2

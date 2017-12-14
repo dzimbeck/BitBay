@@ -3,12 +3,10 @@ TARGET = bitbay-qt
 VERSION = 1.2.2
 
 # mac: default path to brew packages
-macx:INCLUDEPATH += $$PWD/db/build_unix
 macx:INCLUDEPATH += /usr/local/opt/boost/include
 macx:INCLUDEPATH += /usr/local/opt/openssl/include
 macx:INCLUDEPATH += /usr/local/opt/miniupnpc/include
 
-macx:LIBS += -L$$PWD/db/build_unix
 macx:LIBS += -L/usr/local/opt/boost/lib
 macx:LIBS += -L/usr/local/opt/openssl/lib
 macx:LIBS += -L/usr/local/opt/miniupnpc/lib
@@ -376,23 +374,23 @@ isEmpty(BOOST_THREAD_LIB_SUFFIX) {
 }
 
 isEmpty(BDB_LIB_PATH) {
-    macx:BDB_LIB_PATH = $$PWD/db/build_unix
+    macx:BDB_LIB_PATH = $$PWD/db/build_unix/inst/lib
 }
 
 isEmpty(BDB_LIB_SUFFIX) {
-    #macx:BDB_LIB_SUFFIX = -4.8
+    macx:BDB_LIB_SUFFIX = -4.8
 }
 
 isEmpty(BDB_INCLUDE_PATH) {
-    macx:BDB_INCLUDE_PATH = $$PWD/db
+    macx:BDB_INCLUDE_PATH = $$PWD/db/build_unix/inst/include
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /opt/local/lib
+    macx:BOOST_LIB_PATH = /usr/local/opt/boost/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /opt/local/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/opt/boost/include
 }
 
 windows:DEFINES += WIN32

@@ -1,6 +1,7 @@
 language: cpp
 os:
 - osx
+osx_image: xcode8
 dist: trusty
 compiler:
 - clang

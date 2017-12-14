@@ -32,6 +32,7 @@ script:
 - cd ..
 - make -j2
 - macdeployqt BitBay-Qt.app
+- install_name_tool -change /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib @executable_path/../Frameworks/libcrypto.1.0.0.dylib BitBay-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib
 - ls
 - zip -r bitbay-qt_mac.zip BitBay-Qt.app
 deploy:

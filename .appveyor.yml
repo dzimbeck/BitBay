@@ -51,11 +51,11 @@ build_script:
   - cp %BOOST_PATH%\stage\lib\libboost_system-mgw53-mt-1_63.dll .
   - cp %BOOST_PATH%\stage\lib\libboost_thread-mgw53-mt-1_63.dll .
   - rm -f qrc_bitcoin.cpp
-  - windeployqt bitbay-qt.exe --no-translations --no-system-d3d-compiler --no-webkit2 --no-angle
+  - windeployqt bitbay-wallet-qt.exe --no-translations --no-system-d3d-compiler --no-webkit2 --no-angle
   - dir
   - cd ..
   - set PATH=%PATH_ORIG%
   - 7z a bitbay-qt_win32.zip release
-artifacts:
-  - path: bitbay-qt_win32.zip
-    name: bitbay-qt_win32.zip
+#artifacts:
+#  - path: bitbay-qt_win32.zip
+#    name: bitbay-qt_win32.zip

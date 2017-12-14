@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = bitbay-qt
-VERSION = 1.2.2
+VERSION = 2.0.1
 
 # mac: default path to brew packages
 macx:INCLUDEPATH += /usr/local/opt/boost/include
@@ -124,7 +124,7 @@ QMAKE_EXTRA_TARGETS += genleveldb
 QMAKE_CLEAN += $$PWD/src/leveldb/libleveldb.a; cd $$PWD/src/leveldb ; $(MAKE) clean
 
 # regenerate src/build.h
-!windows|contains(USE_BUILD_INFO, 1) {
+contains(USE_BUILD_INFO, 1) {
     genbuild.depends = FORCE
     genbuild.commands = cd $$PWD; /bin/sh share/genbuild.sh $$OUT_PWD/build/build.h
     genbuild.target = $$OUT_PWD/build/build.h

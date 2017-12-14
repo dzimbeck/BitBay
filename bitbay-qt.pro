@@ -11,6 +11,8 @@ macx:LIBS += -L/usr/local/opt/boost/lib
 macx:LIBS += -L/usr/local/opt/openssl/lib
 macx:LIBS += -L/usr/local/opt/miniupnpc/lib
 
+macx:QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.9
+
 INCLUDEPATH += src src/json src/qt $$PWD
 QT += network
 DEFINES += ENABLE_WALLET
@@ -104,7 +106,8 @@ LIBS += $$PWD/src/leveldb/libleveldb.a $$PWD/src/leveldb/libmemenv.a
 SOURCES += src/txdb-leveldb.cpp
 !win32 {
     # we use QMAKE_CXXFLAGS_RELEASE even without RELEASE=1 because we use RELEASE to indicate linking preferences not -O preferences
-    genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
+    macx:LEVELDB_CXXFLAGS=-mmacosx-version-min=10.9
+    genleveldb.commands = cd $$PWD/src/leveldb && CC=$$QMAKE_CC CXX=$$QMAKE_CXX $(MAKE) OPT=\"$$QMAKE_CXXFLAGS $$LEVELDB_CXXFLAGS $$QMAKE_CXXFLAGS_RELEASE\" libleveldb.a libmemenv.a
 } else {
     # make an educated guess about what the ranlib command is called
     isEmpty(QMAKE_RANLIB) {

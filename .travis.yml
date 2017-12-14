@@ -21,7 +21,7 @@ script:
 - cd "$TRAVIS_BUILD_DIR"
 - curl -fsSL -o db-4.8.30.NC.tar.gz http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 - tar -zxf db-4.8.30.NC.tar.gz
-- move db-4.8.30.NC db
+- mv db-4.8.30.NC db
 - cd db
 - patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch
 - cd build_unix

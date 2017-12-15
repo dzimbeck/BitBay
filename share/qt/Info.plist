@@ -7,11 +7,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>BitBay-Qt</string>
+	<string>BitBay-Wallet-Qt</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>BitBay-Qt</string>
+	<string>BitBay-Wallet-Qt</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.bitbay.BitBay-Qt</string>
         <key>CFBundleURLTypes</key>

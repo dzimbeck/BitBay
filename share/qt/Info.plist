@@ -7,11 +7,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>BlackCoin-Qt</string>
+	<string>BitBay-Wallet-Qt</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleExecutable</key>
-	<string>BlackCoin-Qt</string>
+	<string>BitBay-Wallet-Qt</string>
 	<key>CFBundleIdentifier</key>
 	<string>co.blackcoin.BlackCoin-Qt</string>
         <key>CFBundleURLTypes</key>

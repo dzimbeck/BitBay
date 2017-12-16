@@ -125,6 +125,9 @@ int main(int argc, char *argv[])
 {
     fHaveGUI = true;
 
+	// Init params
+	InitParamsOnStart();
+	
     // Command-line options take precedence:
     ParseParameters(argc, argv);
 

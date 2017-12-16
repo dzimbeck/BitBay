@@ -129,6 +129,9 @@ int main(int argc, char* argv[])
     bool fRet = false;
     fHaveGUI = false;
 
+    // Init params
+	InitParamsOnStart();
+    
     // Connect bitcoind signal handlers
     noui_connect();
 

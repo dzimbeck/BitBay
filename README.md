@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/bitbaymarket/bitbay-core.svg?branch=master)](https://travis-ci.org/bitbaymarket/bitbay-core)
+
 
 BitBay development tree
 

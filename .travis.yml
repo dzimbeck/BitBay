@@ -11,8 +11,8 @@ env:
 before_install:
 - '[ "$TRAVIS_OS_NAME" != osx   ] || brew update'
 install:
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install boost || brew upgrade boost'
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install openssl || brew upgrade openssl'
+- '[ "$TRAVIS_OS_NAME" != osx ] || brew install boost || echo brew upgrade boost'
+- '[ "$TRAVIS_OS_NAME" != osx ] || brew install openssl || echo brew upgrade openssl'
 - '[ "$TRAVIS_OS_NAME" != osx ] || brew install miniupnpc'
 - '[ "$TRAVIS_OS_NAME" != osx ] || brew install qt$BREW'
 - '[ "$TRAVIS_OS_NAME" != osx ] || brew link --force qt$BREW'

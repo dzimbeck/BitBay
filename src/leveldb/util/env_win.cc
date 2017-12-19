@@ -18,6 +18,7 @@
 #include <process.h>
 #include <cstring>
 #include <stdio.h>
+#include <string.h>
 #include <errno.h>
 #include <io.h>
 #include <algorithm>
@@ -33,6 +34,9 @@
 #if defined DeleteFile
 #undef DeleteFile
 #endif
+
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
 
 //Declarations
 namespace leveldb

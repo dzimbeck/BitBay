@@ -4,6 +4,9 @@
 
 #include "leveldb/c.h"
 
+#undef __STRICT_ANSI__
+#include <string.h>
+
 #include <stdlib.h>
 #include <unistd.h>
 #include "leveldb/cache.h"

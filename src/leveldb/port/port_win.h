@@ -168,6 +168,14 @@ inline bool GetHeapProfile(void (*func)(void*, const char*, int), void* arg) {
   return false;
 }
 
+inline uint32_t AcceleratedCRC32C(uint32_t crc, const char* buf, size_t size) {
+#if defined(HAVE_CRC32C)
+  return ::crc32c::Extend(crc, reinterpret_cast<const uint8_t*>(buf), size);
+#else
+  return 0;
+#endif  // defined(HAVE_CRC32C)
+}
+
 }
 }
 

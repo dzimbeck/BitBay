@@ -1,5 +1,5 @@
 apt-get update
-apt install -y htop libc++-dev git make gcc g++
+apt install -y htop libc++-dev git make gcc g++ screen
 apt install -y software-properties-common
 add-apt-repository -y ppa:bitcoin/bitcoin
 apt-get update

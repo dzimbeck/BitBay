@@ -105,25 +105,10 @@ public:
         assert(hashGenesisBlock == uint256("0x0000075685d3be1f253ce777174b1594354e79954d2a32a6f77fe9cba00e6467"));
         assert(genesis.hashMerkleRoot == uint256("0xd2b4345a1b1f0df76ab0cadfa1b44ca52270ff551c43e1b229d25873f0adc90d"));
 
-        vSeeds.push_back(CDNSSeedData("bbaynode (nyc)", "104.236.208.150"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (amsterdam)", "188.166.39.223"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (singapore)", "128.199.118.67"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node1)", "104.255.33.162"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node2)", "194.135.84.161"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node3)", "23.227.190.163"));
-
-        // most reliable node from chainz
-        vSeeds.push_back(CDNSSeedData("bbaynode (node4)", "45.56.109.7"));
-        // more chainz nodes
-        vSeeds.push_back(CDNSSeedData("bbaynode (node5)", "104.172.24.79"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node6)", "106.187.50.153"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node7)", "158.69.27.82"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node8)", "24.37.11.106"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node9)", "40.112.149.192"));        
-        vSeeds.push_back(CDNSSeedData("bbaynode (node10)", "69.254.222.98"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (node11)", "85.25.146.74"));
         // new nodes
-        vSeeds.push_back(CDNSSeedData("bbaynode (node12)", "195.181.242.206"));      
+        vSeeds.push_back(CDNSSeedData("bbaynode (node12)", "195.181.242.206"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (tokio,ys)", "151.236.221.10"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (london,ys)", "108.61.163.182"));
 
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,25);
@@ -178,7 +163,7 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
-	    
+
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,239);

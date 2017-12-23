@@ -154,6 +154,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "checkkernel", 0 },
     { "checkkernel", 1 },
     { "submitblock", 1 },
+    { "gettxout", 1 },
 };
 
 class CRPCConvertTable

@@ -293,3 +293,70 @@ Value getcheckpoint(const Array& params, bool fHelp)
 
     return result;
 }
+
+void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out, bool fIncludeHex);
+
+Value gettxout(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 2 || params.size() > 3)
+        throw runtime_error(
+            "gettxout <txid> <n> [includemempool=true]\n"
+            "Returns details about an unspent transaction output.");
+
+    Object ret;
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+
+    int n = params[1].get_int();
+    bool fMempool = true;
+    if (params.size() > 2)
+        fMempool = params[2].get_bool();
+
+    CTransaction tx;
+    uint256 hashBlock = 0;
+    bool found = GetTransaction(hash, tx, hashBlock);
+    if (!found)
+        return  Value::null;
+
+    if (hashBlock == 0 && !fMempool) // not to include mempool
+        return  Value::null;
+
+    if (n<0 || (unsigned int)n>=tx.vout.size() || tx.vout[n].IsNull())
+        return Value::null;
+
+    const CTxOut& txout = tx.vout[n];
+
+    //ret.push_back(Pair("amount", (boost::int64_t)coins.vout[n].nValue));
+    ret.push_back(Pair("value", ValueFromAmount(txout.nValue)));
+
+    Object o;
+    ScriptPubKeyToJSON(txout.scriptPubKey, o, true);
+    ret.push_back(Pair("scriptPubKey", o));
+    ret.push_back(Pair("bestblock", hashBlock.GetHex()));
+
+    bool is_in_main_chain = false;
+    if (hashBlock != 0)
+    {
+        map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+        if (mi != mapBlockIndex.end() && (*mi).second)
+        {
+            CBlockIndex* pindex = (*mi).second;
+            if (pindex->IsInMainChain())
+            {
+                ret.push_back(Pair("confirmations", 1 + nBestHeight - pindex->nHeight));
+                is_in_main_chain = true;
+            }
+        }
+    }
+
+    if (!is_in_main_chain)
+        ret.push_back(Pair("confirmations", 0));
+
+    //ret.push_back(Pair("version", coins.nVersion));
+    //ret.push_back(Pair("coinbase", coins.fCoinBase));
+    ret.push_back(Pair("version", 1));       // stub
+    ret.push_back(Pair("coinbase", false));  // stub
+
+    return ret;
+}

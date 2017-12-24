@@ -1,11 +1,17 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/1bac5bbdf2f64cfeb67092bef3e50d6f)](https://www.codacy.com/app/yshurik/bitbay-core?utm_source=github.com&utm_medium=referral&utm_content=bitbaymarket/bitbay-core&utm_campaign=badger)
 [![Build Status](https://travis-ci.org/bitbaymarket/bitbay-core.svg?branch=master)](https://travis-ci.org/bitbaymarket/bitbay-core)
 [![Build status](https://ci.appveyor.com/api/projects/status/qdy7pilwdtxehqhw?svg=true)](https://ci.appveyor.com/project/yshurik/bitbay-core)
+[![Open Source Love](https://badges.frapsoft.com/os/mit/mit.svg?v=102)](https://github.com/bitbaymarket/bitbay-core/blob/master/COPYING)
 
 
 BitBay development tree
 
 BitBay is a PoS-based cryptocurrency.
+
+BitBay
+===========================
+
+BitBay is the world's first fully-functional decentralized marketplace. Using innovative technology, BitBay enables you to buy and sell goods and services securely and anonymously.
 
 Development process
 ===========================

@@ -51,7 +51,7 @@ public:
             foreground = qvariant_cast<QColor>(value);
         }
 
-        painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
+        painter->setPen(foreground);
         painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
 
         if(amount < 0)
@@ -66,7 +66,7 @@ public:
         {
             foreground = option.palette.color(QPalette::Text);
         }
-        painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
+        painter->setPen(foreground);
         QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true);
         if(!confirmed)
         {
@@ -74,7 +74,7 @@ public:
         }
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
-        painter->setPen(fUseBlackTheme ? QColor(96, 101, 110) : option.palette.color(QPalette::Text));
+        painter->setPen(option.palette.color(QPalette::Text));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
@@ -110,6 +110,25 @@ OverviewPage::OverviewPage(QWidget *parent) :
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+    QFont hfont("Roboto Black", 15, QFont::Bold);
+    ui->labelWallet->setFont(hfont);
+    ui->labelRecent->setFont(hfont);
+
+    QString white = "QWidget { background-color: rgb(255,255,255); padding-left: 10px; padding-right:10px; }";
+
+    ui->w_recent->setStyleSheet(white);
+
+    ui->labelUnconfirmedText    ->setStyleSheet(white);
+    ui->labelTotal              ->setStyleSheet(white);
+    ui->labelStakeText          ->setStyleSheet(white);
+    ui->labelImmature           ->setStyleSheet(white);
+    ui->labelUnconfirmed        ->setStyleSheet(white);
+    ui->labelTotalText          ->setStyleSheet(white);
+    ui->labelBalance            ->setStyleSheet(white);
+    ui->labelStake              ->setStyleSheet(white);
+    ui->labelImmatureText       ->setStyleSheet(white);
+    ui->labelSpendable          ->setStyleSheet(white);
+
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
 
     // init "out of sync" warning labels
@@ -119,15 +138,14 @@ OverviewPage::OverviewPage(QWidget *parent) :
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
 
-    if (fUseBlackTheme)
-    {
-        const char* whiteLabelQSS = "QLabel { color: rgb(255,255,255); }";
-        ui->labelBalance->setStyleSheet(whiteLabelQSS);
-        ui->labelStake->setStyleSheet(whiteLabelQSS);
-        ui->labelUnconfirmed->setStyleSheet(whiteLabelQSS);
-        ui->labelImmature->setStyleSheet(whiteLabelQSS);
-        ui->labelTotal->setStyleSheet(whiteLabelQSS);
-    }
+//    {
+//        const char* whiteLabelQSS = "QLabel { color: rgb(255,255,255); }";
+//        ui->labelBalance->setStyleSheet(whiteLabelQSS);
+//        ui->labelStake->setStyleSheet(whiteLabelQSS);
+//        ui->labelUnconfirmed->setStyleSheet(whiteLabelQSS);
+//        ui->labelImmature->setStyleSheet(whiteLabelQSS);
+//        ui->labelTotal->setStyleSheet(whiteLabelQSS);
+//    }
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)

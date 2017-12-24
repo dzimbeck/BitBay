@@ -15,6 +15,7 @@
 #include <QSortFilterProxyModel>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QMenu>
 
 AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
@@ -27,11 +28,12 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
 {
     ui->setupUi(this);
 
-#ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
-    ui->newAddressButton->setIcon(QIcon());
-    ui->copyToClipboard->setIcon(QIcon());
-    ui->deleteButton->setIcon(QIcon());
-#endif
+//#ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
+//    ui->newAddressButton->setIcon(QIcon());
+//    ui->copyToClipboard->setIcon(QIcon());
+//    ui->deleteButton->setIcon(QIcon());
+//#endif
+    ui->tableView->verticalScrollBar()->show();
 
 #ifndef USE_QRCODE
     ui->showQRCode->setVisible(false);

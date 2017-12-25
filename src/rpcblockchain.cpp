@@ -7,6 +7,7 @@
 #include "main.h"
 #include "kernel.h"
 #include "checkpoints.h"
+#include "txdb-leveldb.h"
 
 using namespace json_spirit;
 using namespace std;
@@ -327,7 +328,23 @@ Value gettxout(const Array& params, bool fHelp)
 
     const CTxOut& txout = tx.vout[n];
 
-    //ret.push_back(Pair("amount", (boost::int64_t)coins.vout[n].nValue));
+    // find out if there are transactions spending this output
+    // to do this use CTxIndex which contains refernces to spending transactions
+    CTxDB txdb("r");
+    CTxIndex txindex;
+    if (!txdb.ReadTxIndex(tx.GetHash(), txindex)) {
+        cout << "gettxout fail, txdb.ReadTxIndex" << endl;
+        return Value::null;
+    }
+    if (0 <= n && n < txindex.vSpent.size()) {
+        CDiskTxPos pos = txindex.vSpent[n];
+        if (!pos.IsNull()) {
+            // this vout is spent in next transaction
+            // this pos is pointing to spending transaction
+            return Value::null;
+        }
+    }
+
     ret.push_back(Pair("value", ValueFromAmount(txout.nValue)));
 
     Object o;
@@ -353,10 +370,8 @@ Value gettxout(const Array& params, bool fHelp)
     if (!is_in_main_chain)
         ret.push_back(Pair("confirmations", 0));
 
-    //ret.push_back(Pair("version", coins.nVersion));
-    //ret.push_back(Pair("coinbase", coins.fCoinBase));
-    ret.push_back(Pair("version", 1));       // stub
-    ret.push_back(Pair("coinbase", false));  // stub
+    ret.push_back(Pair("version", 1));
+    ret.push_back(Pair("coinbase", tx.IsCoinBase()));
 
     return ret;
 }

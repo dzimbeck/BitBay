@@ -32,6 +32,9 @@ CoinControlDialog::CoinControlDialog(QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
+    for(auto l : findChildren<QLabel *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
 
     // context menu actions
     QAction *copyAddressAction = new QAction(tr("Copy address"), this);

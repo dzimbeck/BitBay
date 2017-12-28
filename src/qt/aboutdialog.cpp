@@ -9,6 +9,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
+    for(auto l : findChildren<QLabel *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
 }
 
 void AboutDialog::setModel(ClientModel *model)

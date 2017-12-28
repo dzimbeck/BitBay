@@ -467,24 +467,24 @@ void SetBitBayThemeQSS(QApplication& app)
 {
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Black.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-BlackItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-BoldItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Italic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Light.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-LightItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Medium.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-MediumItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Regular.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-Thin.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/Roboto-ThinItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/RobotoCondensed-Bold.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/RobotoCondensed-BoldItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/RobotoCondensed-Italic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/RobotoCondensed-Light.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/RobotoCondensed-LightItalic.ttf");
-    QFontDatabase::addApplicationFont(":/fonts/RobotoCondensed-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Black.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-BlackItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Light.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-LightItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Medium.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-MediumItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Thin.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-ThinItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Light.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-LightItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Regular.ttf");
 
     QFont font("Roboto Condensed");
     QApplication::setFont(font);

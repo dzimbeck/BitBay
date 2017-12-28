@@ -27,12 +27,13 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     tab(tab)
 {
     ui->setupUi(this);
+    for(auto l : findChildren<QLabel *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
+    for(auto l : findChildren<QTableView *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
 
-//#ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
-//    ui->newAddressButton->setIcon(QIcon());
-//    ui->copyToClipboard->setIcon(QIcon());
-//    ui->deleteButton->setIcon(QIcon());
-//#endif
     ui->tableView->verticalScrollBar()->show();
 
 #ifndef USE_QRCODE

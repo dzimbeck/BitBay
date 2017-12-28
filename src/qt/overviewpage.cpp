@@ -103,6 +103,9 @@ OverviewPage::OverviewPage(QWidget *parent) :
     filter(0)
 {
     ui->setupUi(this);
+    for(auto l : findChildren<QLabel *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);

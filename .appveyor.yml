@@ -2,60 +2,57 @@ version: '{build}'
 image: Visual Studio 2015
 
 install:
-  - set QTDIR=C:\Qt\5.9.2\mingw53_32
   - set BOOST_PATH=C:\Libraries\boost_1_63_0
   - set PATH_ORIG=%PATH%
   - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%PATH%
 build_script:
   - set BITBAYPATH=%cd%
-  - cd %BOOST_PATH%
-  - cd tools\build
-  - .\bootstrap.bat gcc
-  - .\b2.exe install toolset=gcc --prefix=%BOOST_PATH%\b2_mingw
-  - cd ..
-  - cd ..
-  - set PATH=%PATH%;%BOOST_PATH%\b2_mingw\bin
-  - b2 toolset=gcc --build-type=complete stage --with-system --with-filesystem --with-program_options --with-thread --with-chrono
+  - cd C:\Qt
+  - curl -fsSL -o static_qt_5_10_win.zip https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/1/static_qt_5_10_win.zip
+  - 7z x static_qt_5_10_win.zip > nul
+  - set QTDIR=C:\Qt\static_qt_5_10_win
   - cd %BITBAYPATH%
-  - curl -fsSL -o db-6.2.32.NC.tar.gz http://download.oracle.com/berkeley-db/db-6.2.32.NC.tar.gz
-  - 7z x db-6.2.32.NC.tar.gz -so | 7z x -si -ttar > nul
-  - move db-6.2.32.NC db
-  - cd db\build_unix
-  - sh ../dist/configure --enable-mingw --enable-cxx
-  - perl -i -pe 's/_tcsclen/_tcslen/m' ../src/os_windows/os_stat.c
-  - make
-  - cd ..
-  - cd ..
-  - curl -fsSL -o openssl-1.0.2n.tar.gz https://www.openssl.org/source/openssl-1.0.2n.tar.gz
-  - 7z x openssl-1.0.2n.tar.gz -so | 7z x -si -ttar > nul
-  - move openssl-1.0.2n openssl
-  - cd openssl
-  - sh ./config
-  - make
-  - cd ..
-  - curl -fsSL -o miniupnpc-2.0.tar.gz http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.0.tar.gz
-  - 7z x miniupnpc-2.0.tar.gz -so | 7z x -si -ttar > nul
-  - move miniupnpc-2.0 miniupnpc
-  - cd miniupnpc
-  - perl -i -pe 's/CC \?= gcc/CC = gcc/m' Makefile.mingw
-  - copy C:\MinGW\msys\1.0\bin\echo.exe upx.exe
-  - mingw32make.bat
-  - cd ..
+  - curl -fsSL -o static_boost_1_63_win.zip https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/1/static_boost_1_63_win.zip
+  - 7z x static_boost_1_63_win.zip > nul
+  - curl -fsSL -o static_db_4_8_win.zip https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/1/static_db_4_8_win.zip
+  - 7z x static_db_4_8_win.zip > nul
+  - move static_db_4_8_win db
+  - curl -fsSL -o static_openssl_win.zip https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/1/static_openssl_win.zip
+  - 7z x static_openssl_win.zip > nul
+  - move static_openssl_win openssl
+  - curl -fsSL -o static_miniupnpc_win.zip https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/1/static_miniupnpc_win.zip
+  - 7z x static_miniupnpc_win.zip > nul
+  - move static_miniupnpc_win miniupnpc
+  - curl -fsSL -o mingw32.7z https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/i686-5.3.0-release-posix-dwarf-rt_v4-rev0.7z
+  - 7z x mingw32.7z > nul
+  - ls
+  - set PATH=%cd%\MinGW32\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin
+  - qmake
+    CICD=appveyor
+    BOOST_INCLUDE_PATH=%BOOST_PATH%
+    BOOST_LIB_PATH=%cd%\static_boost_1_63_win
+    BDB_INCLUDE_PATH=%cd%\db\include
+    BDB_LIB_PATH=%cd%\db
+    OPENSSL_INCLUDE_PATH=%cd%\openssl\include
+    OPENSSL_LIB_PATH=%cd%\openssl
+    MINIUPNPC_LIB_PATH=%cd%\miniupnpc
+    bitbay-qt.pro
+  - cd src
+  - cd leveldb
   - set PATH=C:\MinGW\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin
-  - qmake CICD=appveyor BOOST_INCLUDE_PATH=%BOOST_PATH% BDB_INCLUDE_PATH=%cd%\db\build_unix OPENSSL_INCLUDE_PATH=%cd%\openssl\include BOOST_LIB_PATH=%BOOST_PATH%\stage\lib BDB_LIB_PATH=%cd%\db\build_unix MINIUPNPC_LIB_PATH=%cd%\miniupnpc OPENSSL_LIB_PATH=%cd%\openssl bitbay-qt.pro
-  - make
-  - cd release
-  - cp %BOOST_PATH%\stage\lib\libboost_chrono-mgw53-mt-1_63.dll .
-  - cp %BOOST_PATH%\stage\lib\libboost_filesystem-mgw53-mt-1_63.dll .
-  - cp %BOOST_PATH%\stage\lib\libboost_program_options-mgw53-mt-1_63.dll .
-  - cp %BOOST_PATH%\stage\lib\libboost_system-mgw53-mt-1_63.dll .
-  - cp %BOOST_PATH%\stage\lib\libboost_thread-mgw53-mt-1_63.dll .
-  - rm -f qrc_bitcoin.cpp
-  - windeployqt bitbay-wallet-qt.exe --no-translations --no-system-d3d-compiler --no-webkit2 --no-angle
-  - dir
+  - set TARGET_OS=OS_WINDOWS_CROSSCOMPILE
+  - make out-static/libleveldb.a out-static/libmemenv.a
   - cd ..
+  - cd ..
+  - set PATH=%cd%\MinGW32\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin
+  - make -j2
+  - move release\bitbay-wallet-qt.exe .
+  - ls
   - set PATH=%PATH_ORIG%
-  - 7z a bitbay-qt_win32.zip release
-#artifacts:
-#  - path: bitbay-qt_win32.zip
-#    name: bitbay-qt_win32.zip
+  - 7z a bitbay-wallet-qt_win.zip bitbay-wallet-qt.exe
+
+test: off
+
+artifacts:
+  - path: bitbay-wallet-qt_win.zip
+    name: bitbay-wallet-qt_win.zip

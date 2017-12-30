@@ -19,6 +19,7 @@ class RPCConsole;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
+class QToolButton;
 class QModelIndex;
 class QProgressBar;
 class QStackedWidget;
@@ -55,8 +56,6 @@ protected:
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
-
-    QToolBar *toolbar;
 
     QStackedWidget *centralStackedWidget;
 
@@ -95,6 +94,12 @@ private:
     QAction *aboutQtAction;
     QAction *openRPCConsoleAction;
 
+    QToolButton * tabDashboard = nullptr;
+    QToolButton * tabReceive = nullptr;
+    QToolButton * tabSend = nullptr;
+    QToolButton * tabTransactions = nullptr;
+    QToolButton * tabAddresses = nullptr;
+
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
     TransactionView *transactionView;
@@ -110,8 +115,6 @@ private:
     void createActions();
     /** Create the menu bar and sub-menus. */
     void createMenuBar();
-    /** Create the toolbars */
-    void createToolBars();
     /** Create system tray (notification) icon */
     void createTrayIcon();
 

@@ -32,13 +32,15 @@ public:
 
         QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
         QRect mainRect = option.rect;
-        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
-        int xspace = DECORATION_SIZE + 8;
+//        QRect decorationRect(mainRect.topLeft(), QSize(DECORATION_SIZE, DECORATION_SIZE));
+//        int xspace = DECORATION_SIZE + 8;
+        int xspace = 0;
         int ypad = 6;
-        int halfheight = (mainRect.height() - 2*ypad)/2;
+        //int halfheight = (mainRect.height() - 2*ypad)/2;
+        int halfheight = (mainRect.height() - 2*ypad);
         QRect amountRect(mainRect.left() + xspace, mainRect.top()+ypad, mainRect.width() - xspace, halfheight);
-        QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
-        icon.paint(painter, decorationRect);
+        //QRect addressRect(mainRect.left() + xspace, mainRect.top()+ypad+halfheight, mainRect.width() - xspace, halfheight);
+        //icon.paint(painter, decorationRect);
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QString address = index.data(Qt::DisplayRole).toString();
@@ -52,7 +54,7 @@ public:
         }
 
         painter->setPen(foreground);
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+        //painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
 
         if(amount < 0)
         {
@@ -72,9 +74,14 @@ public:
         {
             amountText = QString("[") + amountText + QString("]");
         }
+        QFont f = painter->font();
+        QFont fb = f;
+        fb.setBold(true);
+        painter->setFont(fb);
         painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
-        painter->setPen(option.palette.color(QPalette::Text));
+        painter->setFont(f);
+        painter->setPen(QPen("#666666"));
         painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
@@ -82,7 +89,8 @@ public:
 
     inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        return QSize(DECORATION_SIZE, DECORATION_SIZE);
+        //return QSize(DECORATION_SIZE, DECORATION_SIZE);
+        return QSize(DECORATION_SIZE, DECORATION_SIZE/2);
     }
 
     int unit;
@@ -117,20 +125,38 @@ OverviewPage::OverviewPage(QWidget *parent) :
     ui->labelWallet->setFont(hfont);
     ui->labelRecent->setFont(hfont);
 
-    QString white = "QWidget { background-color: rgb(255,255,255); padding-left: 10px; padding-right:10px; }";
+    QString white1 = R"(
+        QWidget {
+            background-color: rgb(255,255,255);
+            padding-left: 10px;
+            padding-right:10px;
+        }
+    )";
+    QString white2 = R"(
+        QWidget {
+            color: rgb(102,102,102);
+            background-color: rgb(255,255,255);
+            padding-left: 10px;
+            padding-right:10px;
+        }
+    )";
 
-    ui->w_recent->setStyleSheet(white);
+    ui->w_recent->setStyleSheet(white1);
 
-    ui->labelUnconfirmedText    ->setStyleSheet(white);
-    ui->labelTotal              ->setStyleSheet(white);
-    ui->labelStakeText          ->setStyleSheet(white);
-    ui->labelImmature           ->setStyleSheet(white);
-    ui->labelUnconfirmed        ->setStyleSheet(white);
-    ui->labelTotalText          ->setStyleSheet(white);
-    ui->labelBalance            ->setStyleSheet(white);
-    ui->labelStake              ->setStyleSheet(white);
-    ui->labelImmatureText       ->setStyleSheet(white);
-    ui->labelSpendable          ->setStyleSheet(white);
+    ui->labelBalanceText        ->setStyleSheet(white2);
+    ui->labelStakeText          ->setStyleSheet(white2);
+    ui->labelUnconfirmedText    ->setStyleSheet(white2);
+    ui->labelImmatureText       ->setStyleSheet(white2);
+
+    QFont tfont("Roboto", 11, QFont::Bold);
+    ui->labelTotalText->setFont(tfont);
+    ui->labelTotalText          ->setStyleSheet(white1);
+
+    ui->labelBalance            ->setStyleSheet(white1);
+    ui->labelStake              ->setStyleSheet(white1);
+    ui->labelUnconfirmed        ->setStyleSheet(white1);
+    ui->labelImmature           ->setStyleSheet(white1);
+    ui->labelTotal              ->setStyleSheet(white1);
 
     connect(ui->listTransactions, SIGNAL(clicked(QModelIndex)), this, SLOT(handleTransactionClicked(QModelIndex)));
 
@@ -140,15 +166,6 @@ OverviewPage::OverviewPage(QWidget *parent) :
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
-
-//    {
-//        const char* whiteLabelQSS = "QLabel { color: rgb(255,255,255); }";
-//        ui->labelBalance->setStyleSheet(whiteLabelQSS);
-//        ui->labelStake->setStyleSheet(whiteLabelQSS);
-//        ui->labelUnconfirmed->setStyleSheet(whiteLabelQSS);
-//        ui->labelImmature->setStyleSheet(whiteLabelQSS);
-//        ui->labelTotal->setStyleSheet(whiteLabelQSS);
-//    }
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -169,11 +186,11 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     currentStake = stake;
     currentUnconfirmedBalance = unconfirmedBalance;
     currentImmatureBalance = immatureBalance;
-    ui->labelBalance->setText(BitcoinUnits::formatWithUnit(unit, balance));
-    ui->labelStake->setText(BitcoinUnits::formatWithUnit(unit, stake));
-    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance));
-    ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance));
-    ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
+    ui->labelBalance->setText(BitcoinUnits::formatWithUnitForLabel(unit, balance));
+    ui->labelStake->setText(BitcoinUnits::formatWithUnitForLabel(unit, stake));
+    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnitForLabel(unit, unconfirmedBalance));
+    ui->labelImmature->setText(BitcoinUnits::formatWithUnitForLabel(unit, immatureBalance));
+    ui->labelTotal->setText(BitcoinUnits::formatWithUnitForLabel(unit, balance + stake + unconfirmedBalance + immatureBalance));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users

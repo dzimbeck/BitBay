@@ -127,11 +127,11 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>25</height>
+                <height>28</height>
                </size>
               </property>
               <property name="text">
-               <string>Unconfirmed:</string>
+               <string>Unconfirmed</string>
               </property>
              </widget>
             </item>
@@ -159,11 +159,11 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>25</height>
+                <height>28</height>
                </size>
               </property>
               <property name="text">
-               <string>Stake:</string>
+               <string>Stake</string>
               </property>
              </widget>
             </item>
@@ -207,11 +207,17 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>25</height>
+                <height>28</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
               <property name="text">
-               <string>Total:</string>
+               <string>TOTAL</string>
               </property>
              </widget>
             </item>
@@ -258,24 +264,24 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>25</height>
+                <height>28</height>
                </size>
               </property>
               <property name="text">
-               <string>Immature:</string>
+               <string>Immature</string>
               </property>
              </widget>
             </item>
             <item row="0" column="0">
-             <widget class="QLabel" name="labelSpendable">
+             <widget class="QLabel" name="labelBalanceText">
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>25</height>
+                <height>28</height>
                </size>
               </property>
               <property name="text">
-               <string>Spendable:</string>
+               <string>Balance</string>
               </property>
              </widget>
             </item>

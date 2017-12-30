@@ -1,6 +1,7 @@
 #include "bitcoinunits.h"
 
 #include <QStringList>
+#include <iostream>
 
 BitcoinUnits::BitcoinUnits(QObject *parent):
         QAbstractListModel(parent),
@@ -99,6 +100,18 @@ QString BitcoinUnits::format(int unit, qint64 n, bool fPlus)
     QString quotient_str = QString::number(quotient);
     QString remainder_str = QString::number(remainder).rightJustified(num_decimals, '0');
 
+    QString quotient_formatted_str;
+    int q_len = quotient_str.length();
+    int q_cms = q_len / 3;
+    for (int i=0; i<q_cms+1 ;i++) {
+        QString digits3 = quotient_str.mid(q_len-(i+1)*3, 3);
+        if (!quotient_formatted_str.isEmpty() && !digits3.isEmpty())
+            quotient_formatted_str.prepend(",");
+        quotient_formatted_str.prepend(digits3);
+    }
+    if (!quotient_formatted_str.isEmpty())
+        quotient_str = quotient_formatted_str;
+
     // Right-trim excess zeros after the decimal point
     int nTrim = 0;
     for (int i = remainder_str.size()-1; i>=2 && (remainder_str.at(i) == '0'); --i)
@@ -115,6 +128,15 @@ QString BitcoinUnits::format(int unit, qint64 n, bool fPlus)
 QString BitcoinUnits::formatWithUnit(int unit, qint64 amount, bool plussign)
 {
     return format(unit, amount, plussign) + QString(" ") + name(unit);
+}
+
+QString BitcoinUnits::formatWithUnitForLabel(int unit, qint64 amount, bool plussign)
+{
+    return QString("<b>")
+            +format(unit, amount, plussign)
+            +QString("</b> <font color='#666666'>")
+            +name(unit)
+            +QString("</font>");
 }
 
 bool BitcoinUnits::parse(int unit, const QString &value, qint64 *val_out)

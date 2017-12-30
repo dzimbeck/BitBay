@@ -33,6 +33,15 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     for(auto l : findChildren<QTableView *>()) { // need for mac
         l->setFont(QApplication::font());
     }
+//    QString by_style =     R"(
+//        QPushButton {
+//            background: rgb(255,215,31);
+//        }
+//        QPushButton:hover {
+//            background: rgb(226,226,226);
+//        }
+//    )";
+//    ui->newAddressButton->setStyleSheet(by_style);
 
     ui->tableView->verticalScrollBar()->show();
 
@@ -138,7 +147,7 @@ void AddressBookPage::setModel(AddressTableModel *model)
 
     // Set column widths
     ui->tableView->horizontalHeader()->resizeSection(
-            AddressTableModel::Address, 320);
+            AddressTableModel::Address, 380);
     ui->tableView->horizontalHeader()->setResizeMode(
             AddressTableModel::Label, QHeaderView::Stretch);
 

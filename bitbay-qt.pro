@@ -320,7 +320,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
 	src/pbkdf2.cpp
 
 RESOURCES += \
-	src/qt/bitcoin.qrc
+	src/qt/bitbay.qrc \
+	src/qt/bitbayfonts.qrc \
 
 FORMS += \
 	src/qt/forms/coincontroldialog.ui \

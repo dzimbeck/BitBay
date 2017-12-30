@@ -5,6 +5,7 @@
         <file alias="quit">res/icons/quit.png</file>
         <file alias="send">res/icons/send.png</file>
         <file alias="toolbar">res/icons/novacoin-16.png</file>
+        <file alias="trayicon32">res/icons/novacoin-32.png</file>
         <file alias="connect_0">res/icons/connect0_16.png</file>
         <file alias="connect_1">res/icons/connect1_16.png</file>
         <file alias="connect_2">res/icons/connect2_16.png</file>
@@ -111,25 +112,5 @@
         <file alias="uk">locale/bitcoin_uk.qm</file>
         <file alias="zh_CN">locale/bitcoin_zh_CN.qm</file>
         <file alias="zh_TW">locale/bitcoin_zh_TW.qm</file>
-    </qresource>
-    <qresource prefix="/fonts">
-        <file>res/fonts/Roboto-Black.ttf</file>
-        <file>res/fonts/Roboto-BlackItalic.ttf</file>
-        <file>res/fonts/Roboto-Bold.ttf</file>
-        <file>res/fonts/Roboto-BoldItalic.ttf</file>
-        <file>res/fonts/Roboto-Italic.ttf</file>
-        <file>res/fonts/Roboto-Light.ttf</file>
-        <file>res/fonts/Roboto-LightItalic.ttf</file>
-        <file>res/fonts/Roboto-Medium.ttf</file>
-        <file>res/fonts/Roboto-MediumItalic.ttf</file>
-        <file>res/fonts/Roboto-Regular.ttf</file>
-        <file>res/fonts/Roboto-Thin.ttf</file>
-        <file>res/fonts/Roboto-ThinItalic.ttf</file>
-        <file>res/fonts/RobotoCondensed-Bold.ttf</file>
-        <file>res/fonts/RobotoCondensed-BoldItalic.ttf</file>
-        <file>res/fonts/RobotoCondensed-Italic.ttf</file>
-        <file>res/fonts/RobotoCondensed-Light.ttf</file>
-        <file>res/fonts/RobotoCondensed-LightItalic.ttf</file>
-        <file>res/fonts/RobotoCondensed-Regular.ttf</file>
     </qresource>
 </RCC>

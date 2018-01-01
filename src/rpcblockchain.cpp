@@ -7,6 +7,7 @@
 #include "main.h"
 #include "kernel.h"
 #include "checkpoints.h"
+#include "txdb-leveldb.h"
 
 using namespace json_spirit;
 using namespace std;
@@ -381,4 +382,85 @@ Value getcheckpoint(const Array& params, bool fHelp)
     result.push_back(Pair("policy", "rolling"));
 
     return result;
+}
+
+void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out, bool fIncludeHex);
+
+Value gettxout(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 2 || params.size() > 3)
+        throw runtime_error(
+            "gettxout <txid> <n> [includemempool=true]\n"
+            "Returns details about an unspent transaction output.");
+
+    Object ret;
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+
+    int n = params[1].get_int();
+    bool fMempool = true;
+    if (params.size() > 2)
+        fMempool = params[2].get_bool();
+
+    CTransaction tx;
+    uint256 hashBlock = 0;
+    bool found = GetTransaction(hash, tx, hashBlock);
+    if (!found)
+        return  Value::null;
+
+    if (hashBlock == 0 && !fMempool) // not to include mempool
+        return  Value::null;
+
+    if (n<0 || (unsigned int)n>=tx.vout.size() || tx.vout[n].IsNull())
+        return Value::null;
+
+    const CTxOut& txout = tx.vout[n];
+
+    // find out if there are transactions spending this output
+    // to do this use CTxIndex which contains refernces to spending transactions
+    CTxDB txdb("r");
+    CTxIndex txindex;
+    if (!txdb.ReadTxIndex(tx.GetHash(), txindex)) {
+        cout << "gettxout fail, txdb.ReadTxIndex" << endl;
+        return Value::null;
+    }
+    if (0 <= n && n < txindex.vSpent.size()) {
+        CDiskTxPos pos = txindex.vSpent[n];
+        if (!pos.IsNull()) {
+            // this vout is spent in next transaction
+            // this pos is pointing to spending transaction
+            return Value::null;
+        }
+    }
+
+    ret.push_back(Pair("value", ValueFromAmount(txout.nValue)));
+
+    Object o;
+    ScriptPubKeyToJSON(txout.scriptPubKey, o, true);
+    ret.push_back(Pair("scriptPubKey", o));
+    ret.push_back(Pair("bestblock", hashBlock.GetHex()));
+
+    bool is_in_main_chain = false;
+    if (hashBlock != 0)
+    {
+        map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+        if (mi != mapBlockIndex.end() && (*mi).second)
+        {
+            CBlockIndex* pindex = (*mi).second;
+            if (pindex->IsInMainChain())
+            {
+                ret.push_back(Pair("confirmations", 1 + nBestHeight - pindex->nHeight));
+                is_in_main_chain = true;
+            }
+        }
+    }
+
+    if (!is_in_main_chain)
+        ret.push_back(Pair("confirmations", 0));
+
+    ret.push_back(Pair("version", 1));
+    ret.push_back(Pair("coinbase", tx.IsCoinBase()));
+
+    return ret;
 }

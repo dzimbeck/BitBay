@@ -370,13 +370,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="useBlackTheme">
-         <property name="text">
-          <string>Use bitbay visual theme (requires restart)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer_Display">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

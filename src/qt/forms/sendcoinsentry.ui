@@ -68,7 +68,7 @@
    <item row="3" column="1">
     <layout class="QHBoxLayout" name="payToLayout">
      <property name="spacing">
-      <number>0</number>
+      <number>3</number>
      </property>
      <item>
       <widget class="QValidatedLineEdit" name="payTo">
@@ -82,6 +82,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="addressBookButton">
+       <property name="minimumSize">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Choose address from address book</string>
        </property>
@@ -89,7 +95,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../bitcoin.qrc">
+        <iconset resource="../bitbay.qrc">
          <normaloff>:/icons/address-book</normaloff>:/icons/address-book</iconset>
        </property>
        <property name="shortcut">
@@ -99,6 +105,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="pasteButton">
+       <property name="minimumSize">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Paste address from clipboard</string>
        </property>
@@ -106,7 +118,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../bitcoin.qrc">
+        <iconset resource="../bitbay.qrc">
          <normaloff>:/icons/editpaste</normaloff>:/icons/editpaste</iconset>
        </property>
        <property name="shortcut">
@@ -116,6 +128,12 @@
      </item>
      <item>
       <widget class="QToolButton" name="deleteButton">
+       <property name="minimumSize">
+        <size>
+         <width>25</width>
+         <height>25</height>
+        </size>
+       </property>
        <property name="toolTip">
         <string>Remove this recipient</string>
        </property>
@@ -123,7 +141,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../bitcoin.qrc">
+        <iconset resource="../bitbay.qrc">
          <normaloff>:/icons/remove</normaloff>:/icons/remove</iconset>
        </property>
       </widget>
@@ -153,7 +171,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="../bitcoin.qrc"/>
+  <include location="../bitbay.qrc"/>
  </resources>
  <connections/>
 </ui>

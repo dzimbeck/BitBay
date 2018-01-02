@@ -23,3 +23,6 @@ qrc_*.cpp
 build
 
 !src/leveldb/Makefile
+.qmake.stash
+bitbay-wallet-qt
+

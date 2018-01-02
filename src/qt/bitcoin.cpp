@@ -125,6 +125,9 @@ int main(int argc, char *argv[])
 {
     fHaveGUI = true;
 
+    // Init params
+    InitParamsOnStart();
+
     // Command-line options take precedence:
     ParseParameters(argc, argv);
 
@@ -134,7 +137,8 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForCStrings(QTextCodec::codecForTr());
 #endif
 
-    Q_INIT_RESOURCE(bitcoin);
+    Q_INIT_RESOURCE(bitbay);
+    Q_INIT_RESOURCE(bitbayfonts);
     QApplication app(argc, argv);
 
     // Do this early as we don't want to bother initializing if we are just calling IPC
@@ -241,8 +245,7 @@ int main(int argc, char *argv[])
 
     try
     {
-        if (fUseBlackTheme)
-            GUIUtil::SetBlackThemeQSS(app);
+        GUIUtil::SetBitBayThemeQSS(app);
 
         // Regenerate startup link, to fix links to old versions
         if (GUIUtil::GetStartOnSystemStartup())

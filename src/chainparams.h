@@ -91,6 +91,11 @@ protected:
  */
 const CChainParams &Params();
 
+/**
+  * Init for main, test and regtest params
+  */
+void InitParamsOnStart();
+
 /** Sets the params returned by Params() to those for the given network. */
 void SelectParams(CChainParams::Network network);
 

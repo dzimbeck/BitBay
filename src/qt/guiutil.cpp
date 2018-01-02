@@ -20,6 +20,9 @@
 #include <QFileDialog>
 #include <QDesktopServices>
 #include <QThread>
+#include <QStyleFactory>
+#include <QFontDatabase>
+#include <QDebug>
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
@@ -56,7 +59,7 @@ QString dateTimeStr(qint64 nTime)
 
 QFont bitcoinAddressFont()
 {
-    QFont font("Monospace");
+    QFont font("Roboto Mono");
 #if QT_VERSION >= 0x040800
     font.setStyleHint(QFont::Monospace);
 #else
@@ -460,37 +463,169 @@ void HelpMessageBox::showOrPrint()
 #endif
 }
 
-void SetBlackThemeQSS(QApplication& app)
+void SetBitBayThemeQSS(QApplication& app)
 {
-    app.setStyleSheet("QWidget        { background: rgb(41,44,48); }"
-                      "QFrame         { border: none; }"
-                      "QComboBox      { color: rgb(255,255,255); }"
-                      "QComboBox QAbstractItemView::item { color: rgb(255,255,255); }"
-                      "QPushButton    { background: rgb(226,189,121); color: rgb(21,21,21); }"
-                      "QDoubleSpinBox { background: rgb(63,67,72); color: rgb(255,255,255); border-color: rgb(194,194,194); }"
-                      "QLineEdit      { background: rgb(63,67,72); color: rgb(255,255,255); border-color: rgb(194,194,194); }"
-                      "QTextEdit      { background: rgb(63,67,72); color: rgb(255,255,255); }"
-                      "QPlainTextEdit { background: rgb(63,67,72); color: rgb(255,255,255); }"
-                      "QMenuBar       { background: rgb(41,44,48); color: rgb(110,116,126); }"
-                      "QMenu          { background: rgb(30,32,36); color: rgb(222,222,222); }"
-                      "QMenu::item:selected { background-color: rgb(48,140,198); }"
-                      "QLabel         { color: rgb(120,127,139); }"
-                      "QScrollBar     { color: rgb(255,255,255); }"
-                      "QCheckBox      { color: rgb(120,127,139); }"
-                      "QRadioButton   { color: rgb(120,127,139); }"
-                      "QTabBar::tab   { color: rgb(120,127,139); border: 1px solid rgb(78,79,83); border-bottom: none; padding: 5px; }"
-                      "QTabBar::tab:selected  { background: rgb(41,44,48); }"
-                      "QTabBar::tab:!selected { background: rgb(24,26,30); margin-top: 2px; }"
-                      "QTabWidget::pane { border: 1px solid rgb(78,79,83); }"
-                      "QToolButton    { background: rgb(30,32,36); color: rgb(116,122,134); border: none; border-left-color: rgb(30,32,36); border-left-style: solid; border-left-width: 6px; margin-top: 8px; margin-bottom: 8px; }"
-                      "QToolButton:checked { color: rgb(255,255,255); border: none; border-left-color: rgb(215,173,94); border-left-style: solid; border-left-width: 6px; }"
-                      "QProgressBar   { color: rgb(149,148,148); border-color: rgb(255,255,255); border-width: 3px; border-style: solid; }"
-                      "QProgressBar::chunk { background: rgb(255,255,255); }"
-                      "QTreeView::item { background: rgb(41,44,48); color: rgb(212,213,213); }"
-                      "QTreeView::item:selected { background-color: rgb(48,140,198); }"
-                      "QTableView     { background: rgb(66,71,78); color: rgb(212,213,213); gridline-color: rgb(157,160,165); }"
-                      "QHeaderView::section { background: rgb(29,34,39); color: rgb(255,255,255); }"
-                      "QToolBar       { background: rgb(30,32,36); border: none; }");
+    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
+
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Black.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-BlackItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Light.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-LightItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Medium.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-MediumItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-Thin.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/Roboto-ThinItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Light.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-LightItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoCondensed-Regular.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoMono-BoldItalic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoMono-Bold.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoMono-Italic.ttf");
+    QFontDatabase::addApplicationFont(":/fonts/res/fonts/RobotoMono-Regular.ttf");
+
+    QFont font("Roboto");
+    QApplication::setFont(font);
+//    qDebug() << font.toString();
+//    QFontDatabase database;
+//    for (QString f : database.families()) {
+//        cout << f.toStdString() << endl;
+//    }
+
+    app.setStyle(QStyleFactory::create("fusion"));
+
+    app.setStyleSheet(
+    R"(
+        QWidget { background: rgb(221,222,237); }
+        QLineEdit {
+            background: rgb(255,255,255);
+            color: rgb(0,0,0);
+            border-color: rgb(135,135,135);
+            border-width: 1.2px;
+            border-style: solid;
+            min-height: 25px;
+        }
+        QDoubleSpinBox {
+            padding-right: 15px;
+            background: rgb(255,255,255);
+            color: rgb(0,0,0);
+            border-color: rgb(135,135,135);
+            border-width: 1.2px;
+            border-style: solid;
+            min-height: 25px;
+        }
+        QComboBox {
+            padding-right: 15px;
+            background: rgb(204,203,227);
+            color: rgb(0,0,0);
+            border-color: rgb(135,135,135);
+            border-width: 1.2px;
+            border-style: solid;
+            min-height: 25px;
+        }
+        QToolButton {
+            border: 1px solid rgb(255,255,255);
+            border-right: 1px solid rgb(135,135,135);
+            border-bottom: 1px solid rgb(135,135,135);
+            min-height: 25px;
+            min-width: 25px;
+        }
+        QToolButton:pressed {
+            border: 1px solid rgb(135,135,135);
+            border-right: 1px solid rgb(255,255,255);
+            border-bottom: 1px solid rgb(255,255,255);
+        }
+        QPushButton {
+            background: rgb(255,215,31);
+            color: rgb(59,65,145);
+            border: 1px solid rgb(255,255,255);
+            border-right: 2px solid rgb(255,255,255);
+            border-right-color: qlineargradient(
+                x1: 0, y1: 0,
+                x2: 1, y2: 0,
+                stop: 0      #ffffff,
+                stop: 0.5    #ffffff,
+                stop: 0.5001 #b6bdca,
+                stop: 1      #b6bdca
+            );
+            border-bottom: 2px solid rgb(255,255,255);
+            border-bottom-color: qlineargradient(
+                x1: 0, y1: 0,
+                x2: 0, y2: 1,
+                stop: 0      #ffffff,
+                stop: 0.5    #ffffff,
+                stop: 0.5001 #b6bdca,
+                stop: 1      #b6bdca
+            );
+            min-height: 25px;
+            min-width: 120px;
+            margin-top: 2px;
+            margin-left: 2px;
+            margin-right: 2px;
+            margin-bottom: 2px;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        QPushButton:hover {
+            background: orange;
+        }
+        QPushButton:disabled {
+            background: rgb(226,226,226);
+            color: rgb(206,206,206);
+        }
+        QPushButton:pressed {
+            margin-top: 4px;
+            margin-left: 4px;
+            margin-right: 0px;
+            margin-bottom: 0px;
+        }
+        QHeaderView::section {
+            background-color: rgb(71,58,148);
+            color: white;
+            padding-left: 4px;
+            border: 0px solid #6c6c6c;
+            border-right: 1px solid #6c6c6c;
+            min-height: 25px;
+        }
+        QTableView {
+            background-color: rgb(255,255,255);
+        }
+        QTableView::item:selected {
+            color: rgb(0,0,0);
+            background-color: rgb(237,238,246);
+        }
+        QTableView::item:selected:active {
+            color: rgb(0,0,0);
+            border: 0px solid #6c6c6c;
+            background-color: rgb(227,228,236);
+        }
+        QTabBar::tab:selected {
+            color: rgb(71,58,148);
+        }
+        QDoubleSpinBox::up-button {
+            border: 0px solid #6c6c6c;
+        }
+        QDoubleSpinBox::down-button {
+            border: 0px solid #6c6c6c;
+        }
+        QDoubleSpinBox::up-arrow {
+            image: url(:/icons/spinbox_up_arrow);
+            width: 8px;
+            height: 5px;
+        }
+        QDoubleSpinBox::down-arrow {
+            image: url(:/icons/spinbox_down_arrow);
+            width: 8px;
+            height: 5px;
+        }
+    )");
+
 }
 
 } // namespace GUIUtil

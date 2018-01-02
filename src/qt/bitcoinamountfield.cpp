@@ -19,6 +19,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent):
     amount->installEventFilter(this);
     amount->setMaximumWidth(170);
     amount->setSingleStep(0.001);
+    amount->setValue(0.0);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
@@ -52,6 +53,7 @@ void BitcoinAmountField::setText(const QString &text)
 void BitcoinAmountField::clear()
 {
     amount->clear();
+    amount->setValue(0);
     unit->setCurrentIndex(0);
 }
 

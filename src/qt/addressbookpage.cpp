@@ -15,6 +15,7 @@
 #include <QSortFilterProxyModel>
 #include <QClipboard>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QMenu>
 
 AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
@@ -26,12 +27,23 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     tab(tab)
 {
     ui->setupUi(this);
+    for(auto l : findChildren<QLabel *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
+    for(auto l : findChildren<QTableView *>()) { // need for mac
+        l->setFont(QApplication::font());
+    }
+//    QString by_style =     R"(
+//        QPushButton {
+//            background: rgb(255,215,31);
+//        }
+//        QPushButton:hover {
+//            background: rgb(226,226,226);
+//        }
+//    )";
+//    ui->newAddressButton->setStyleSheet(by_style);
 
-#ifdef Q_OS_MAC // Icons on push buttons are very uncommon on Mac
-    ui->newAddressButton->setIcon(QIcon());
-    ui->copyToClipboard->setIcon(QIcon());
-    ui->deleteButton->setIcon(QIcon());
-#endif
+    ui->tableView->verticalScrollBar()->show();
 
 #ifndef USE_QRCODE
     ui->showQRCode->setVisible(false);
@@ -135,7 +147,7 @@ void AddressBookPage::setModel(AddressTableModel *model)
 
     // Set column widths
     ui->tableView->horizontalHeader()->resizeSection(
-            AddressTableModel::Address, 320);
+            AddressTableModel::Address, 380);
     ui->tableView->horizontalHeader()->setResizeMode(
             AddressTableModel::Label, QHeaderView::Stretch);
 

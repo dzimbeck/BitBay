@@ -18,9 +18,11 @@ INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
  -I"$(DEPSDIR)/include/" \
+ -I"$(CURDIR)/../static_db_4_8_win/include" \
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
+ -L"$(CURDIR)/../static_db_4_8_win" \
 
 LIBS= \
  -l boost_system-mt \

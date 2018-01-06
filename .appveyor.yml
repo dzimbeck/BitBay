@@ -27,6 +27,7 @@ build_script:
   - 7z x mingw32.7z > nul
   - ls
   - set PATH=%cd%\MinGW32\bin;C:\MinGW\msys\1.0\bin;%QTDIR%\bin
+  - perl -i -pe 's/-DWINVER=0x0500 -D__USE_MINGW_ANSI_STDIO=1/-DWINVER=0x0500 -D__USE_MINGW_ANSI_STDIO=1 -Dsnprintf=_snprintf/m' src/leveldb/build_detect_platform
   - qmake
     CICD=appveyor
     BOOST_INCLUDE_PATH=%BOOST_PATH%

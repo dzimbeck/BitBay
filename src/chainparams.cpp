@@ -109,8 +109,8 @@ public:
         vSeeds.push_back(CDNSSeedData("bbaynode (node12)", "195.181.242.206"));
         vSeeds.push_back(CDNSSeedData("bbaynode (tokio,ys)", "151.236.221.10"));
         vSeeds.push_back(CDNSSeedData("bbaynode (london,ys)", "108.61.163.182"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (new1, dz)", "94.102.52.66"));
-        vSeeds.push_back(CDNSSeedData("bbaynode (new2, dz)", "80.82.64.64"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (new1)", "94.102.52.66"));
+        vSeeds.push_back(CDNSSeedData("bbaynode (new2)", "80.82.64.64"));
 
         // old nodes (can come online) in end of list to avoid network entering failures
         vSeeds.push_back(CDNSSeedData("bbaynode (nyc)", "104.236.208.150"));

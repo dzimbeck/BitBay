@@ -1,0 +1,2 @@
+debian/bin/bitbayd usr/bin
+src/bitbayd usr/lib/blackcoin

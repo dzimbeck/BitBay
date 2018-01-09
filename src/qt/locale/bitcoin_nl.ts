@@ -2735,8 +2735,8 @@ for example: alertnotify=echo %%s | mail -s &quot;BitBay Alert&quot; admin@foo.c
     </message>
     <message>
         <location line="+5"/>
-        <source>Listen for connections on &lt;port&gt; (default: 15714 or testnet: 25714)</source>
-        <translation>Luister voor verbindingen op &lt;poort&gt; (standaard: 15714 of testnet: 25714)</translation>
+        <source>Listen for connections on &lt;port&gt; (default: 19914 or testnet: 21914)</source>
+        <translation>Luister voor verbindingen op &lt;poort&gt; (standaard: 19914 of testnet: 21914)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2785,8 +2785,8 @@ for example: alertnotify=echo %%s | mail -s &quot;BitBay Alert&quot; admin@foo.c
     </message>
     <message>
         <location line="+63"/>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 15715 or testnet: 25715)</source>
-        <translation>Wacht op JSON-RPC-connecties op &lt;poort&gt; (standaard: 15715 of testnet: 25715) </translation>
+        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 19915 or testnet: 21915)</source>
+        <translation>Wacht op JSON-RPC-connecties op &lt;poort&gt; (standaard: 19915 of testnet: 21915) </translation>
     </message>
     <message>
         <location line="-16"/>

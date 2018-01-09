@@ -434,7 +434,6 @@ LIBS += $$join(OPENSSL_LIB_PATH,,-L,) -lssl -lcrypto -ldb$$BDB_LIB_SUFFIX -ldb_c
 windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32 -lpthread
 LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
 windows:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
-#unix:!mac:LIBS += -lsnappy
 message($$LIBS)
 
 contains(RELEASE, 1) {

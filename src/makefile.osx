@@ -7,17 +7,22 @@
 # Originally by Laszlo Hanyecz (solar@heliacal.net)
 
 CXX=llvm-g++
-DEPSDIR=/opt/local
+DEPSDIR=/usr/local
 
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
- -I"$(DEPSDIR)/include" \
- -I"$(DEPSDIR)/include/db48"
+ -I/usr/local/opt/boost/include \
+ -I/usr/local/opt/openssl/include \
+ -I/usr/local/opt/miniupnpc/include \
+ -I../db/build_unix/inst/include \
 
 LIBPATHS= \
- -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/lib/db48"
+ -L../db/build_unix/inst/lib \
+ -L/usr/local/opt/boost/lib \
+ -L/usr/local/opt/openssl/lib \
+ -L/usr/local/opt/miniupnpc/lib \
+
 
 USE_UPNP:=1
 USE_WALLET:=1
@@ -61,6 +66,8 @@ endif
 # ppc doesn't work because we don't support big-endian
 CFLAGS += -std=c++11 -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-unused-parameter \
     $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
+
+CFLAGS += -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk -mmacosx-version-min=10.9
 
 OBJS= \
     obj/alert.o \

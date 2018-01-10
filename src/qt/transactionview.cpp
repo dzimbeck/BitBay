@@ -121,6 +121,7 @@ TransactionView::TransactionView(QWidget *parent) :
     view->setContextMenuPolicy(Qt::CustomContextMenu);
 
     transactionView = view;
+    GUIUtil::SetBitBayFonts(this);
 
     // Actions
     QAction *copyAddressAction = new QAction(tr("Copy address"), this);

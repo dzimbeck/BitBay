@@ -24,5 +24,6 @@ build
 
 !src/leveldb/Makefile
 .qmake.stash
+bitbay-qt-local.pri
 bitbay-wallet-qt
 

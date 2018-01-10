@@ -117,6 +117,7 @@ namespace GUIUtil
     };
 
     void SetBitBayThemeQSS(QApplication& app);
+    void SetBitBayFonts(QWidget *);
 
 } // namespace GUIUtil
 

@@ -27,7 +27,8 @@ script:
 - cd db
 - patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch
 - cd build_unix
-- CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure --enable-cxx --prefix=`pwd`/inst
+- CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure
+  --enable-cxx --prefix=`pwd`/inst
 - make -j2
 - make install
 - cd ..
@@ -40,13 +41,14 @@ script:
 - macdeployqt BitBay-Wallet-Qt.app -verbose=2 -executable=BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
 - otool -L BitBay-Wallet-Qt.app/Contents/MacOS/BitBay-Wallet-Qt
 - otool -L BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
-- install_name_tool -change /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib @executable_path/../Frameworks/libcrypto.1.0.0.dylib BitBay-Wallet-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib
+- install_name_tool -change /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib
+  @executable_path/../Frameworks/libcrypto.1.0.0.dylib BitBay-Wallet-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib
 - ls
 - zip -r bitbay-wallet-qt_mac.zip BitBay-Wallet-Qt.app
 deploy:
   provider: releases
   api_key:
-    secure: HjYrssBPHzUv9nGC/NOwgSpVfEihPVg2o6gMeEk18sD3Cxe3f9pYZq9HMWwT4Iwf7rlnIvYnUtYxWHiffYllrf9+aSmCVHZQBldqCwM0Rq4csZebaXi36je5GrKlGzIHofe3u0Mo+9GqUNNcnS1vL1ENzVxesFl8qLCKKO21SE9GTvQ0Yp05LARjfRJ6YA4Pxbu1wZsWjQFgOfddSoStKcdEx9oH1myjouo0S+EPOkkFR/yfTlTxPxVdFHJBD6oE62y4RNEg22d7HTQE30BTE4KHmkqooanPkFevIWpTyG+1yDbA1RDsB+ajkyZZ9HBgF0J2R2soUqb7oJzTnTxzrcByz6sIoAtQiqpSABdIwkqzVhMb/McyLF6081/TWf8rh8iPLw3zsocI/ebbgXCaOJlT8uaVbQKbOoV3nyFen/ubtuz1RjFBwZ8MpyFGez6Gsu3flGIdGRMHBz/KjDknLOwV2JArpPZ/8sdryWIcPc1itZ/pYnfQZBhnem4uLCsLDndfRBh9YmDyXyNdZHa6tUI4hW1yRUW8Fb/yuo3kSKgkgHJpi1JCWJkWTlpzfW+1ulGv0FLtJihojgj3XtuEZPySZmLEam/wiDZvRd7hVh69SXfy5lCwLBWa3p1JGRbQZ5qN4y6YzeyKn9NLwCyC5HPGHhCaHw9hyfF9UMr2BXs=
+    secure: pLwB88n+hu56NAojvbdCcbzf80LiWKNAD4jlpQdXLisM/9pFQlyjZGo1mwyY7Sy4DuouCWkoWB895flsnBH2sVQzeJhXE9Jb3cTx8VGMlOTTeMqDcJJSswTpqf8MBXwQKAVOjhQIRBDZ27q/5+KRT3TaK9MrNmW2ul+PaGI1PWGvq5Qer9wNgqGIf9sDHIPhdG46YNa9eXzdq/e8xpD6kUxUWFoSx8w6w8mBAGXcKCpxZQqEZs1V9HUDo+a+x69fJFiA8qN9OsfbIeN7NG22/2Ahw9SUw/nYa5JLokbLLFG5wIpKh4u8/7zFTOuWiHz+A64kLaanlMjIM1otz1aS3/iOsd6LZ7bhtTCLYGMsjvGnkhlXwO45hdUHz5YeTY4/oM6yC8mB5VYvPiSsTtgu/C9brydo2a6KXc6yfYkHjEX0AD5E4QwnZAVAyjsIP+0jR+0Ljs3Nh/VfU16kBclIj6lnv2sjYxetMgPkk29HlelUEa/WL/IUhWzlL1/M2a2vwI/aCg3c7niLmmYLIo1dd8pt0GVxfqQVVGGGHXOH9LyCR4x3A6wZKaLDEKc8VArWJl+jRtqltrrxQuY9W8Vw7pbphgeORpoOVZ3lbWZrhr5aiMicYEPHYJ7Yd7bItLxX8wiyMdkK13cgLU9z6s24SVqK5cxgsbnANM1LEIfwPjA=
   file: $TRAVIS_BUILD_DIR/bitbay-wallet-qt_mac.zip
   skip_cleanup: true
   on:

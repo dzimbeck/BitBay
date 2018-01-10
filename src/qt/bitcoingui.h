@@ -13,6 +13,8 @@ class TransactionView;
 class OverviewPage;
 class AddressBookPage;
 class SendCoinsDialog;
+class SignMessagePage;
+class VerifyMessagePage;
 class SignVerifyMessageDialog;
 class Notificator;
 class RPCConsole;
@@ -64,7 +66,8 @@ private:
     AddressBookPage *addressBookPage;
     AddressBookPage *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
-    SignVerifyMessageDialog *signVerifyMessageDialog;
+    SignMessagePage *signMessagePage;
+    VerifyMessagePage *verifyMessagePage;
 
     QLabel *labelEncryptionIcon;
     QLabel *labelStakingIcon;
@@ -99,6 +102,8 @@ private:
     QToolButton * tabSend = nullptr;
     QToolButton * tabTransactions = nullptr;
     QToolButton * tabAddresses = nullptr;
+    QToolButton * tabSign = nullptr;
+    QToolButton * tabVerify = nullptr;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -159,6 +164,10 @@ private slots:
     void gotoReceiveCoinsPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage();
+    /** Switch to sign message page */
+    void gotoSignMessagePage();
+    /** Switch to verify message page */
+    void gotoVerifyMessagePage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

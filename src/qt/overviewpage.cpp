@@ -111,9 +111,7 @@ OverviewPage::OverviewPage(QWidget *parent) :
     filter(0)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
@@ -121,7 +119,12 @@ OverviewPage::OverviewPage(QWidget *parent) :
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
+#ifdef Q_OS_MAC
+    QFont hfont("Roboto Black", 20, QFont::Bold);
+#else
     QFont hfont("Roboto Black", 15, QFont::Bold);
+#endif
+    
     ui->labelWallet->setFont(hfont);
     ui->labelRecent->setFont(hfont);
 
@@ -148,7 +151,11 @@ OverviewPage::OverviewPage(QWidget *parent) :
     ui->labelUnconfirmedText    ->setStyleSheet(white2);
     ui->labelImmatureText       ->setStyleSheet(white2);
 
+#ifdef Q_OS_MAC
+    QFont tfont("Roboto", 15, QFont::Bold);
+#else
     QFont tfont("Roboto", 11, QFont::Bold);
+#endif
     ui->labelTotalText->setFont(tfont);
     ui->labelTotalText          ->setStyleSheet(white1);
 

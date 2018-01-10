@@ -17,9 +17,7 @@ SendCoinsEntry::SendCoinsEntry(QWidget *parent) :
     model(0)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 
 #ifdef Q_OS_MAC
     ui->payToLayout->setSpacing(4);

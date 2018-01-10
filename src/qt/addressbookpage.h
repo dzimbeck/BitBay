@@ -30,6 +30,7 @@ public:
     };
 
     enum Mode {
+        ForPickup,  /**< Open address book to pick address only */
         ForSending, /**< Open address book to pick address for sending */
         ForEditing  /**< Open address book for editing */
     };

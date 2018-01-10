@@ -2,6 +2,7 @@
 #include "ui_transactiondescdialog.h"
 
 #include "transactiontablemodel.h"
+#include "guiutil.h"
 
 #include <QModelIndex>
 #include <QLabel>
@@ -11,10 +12,8 @@ TransactionDescDialog::TransactionDescDialog(const QModelIndex &idx, QWidget *pa
     ui(new Ui::TransactionDescDialog)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
-    
+    GUIUtil::SetBitBayFonts(this);
+
     QString desc = idx.data(TransactionTableModel::LongDescriptionRole).toString();
     ui->detailText->setHtml(desc);
 }

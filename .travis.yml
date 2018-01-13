@@ -1,13 +1,20 @@
 language: cpp
-os:
-- osx
-osx_image: xcode7.3
-dist: trusty
-compiler:
-- clang
-env:
-  matrix:
-  - QT=510 BREW=@5.10
+
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: DEPLOY_FILE=bitbay-wallet-qt_linux64.tgz
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: DEPLOY_FILE=bitbay-wallet-qt_linux32.tgz ARCH="x86"
+    - os: osx
+      osx_image: xcode7.2
+      compiler: clang
+      env: DEPLOY_FILE=bitbay-wallet-qt_mac.zip
+
 install:
 - '[ "$TRAVIS_OS_NAME" != osx ] || brew install boost || echo -'
 - '[ "$TRAVIS_OS_NAME" != osx ] || brew install openssl || echo -'
@@ -17,39 +24,129 @@ install:
 - qmake -v
 before_script:
 - '[[ "$TRAVIS_OS_NAME" != osx   || "$CXX" != clang++ ]] || export QMAKESPEC=macx-clang'
-- cd "$TRAVIS_BUILD_DIR"
-- qmake "CICD=travis_mac" bitbay-qt.pro
 script:
+- >
+  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
+    sudo add-apt-repository -y ppa:beineri/opt-qt593-trusty;
+    sudo add-apt-repository -y ppa:bitcoin/bitcoin;
+    sudo apt-get update;
+    if [[ $ARCH == "x86" ]]; then
+      sudo apt-get install --no-install-recommends -y gcc-multilib g++-multilib;
+      sudo apt-get install -y libdb4.8-dev:i386;
+      sudo apt-get install -y libdb4.8++-dev:i386;
+      sudo apt-get install -y libboost-filesystem-dev:i386;
+      sudo apt-get install -y libboost-program-options-dev:i386;
+      sudo apt-get install -y libboost-thread-dev:i386;
+      sudo apt-get install -y libssl-dev:i386;
+      sudo apt-get install -y libgl1-mesa-dev:i386;
+      sudo apt-get install -y libminiupnpc-dev:i386;
+      sudo apt-get install -y libfuse-dev:i386;
+      sudo apt-get install -y qt59base:i386;
+      sudo apt-get install -y qt59tools:i386;
+      gcc --print-multiarch;
+    else
+      sudo apt-get install -y libdb4.8-dev;
+      sudo apt-get install -y libdb4.8++-dev;
+      sudo apt-get install -y libboost-filesystem-dev;
+      sudo apt-get install -y libboost-program-options-dev;
+      sudo apt-get install -y libboost-thread-dev;
+      sudo apt-get install -y libssl-dev;
+      sudo apt-get install -y libminiupnpc-dev;
+      sudo apt-get install -y qt59-meta-minimal;
+      sudo apt-get install -y qt59tools;
+    fi;
+    source /opt/qt59/bin/qt59-env.sh;
+    export;
+  else
+    cd "$TRAVIS_BUILD_DIR";
+    curl -fsSL -o db-4.8.30.NC.tar.gz https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/db-4.8.30.NC.tar.gz;
+    tar -zxf db-4.8.30.NC.tar.gz;
+    mv db-4.8.30.NC db;
+    cd db;
+    patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch;
+    cd build_unix;
+    CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure --enable-cxx --prefix=`pwd`/inst;
+    make -j2;
+    make install;
+    cd ..;
+    cd ..;
+  fi;
+
+- qmake -v
 - cd "$TRAVIS_BUILD_DIR"
-- curl -fsSL -o db-4.8.30.NC.tar.gz http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
-- tar -zxf db-4.8.30.NC.tar.gz
-- mv db-4.8.30.NC db
-- cd db
-- patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch
-- cd build_unix
-- CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure
-  --enable-cxx --prefix=`pwd`/inst
+- >
+  if [[ $ARCH == "x86" ]]; then
+    qmake "CICD=travis_mac" QMAKE_CFLAGS+=-m32 QMAKE_CXXFLAGS+=-m32 QMAKE_LFLAGS+=-m32 bitbay-qt.pro;
+  else
+    qmake "CICD=travis_mac" bitbay-qt.pro;
+  fi;
+
 - make -j2
-- make install
-- cd ..
-- cd ..
-- make -j2
+- ls -l
+- >
+  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
+    ldd bitbay-wallet-qt;
+    file bitbay-wallet-qt;
+    cp -r contrib/appimage appdir;
+    cp src/qt/res/icons/BitBay-Wallet-Icon-128.png appdir/usr/share/icons/hicolor/128x128/bitbay-wallet-qt.png;
+    cp src/qt/res/icons/BitBay-Wallet-Icon-256.png appdir/usr/share/icons/hicolor/256x256/bitbay-wallet-qt.png;
+    cp bitbay-wallet-qt appdir/usr/bin/;
+
+    if [[ $ARCH == "x86" ]]; then
+      curl -fsSL -o appimagetool https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/appimagetool-i686.AppImage;
+      chmod 755 appimagetool;
+      ./appimagetool --help;
+      export PATH=`pwd`:$PATH;
+      curl -fsSL -o linuxdeployqt-continuous.tar.gz https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/linuxdeployqt-continuous.tar.gz;
+      tar -zxf linuxdeployqt-continuous.tar.gz;
+      cd linuxdeployqt-continuous;
+      qmake QMAKE_CFLAGS+=-m32 QMAKE_CXXFLAGS+=-m32 QMAKE_LFLAGS+=-m32;
+      make -j2;
+      ls;
+      cd ..;
+      curl -fsSL -o patchelf.tar.gz https://github.com/NixOS/patchelf/archive/0.9.tar.gz;
+      tar -zxf patchelf.tar.gz;
+      cd patchelf-0.9;
+      ./bootstrap.sh;
+      ./configure;
+      make -j2;
+      sudo make install;
+      cd ..;
+      ./linuxdeployqt-continuous/bin/linuxdeployqt appdir/usr/share/bitbay-wallet-qt.desktop -appimage;
+      mv bitbay-wallet-qt-i386.AppImage bitbay-wallet-qt;
+      tar -zcf $DEPLOY_FILE bitbay-wallet-qt;
+    else
+      curl -fsSL -o linuxdeployqt https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/linuxdeployqt-continuous-x86_64.AppImage;
+      chmod 755 linuxdeployqt;
+      ./linuxdeployqt appdir/usr/share/bitbay-wallet-qt.desktop -appimage;
+      ls -l;
+      mv bitbay-wallet-qt-x86_64.AppImage bitbay-wallet-qt;
+      tar -zcf $DEPLOY_FILE bitbay-wallet-qt;
+    fi;
+  fi;
+
 - cd src
-- make -j2 -f makefile.osx
-- cd ..
-- cp src/bitbayd BitBay-Wallet-Qt.app/Contents/MacOS/
-- macdeployqt BitBay-Wallet-Qt.app -verbose=2 -executable=BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
-- otool -L BitBay-Wallet-Qt.app/Contents/MacOS/BitBay-Wallet-Qt
-- otool -L BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
-- install_name_tool -change /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib
-  @executable_path/../Frameworks/libcrypto.1.0.0.dylib BitBay-Wallet-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib
-- ls
-- zip -r bitbay-wallet-qt_mac.zip BitBay-Wallet-Qt.app
+- >
+  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
+    echo make -j2 -f makefile.unix;
+  else
+    make -j2 -f makefile.osx;
+    cd ..
+    cp src/bitbayd BitBay-Wallet-Qt.app/Contents/MacOS/
+    macdeployqt BitBay-Wallet-Qt.app -verbose=2 -executable=BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
+    otool -L BitBay-Wallet-Qt.app/Contents/MacOS/BitBay-Wallet-Qt
+    otool -L BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
+    install_name_tool -change /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib \
+      @executable_path/../Frameworks/libcrypto.1.0.0.dylib BitBay-Wallet-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib;
+    ls;
+    zip -r $DEPLOY_FILE BitBay-Wallet-Qt.app;
+  fi;
+
 deploy:
   provider: releases
   api_key:
     secure: pLwB88n+hu56NAojvbdCcbzf80LiWKNAD4jlpQdXLisM/9pFQlyjZGo1mwyY7Sy4DuouCWkoWB895flsnBH2sVQzeJhXE9Jb3cTx8VGMlOTTeMqDcJJSswTpqf8MBXwQKAVOjhQIRBDZ27q/5+KRT3TaK9MrNmW2ul+PaGI1PWGvq5Qer9wNgqGIf9sDHIPhdG46YNa9eXzdq/e8xpD6kUxUWFoSx8w6w8mBAGXcKCpxZQqEZs1V9HUDo+a+x69fJFiA8qN9OsfbIeN7NG22/2Ahw9SUw/nYa5JLokbLLFG5wIpKh4u8/7zFTOuWiHz+A64kLaanlMjIM1otz1aS3/iOsd6LZ7bhtTCLYGMsjvGnkhlXwO45hdUHz5YeTY4/oM6yC8mB5VYvPiSsTtgu/C9brydo2a6KXc6yfYkHjEX0AD5E4QwnZAVAyjsIP+0jR+0Ljs3Nh/VfU16kBclIj6lnv2sjYxetMgPkk29HlelUEa/WL/IUhWzlL1/M2a2vwI/aCg3c7niLmmYLIo1dd8pt0GVxfqQVVGGGHXOH9LyCR4x3A6wZKaLDEKc8VArWJl+jRtqltrrxQuY9W8Vw7pbphgeORpoOVZ3lbWZrhr5aiMicYEPHYJ7Yd7bItLxX8wiyMdkK13cgLU9z6s24SVqK5cxgsbnANM1LEIfwPjA=
-  file: $TRAVIS_BUILD_DIR/bitbay-wallet-qt_mac.zip
+  file: $TRAVIS_BUILD_DIR/$DEPLOY_FILE
   skip_cleanup: true
   on:
     tags: true

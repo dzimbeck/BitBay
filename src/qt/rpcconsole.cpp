@@ -194,9 +194,7 @@ RPCConsole::RPCConsole(QWidget *parent) :
     historyPtr(0)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 
 #ifndef Q_OS_MAC
     ui->openDebugLogfileButton->setIcon(QIcon(":/icons/export"));

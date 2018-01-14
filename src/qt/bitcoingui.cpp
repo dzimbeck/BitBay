@@ -12,7 +12,8 @@
 #include "transactiontablemodel.h"
 #include "addressbookpage.h"
 #include "sendcoinsdialog.h"
-#include "signverifymessagedialog.h"
+#include "signmessagepage.h"
+#include "verifymessagepage.h"
 #include "optionsdialog.h"
 #include "aboutdialog.h"
 #include "clientmodel.h"
@@ -118,7 +119,9 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     sendCoinsPage = new SendCoinsDialog(this);
 
-    signVerifyMessageDialog = new SignVerifyMessageDialog(this);
+    signMessagePage = new SignMessagePage(this);
+
+    verifyMessagePage = new VerifyMessagePage(this);
 
     centralStackedWidget = new QStackedWidget(this);
     centralStackedWidget->addWidget(overviewPage);
@@ -126,6 +129,8 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     centralStackedWidget->addWidget(addressBookPage);
     centralStackedWidget->addWidget(receiveCoinsPage);
     centralStackedWidget->addWidget(sendCoinsPage);
+    centralStackedWidget->addWidget(signMessagePage);
+    centralStackedWidget->addWidget(verifyMessagePage);
 
     QWidget * leftPanel = new QWidget();
     leftPanel->setFixedWidth(160);
@@ -187,7 +192,11 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     )";
     leftPanel->setStyleSheet(tabStyle);
 
+#ifdef Q_OS_MAC
+    QFont font("Roboto Condensed", 15, QFont::Bold);
+#else
     QFont font("Roboto Condensed", 11, QFont::Bold);
+#endif
 
     tabDashboard = new QToolButton();
     tabDashboard->setFixedSize(160,50);
@@ -250,6 +259,30 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     tabsGroup->addButton(tabAddresses);
     leftPanelLayout->addWidget(tabAddresses);
 
+    tabSign = new QToolButton();
+    tabSign->setFixedSize(160,50);
+    tabSign->setText(tr("SIGN"));
+    tabSign->setCheckable(true);
+    tabSign->setAutoRaise(true);
+    tabSign->setFont(font);
+    tabSign->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    tabSign->setIcon(QIcon(":/icons/sign"));
+    tabSign->setIconSize(QSize(16,16));
+    tabsGroup->addButton(tabSign);
+    leftPanelLayout->addWidget(tabSign);
+
+    tabVerify = new QToolButton();
+    tabVerify->setFixedSize(160,50);
+    tabVerify->setText(tr("VERIFY"));
+    tabVerify->setCheckable(true);
+    tabVerify->setAutoRaise(true);
+    tabVerify->setFont(font);
+    tabVerify->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+    tabVerify->setIcon(QIcon(":/icons/verify"));
+    tabVerify->setIconSize(QSize(16,16));
+    tabsGroup->addButton(tabVerify);
+    leftPanelLayout->addWidget(tabVerify);
+
     connect(tabDashboard, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
     connect(tabDashboard, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
     connect(tabReceive, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
@@ -260,6 +293,10 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(tabTransactions, SIGNAL(clicked()), this, SLOT(gotoHistoryPage()));
     connect(tabAddresses, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
     connect(tabAddresses, SIGNAL(clicked()), this, SLOT(gotoAddressBookPage()));
+    connect(tabSign, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
+    connect(tabSign, SIGNAL(clicked()), this, SLOT(gotoSignMessagePage()));
+    connect(tabVerify, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
+    connect(tabVerify, SIGNAL(clicked()), this, SLOT(gotoVerifyMessagePage()));
 
     QWidget * space2 = new QWidget;
     space2->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
@@ -300,6 +337,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
+    progressBarLabel->setStyleSheet("QLabel { padding-left: 10px; }");
     progressBarLabel->setVisible(false);
     progressBar = new QProgressBar();
     progressBar->setAlignment(Qt::AlignCenter);
@@ -309,16 +347,16 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
         QProgressBar {
             max-height: 18px;
-            background-color: rgb(102,104,176);
+            background-color: #e4e5f1;
             border: 0px solid grey;
             border-radius: 0px;
             padding: 0px;
             margin: 4px;
-            color: rgb(109,140,0);
+            color: #666666;
             text-align: center;
         }
         QProgressBar::chunk {
-            background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange);
+            background: #FFD402;
             border-radius: 0px;
             margin: 0px;
         }
@@ -543,7 +581,8 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         addressBookPage->setModel(walletModel->getAddressTableModel());
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
-        signVerifyMessageDialog->setModel(walletModel);
+        signMessagePage->setModel(walletModel);
+        verifyMessagePage->setModel(walletModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -707,7 +746,8 @@ void BitcoinGUI::setNumBlocks(int count)
         progressBar->setVisible(true);
 
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
-        labelBlocksIcon->setMovie(syncIconMovie);
+        //labelBlocksIcon->setMovie(syncIconMovie);
+        labelBlocksIcon->setPixmap(QIcon(":/icons/unsynced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
         if(count != prevBlocks)
             syncIconMovie->jumpToNextFrame();
         prevBlocks = count;
@@ -906,22 +946,38 @@ void BitcoinGUI::gotoSendCoinsPage()
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
 }
 
+void BitcoinGUI::gotoSignMessagePage()
+{
+    centralStackedWidget->setCurrentWidget(signMessagePage);
+
+    exportAction->setEnabled(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+}
+
+void BitcoinGUI::gotoVerifyMessagePage()
+{
+    centralStackedWidget->setCurrentWidget(verifyMessagePage);
+
+    exportAction->setEnabled(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+}
+
 void BitcoinGUI::gotoSignMessageTab(QString addr)
 {
-    // call show() in showTab_SM()
-    signVerifyMessageDialog->showTab_SM(true);
+    tabSign->setChecked(true);
+    centralStackedWidget->setCurrentWidget(signMessagePage);
 
     if(!addr.isEmpty())
-        signVerifyMessageDialog->setAddress_SM(addr);
+        signMessagePage->setAddress_SM(addr);
 }
 
 void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 {
-    // call show() in showTab_VM()
-    signVerifyMessageDialog->showTab_VM(true);
+    tabVerify->setChecked(true);
+    centralStackedWidget->setCurrentWidget(verifyMessagePage);
 
     if(!addr.isEmpty())
-        signVerifyMessageDialog->setAddress_VM(addr);
+        verifyMessagePage->setAddress_VM(addr);
 }
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)

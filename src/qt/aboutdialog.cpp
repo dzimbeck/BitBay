@@ -1,6 +1,7 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "clientmodel.h"
+#include "guiutil.h"
 
 #include "version.h"
 
@@ -9,9 +10,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui(new Ui::AboutDialog)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 }
 
 void AboutDialog::setModel(ClientModel *model)

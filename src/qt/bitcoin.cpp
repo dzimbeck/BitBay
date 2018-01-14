@@ -82,7 +82,12 @@ static void InitMessage(const std::string &message)
 {
     if(splashref)
     {
-        splashref->showMessage(QString::fromStdString(message), Qt::AlignBottom|Qt::AlignHCenter, QColor(232,186,63));
+        splashref->showMessage(QString::fromStdString(message)
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
+                               +QString("\n").repeated(4)
+#endif
+                               , Qt::AlignBottom|Qt::AlignHCenter
+                               , QColor(0,220,240));
         QApplication::instance()->processEvents();
     }
     LogPrintf("init message: %s\n", message);
@@ -232,7 +237,11 @@ int main(int argc, char *argv[])
     }
 #endif
 
+#if defined(Q_OS_MAC) || defined(Q_OS_WIN)
     QSplashScreen splash(QPixmap(":/images/splash"), 0);
+#else
+    QSplashScreen splash(QPixmap(":/images/splash_simple"), 0);
+#endif 
     if (GetBoolArg("-splash", true) && !GetBoolArg("-min", false))
     {
         splash.show();

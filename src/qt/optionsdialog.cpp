@@ -5,6 +5,7 @@
 #include "monitoreddatamapper.h"
 #include "netbase.h"
 #include "optionsmodel.h"
+#include "guiutil.h"
 
 #include <QDir>
 #include <QIntValidator>
@@ -21,9 +22,7 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     fProxyIpValid(true)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 
     /* Network elements init */
 #ifndef USE_UPNP

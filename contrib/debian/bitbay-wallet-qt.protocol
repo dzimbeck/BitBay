@@ -1,0 +1,11 @@
+[Protocol]
+exec=bitbay-qt '%u'
+protocol=bitbay
+input=none
+output=none
+helper=true
+listing=
+reading=false
+writing=false
+makedir=false
+deleting=false

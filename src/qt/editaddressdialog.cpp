@@ -12,9 +12,7 @@ EditAddressDialog::EditAddressDialog(Mode mode, QWidget *parent) :
     ui(new Ui::EditAddressDialog), mapper(0), mode(mode), model(0)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 
     GUIUtil::setupAddressWidget(ui->addressEdit, this);
 

@@ -27,22 +27,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     tab(tab)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
-    for(auto l : findChildren<QTableView *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
-//    QString by_style =     R"(
-//        QPushButton {
-//            background: rgb(255,215,31);
-//        }
-//        QPushButton:hover {
-//            background: rgb(226,226,226);
-//        }
-//    )";
-//    ui->newAddressButton->setStyleSheet(by_style);
-
+    GUIUtil::SetBitBayFonts(this);
     ui->tableView->verticalScrollBar()->show();
 
 #ifndef USE_QRCODE
@@ -51,25 +36,37 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
 
     switch(mode)
     {
+    case ForPickup:
+        connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(accept()));
+        ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        ui->tableView->setFocus();
+        ui->signMessage->setVisible(false);
+        ui->verifyMessage->setVisible(false);
+        ui->deleteButton->setVisible(false);
+        break;
     case ForSending:
         connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(accept()));
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableView->setFocus();
+        ui->signMessage->setVisible(false);
+        ui->verifyMessage->setVisible(false);
+        ui->deleteButton->setVisible(false);
         break;
     case ForEditing:
         ui->buttonBox->setVisible(false);
         break;
     }
+
     switch(tab)
     {
     case SendingTab:
         ui->labelExplanation->setVisible(false);
-        ui->deleteButton->setVisible(true);
+        ui->deleteButton->setVisible(mode == ForEditing);
         ui->signMessage->setVisible(false);
         break;
     case ReceivingTab:
         ui->deleteButton->setVisible(false);
-        ui->signMessage->setVisible(true);
+        ui->signMessage->setVisible(mode == ForEditing);
         break;
     }
 
@@ -256,25 +253,26 @@ void AddressBookPage::selectionChanged()
 
     if(table->selectionModel()->hasSelection())
     {
+        bool in_editing = mode == ForEditing;
         switch(tab)
         {
         case SendingTab:
             // In sending tab, allow deletion of selection
-            ui->deleteButton->setEnabled(true);
-            ui->deleteButton->setVisible(true);
-            deleteAction->setEnabled(true);
+            ui->deleteButton->setEnabled(in_editing);
+            ui->deleteButton->setVisible(in_editing);
+            deleteAction->setEnabled(mode == ForEditing);
             ui->signMessage->setEnabled(false);
             ui->signMessage->setVisible(false);
-            ui->verifyMessage->setEnabled(true);
-            ui->verifyMessage->setVisible(true);
+            ui->verifyMessage->setEnabled(in_editing);
+            ui->verifyMessage->setVisible(in_editing);
             break;
         case ReceivingTab:
             // Deleting receiving addresses, however, is not allowed
             ui->deleteButton->setEnabled(false);
             ui->deleteButton->setVisible(false);
             deleteAction->setEnabled(false);
-            ui->signMessage->setEnabled(true);
-            ui->signMessage->setVisible(true);
+            ui->signMessage->setEnabled(in_editing);
+            ui->signMessage->setVisible(in_editing);
             ui->verifyMessage->setEnabled(false);
             ui->verifyMessage->setVisible(false);
             break;

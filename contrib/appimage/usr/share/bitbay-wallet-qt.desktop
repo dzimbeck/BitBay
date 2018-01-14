@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=bitbay-wallet-qt
+Comment=BitBay P2P Cryptocurrency
+Exec=/usr/bin/bitbay-wallet-qt
+Terminal=false
+Type=Application
+Icon=bitbay-wallet-qt
+MimeType=x-scheme-handler/bitbay;
+Categories=Office;

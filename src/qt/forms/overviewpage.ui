@@ -281,7 +281,7 @@
                </size>
               </property>
               <property name="text">
-               <string>Balance</string>
+               <string>Spendable</string>
               </property>
              </widget>
             </item>

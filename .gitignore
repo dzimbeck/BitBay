@@ -9,6 +9,7 @@ src/build.h
 *.rej
 *.orig
 *.o
+*.app
 .bitbay
 #compilation and Qt preprocessor part
 *.qm
@@ -24,5 +25,6 @@ build
 
 !src/leveldb/Makefile
 .qmake.stash
+bitbay-qt-local.pri
 bitbay-wallet-qt
 

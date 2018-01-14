@@ -15,10 +15,10 @@
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The BitBay developers</source>
+Copyright © 2014-2018 The BitBay developers</source>
         <translation>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The BitBay developers</translation>
+Copyright © 2014-2018 The BitBay developers</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -946,7 +946,7 @@ Adresse: %4
 
  Can vary +/- 1 Byte per input.</source>
         <translation>Denne etiket bliver rød, hvis transaktionen størrelse er større end 10000 byte.
- 
+
 Det betyder, at et gebyr på mindst %1 per kb er påkrævet.
 
 Kan variere + / - 1 byte per indgang.</translation>
@@ -959,22 +959,22 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
 
  This means a fee of at least %1 per kb is required.</source>
         <translation>Transaktioner med højere prioritet får mere sandsynligt en blok.
- 
+
 Denne etiket bliver rød, hvis prioritet er mindre end &quot;medium&quot;.
- 
+
 Det betyder, at et gebyr på mindst %1 per kb er påkrævet.</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>This label turns red, if any recipient receives an amount smaller than %1.
 
- This means a fee of at least %2 is required. 
+ This means a fee of at least %2 is required.
 
  Amounts below 0.546 times the minimum relay fee are shown as DUST.</source>
         <translation>Denne etiket bliver rød, hvis nogen modtager et beløb, der er mindre end %1.
- 
-Det betyder, at et gebyr på mindst %2 er påkrævet. 
- 
+
+Det betyder, at et gebyr på mindst %2 er påkrævet.
+
 Beløb under 0,546 gange det minimale gebyr er vist som DUST.</translation>
     </message>
     <message>
@@ -982,8 +982,8 @@ Beløb under 0,546 gange det minimale gebyr er vist som DUST.</translation>
         <source>This label turns red, if the change is smaller than %1.
 
  This means a fee of at least %2 is required.</source>
-        <translation>Denne etiket bliver rød, hvis ændringen er mindre end %1. 
- 
+        <translation>Denne etiket bliver rød, hvis ændringen er mindre end %1.
+
 Det betyder, at et gebyr på mindst %2 er påkrævet.</translation>
     </message>
     <message>
@@ -1972,9 +1972,189 @@ Det betyder, at et gebyr på mindst %2 er påkrævet.</translation>
     </message>
 </context>
 <context>
-    <name>SignVerifyMessageDialog</name>
+    <name>SignMessagePage</name>
     <message>
-        <location filename="../forms/signverifymessagedialog.ui" line="+14"/>
+        <location filename="../forms/signmessagepage.ui" line="+14"/>
+        <source>Signatures - Sign / Verify a Message</source>
+        <translation>Signature - Underskriv/verificér en besked</translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <location line="+124"/>
+        <source>&amp;Sign Message</source>
+        <translation>Underskriv besked</translation>
+    </message>
+    <message>
+        <location line="-118"/>
+        <source>You can sign messages with your addresses to prove you own them. Be careful not to sign anything vague, as phishing attacks may try to trick you into signing your identity over to them. Only sign fully-detailed statements you agree to.</source>
+        <translation>Du kan underskrive beskeder med dine Bitcoin-adresser for at bevise, at de tilhører dig. Pas på ikke at underskrive noget vagt, da phisingangreb kan narre dig til at overdrage din identitet. Underskriv kun fuldt detaljerede udsagn, du er enig i.</translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>The address to sign the message with (e.g. B8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</source>
+        <translation>Adresse til at underskrive meddelelsen med (f.eks B8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <location line="+203"/>
+        <source>Choose an address from the address book</source>
+        <translation>Vælg en adresse fra adressebogen</translation>
+    </message>
+    <message>
+        <location line="-193"/>
+        <location line="+203"/>
+        <source>Alt+A</source>
+        <translation>Alt+A</translation>
+    </message>
+    <message>
+        <location line="-193"/>
+        <source>Paste address from clipboard</source>
+        <translation>Indsæt adresse fra udklipsholderen</translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Alt+P</source>
+        <translation>Alt+P</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Enter the message you want to sign here</source>
+        <translation>Indtast beskeden, du ønsker at underskrive</translation>
+    </message>
+    <message>
+        <location line="+24"/>
+        <source>Copy the current signature to the system clipboard</source>
+        <translation>Kopier den nuværende underskrift til systemets udklipsholder</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>Sign the message to prove you own this BitBay address</source>
+        <translation>Underskriv brevet for at bevise du ejer denne BitBay adresse</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Reset all sign message fields</source>
+        <translation>Nulstil alle &quot;underskriv besked&quot;-felter</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <location line="+146"/>
+        <source>Clear &amp;All</source>
+        <translation>Ryd alle</translation>
+    </message>
+    <message>
+        <location line="-87"/>
+        <location line="+70"/>
+        <source>&amp;Verify Message</source>
+        <translation>Verificér besked</translation>
+    </message>
+    <message>
+        <location line="-64"/>
+        <source>Enter the signing address, message (ensure you copy line breaks, spaces, tabs, etc. exactly) and signature below to verify the message. Be careful not to read more into the signature than what is in the signed message itself, to avoid being tricked by a man-in-the-middle attack.</source>
+        <translation>Indtast den underskrevne adresse, beskeden (inkluder linjeskift, mellemrum mv. nøjagtigt, som de fremgår) og underskriften for at verificére beskeden. Vær forsigtig med ikke at lægge mere i underskriften end besked selv, så du undgår at blive narret af et man-in-the-middle-angreb.</translation>
+    </message>
+    <message>
+        <location line="+21"/>
+        <source>The address the message was signed with (e.g. B8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</source>
+        <translation>Adressen meddelelse blev underskrevet med (f.eks B8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</translation>
+    </message>
+    <message>
+        <location line="+40"/>
+        <source>Verify the message to ensure it was signed with the specified BitBay address</source>
+        <translation>Kontroller meddelelsen for at sikre, at den blev indgået med den angivne BitBay adresse</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Reset all verify message fields</source>
+        <translation>Nulstil alle &quot;verificér besked&quot;-felter</translation>
+    </message>
+    <message>
+        <location filename="../signverifymessagedialog.cpp" line="+27"/>
+        <location line="+3"/>
+        <source>Enter a BitBay address (e.g. B8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</source>
+        <translation>Indtast en BitBay-adresse (f.eks B8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)</translation>
+    </message>
+    <message>
+        <location line="-2"/>
+        <source>Click &quot;Sign Message&quot; to generate signature</source>
+        <translation>Klik &quot;Underskriv besked&quot; for at generere underskriften</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Enter BitBay signature</source>
+        <translation>Indtast BitBay underskrift</translation>
+    </message>
+    <message>
+        <location line="+85"/>
+        <location line="+81"/>
+        <source>The entered address is invalid.</source>
+        <translation>Den indtastede adresse er ugyldig.</translation>
+    </message>
+    <message>
+        <location line="-81"/>
+        <location line="+8"/>
+        <location line="+73"/>
+        <location line="+8"/>
+        <source>Please check the address and try again.</source>
+        <translation>Tjek venligst adressen, og forsøg igen.</translation>
+    </message>
+    <message>
+        <location line="-81"/>
+        <location line="+81"/>
+        <source>The entered address does not refer to a key.</source>
+        <translation>Den indtastede adresse henviser ikke til en nøgle.</translation>
+    </message>
+    <message>
+        <location line="-73"/>
+        <source>Wallet unlock was cancelled.</source>
+        <translation>Tegnebogsoplåsning annulleret.</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Private key for the entered address is not available.</source>
+        <translation>Den private nøgle for den indtastede adresse er ikke tilgængelig.</translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Message signing failed.</source>
+        <translation>Underskrivning af besked mislykkedes.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Message signed.</source>
+        <translation>Besked underskrevet.</translation>
+    </message>
+    <message>
+        <location line="+59"/>
+        <source>The signature could not be decoded.</source>
+        <translation>Underskriften kunne ikke afkodes.</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <location line="+13"/>
+        <source>Please check the signature and try again.</source>
+        <translation>Tjek venligst underskriften, og forsøg igen.</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>The signature did not match the message digest.</source>
+        <translation>Underskriften matcher ikke beskedens indhold.</translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Message verification failed.</source>
+        <translation>Verificéring af besked mislykkedes.</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Message verified.</source>
+        <translation>Besked verificéret.</translation>
+    </message>
+</context>
+<context>
+    <name>VerifyMessagePage</name>
+    <message>
+        <location filename="../forms/verifymessagepage.ui" line="+14"/>
         <source>Signatures - Sign / Verify a Message</source>
         <translation>Signature - Underskriv/verificér en besked</translation>
     </message>
@@ -2735,8 +2915,8 @@ for example: alertnotify=echo %%s | mail -s &quot;BitBay Alert&quot; admin@foo.c
     </message>
     <message>
         <location line="+5"/>
-        <source>Listen for connections on &lt;port&gt; (default: 15714 or testnet: 25714)</source>
-        <translation>Lyt efter forbindelser på &lt;port&gt; (default: 15714 eller Testnet: 25714)</translation>
+        <source>Listen for connections on &lt;port&gt; (default: 19914 or testnet: 21914)</source>
+        <translation>Lyt efter forbindelser på &lt;port&gt; (default: 19914 eller Testnet: 21914)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2785,8 +2965,8 @@ for example: alertnotify=echo %%s | mail -s &quot;BitBay Alert&quot; admin@foo.c
     </message>
     <message>
         <location line="+63"/>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 15715 or testnet: 25715)</source>
-        <translation>Spor efter JSON-RPC-forbindelser på &lt;port&gt; (default: 15715 eller Testnet: 25715)</translation>
+        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 19915 or testnet: 21915)</source>
+        <translation>Spor efter JSON-RPC-forbindelser på &lt;port&gt; (default: 19915 eller Testnet: 21915)</translation>
     </message>
     <message>
         <location line="-16"/>

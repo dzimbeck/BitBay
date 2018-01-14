@@ -18,9 +18,7 @@ QRCodeDialog::QRCodeDialog(const QString &addr, const QString &label, bool enabl
     address(addr)
 {
     ui->setupUi(this);
-    for(auto l : findChildren<QLabel *>()) { // need for mac
-        l->setFont(QApplication::font());
-    }
+    GUIUtil::SetBitBayFonts(this);
 
     setWindowTitle(QString("%1").arg(address));
 

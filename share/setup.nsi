@@ -5,7 +5,7 @@ SetCompressor /SOLID lzma
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 0.3.0
+!define VERSION 2.0.0
 !define COMPANY "BitBay project"
 !define URL http://bitbay.market/
 
@@ -51,7 +51,7 @@ CRCCheck on
 XPStyle on
 BrandingText " "
 ShowInstDetails show
-VIProductVersion 2.0.1.0
+VIProductVersion 2.0.0.1
 VIAddVersionKey ProductName BitBay-Wallet-Qt
 VIAddVersionKey ProductVersion "${VERSION}"
 VIAddVersionKey CompanyName "${COMPANY}"

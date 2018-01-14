@@ -337,6 +337,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
+    progressBarLabel->setStyleSheet("QLabel { padding-left: 10px; }");
     progressBarLabel->setVisible(false);
     progressBar = new QProgressBar();
     progressBar->setAlignment(Qt::AlignCenter);
@@ -346,16 +347,16 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
         QProgressBar {
             max-height: 18px;
-            background-color: rgb(102,104,176);
+            background-color: #e4e5f1;
             border: 0px solid grey;
             border-radius: 0px;
             padding: 0px;
             margin: 4px;
-            color: rgb(109,140,0);
+            color: #666666;
             text-align: center;
         }
         QProgressBar::chunk {
-            background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange);
+            background: #FFD402;
             border-radius: 0px;
             margin: 0px;
         }
@@ -745,7 +746,8 @@ void BitcoinGUI::setNumBlocks(int count)
         progressBar->setVisible(true);
 
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
-        labelBlocksIcon->setMovie(syncIconMovie);
+        //labelBlocksIcon->setMovie(syncIconMovie);
+        labelBlocksIcon->setPixmap(QIcon(":/icons/unsynced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
         if(count != prevBlocks)
             syncIconMovie->jumpToNextFrame();
         prevBlocks = count;

@@ -265,7 +265,7 @@ script:
   if [[ $ARCH == "mxe" ]]; then
     cd src                              &&
     make -j2 -f makefile.linux-mingw    &&
-    tar -zcf $DEPLOY_FILE bitbayd.exe   &&
+    zip -r $DEPLOY_FILE bitbayd.exe     &&
     cd ..                               &&
     mv src/$DEPLOY_FILE .               ;
   fi;

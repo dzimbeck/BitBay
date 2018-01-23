@@ -1,145 +1,301 @@
 language: cpp
 matrix:
   include:
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: DEPLOY_FILE=bitbay-wallet-qt_linux64.tgz
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: DEPLOY_FILE=bitbay-wallet-qt_linux32.tgz ARCH="x86"
-  - os: osx
-    osx_image: xcode7.2
-    compiler: clang
-    env: DEPLOY_FILE=bitbay-wallet-qt_mac.zip
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: DEPLOY_FILE=bitbay-wallet-qt_linux64.tgz ARCH="x64"
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: DEPLOY_FILE=bitbay-wallet-qt_linux32.tgz ARCH="x86"
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: DEPLOY_FILE=bitbayd_win.zip ARCH="mxe"
+    - os: osx
+      osx_image: xcode7.2
+      compiler: clang
+      env: DEPLOY_FILE=bitbay-wallet-qt_mac.zip ARCH="mac"
+
 install:
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install boost || echo -'
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install openssl || echo -'
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install miniupnpc'
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew install qt$BREW'
-- '[ "$TRAVIS_OS_NAME" != osx ] || brew link --force qt$BREW'
-- qmake -v
+- export REPOL=https://github.com/bitbaymarket/bitbay-prebuilt-libs1
+- export BASE1=$REPOL/releases/download/base1
+- >
+  if [[ $ARCH == "x86" ]]; then
+    sudo add-apt-repository -y ppa:beineri/opt-qt593-trusty     &&
+    sudo add-apt-repository -y ppa:bitcoin/bitcoin              &&
+    sudo apt-get update                                         &&
+    sudo apt-get install --no-install-recommends -y gcc-multilib g++-multilib &&
+    sudo apt-get install -y libdb4.8-dev:i386                   &&
+    sudo apt-get install -y libdb4.8++-dev:i386                 &&
+    sudo apt-get install -y libboost-filesystem-dev:i386        &&
+    sudo apt-get install -y libboost-program-options-dev:i386   &&
+    sudo apt-get install -y libboost-thread-dev:i386            &&
+    sudo apt-get install -y libssl-dev:i386                     &&
+    sudo apt-get install -y libgl1-mesa-dev:i386                &&
+    sudo apt-get install -y libminiupnpc-dev:i386               &&
+    sudo apt-get install -y libfuse-dev:i386                    &&
+    sudo apt-get install -y qt59base:i386                       &&
+    sudo apt-get install -y qt59tools:i386                      &&
+    source /opt/qt59/bin/qt59-env.sh                            &&
+    export                                                      ;
+  fi &&
+  if [[ $ARCH == "x64" ]]; then
+    sudo add-apt-repository -y ppa:beineri/opt-qt593-trusty     &&
+    sudo add-apt-repository -y ppa:bitcoin/bitcoin              &&
+    sudo apt-get update                                         &&
+    sudo apt-get install -y libdb4.8-dev                        &&
+    sudo apt-get install -y libdb4.8++-dev                      &&
+    sudo apt-get install -y libboost-filesystem-dev             &&
+    sudo apt-get install -y libboost-program-options-dev        &&
+    sudo apt-get install -y libboost-thread-dev                 &&
+    sudo apt-get install -y libssl-dev                          &&
+    sudo apt-get install -y libminiupnpc-dev                    &&
+    sudo apt-get install -y qt59-meta-minimal                   &&
+    sudo apt-get install -y qt59tools                           &&
+    source /opt/qt59/bin/qt59-env.sh                            &&
+    export                                                      ;
+  fi &&
+  if [[ $ARCH == "mac" ]]; then
+    brew install boost || echo -                                ;
+    brew install openssl || echo -                              ;
+    brew install miniupnpc                                      &&
+    brew install qt                                             &&
+    brew link --force qt                                        &&
+    cd "$TRAVIS_BUILD_DIR"                                      &&
+    curl -fsSL -o db-4.8.30.NC.tar.gz \
+        $BASE1/db-4.8.30.NC.tar.gz                              &&
+    tar -zxf db-4.8.30.NC.tar.gz                                &&
+    mv db-4.8.30.NC db                                          &&
+    cd db                                                       &&
+    patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch       &&
+    cd build_unix                                               &&
+    CFLAGS="-mmacosx-version-min=10.9" \
+        CXXFLAGS="-mmacosx-version-min=10.9" \
+        sh ../dist/configure --enable-cxx --prefix=`pwd`/inst   &&
+    make -j2                                                    &&
+    make install                                                &&
+    cd ..                                                       &&
+    cd ..                                                       ;
+  fi &&
+  if [[ $ARCH == "mxe" ]]; then
+    sudo sh -c 'echo "deb http://pkg.mxe.cc/repos/apt/debian wheezy main" > /etc/apt/sources.list.d/mxeapt.list' &&
+    sudo apt-key adv \
+        --keyserver keyserver.ubuntu.com \
+        --recv-keys D43A795B73B16ABE9643FE1AFD8FFF16DB45C6AB        &&
+    sudo apt-get update                                             &&
+    export                                                          &&
+    sudo apt-get install -y mxe-i686-w64-mingw32.static-gcc         &&
+    sudo apt-get install -y mxe-i686-w64-mingw32.static-boost       &&
+    sudo apt-get install -y mxe-i686-w64-mingw32.static-miniupnpc   &&
+    sudo apt-get install -y mxe-i686-w64-mingw32.static-openssl     &&
+    sudo apt-get install -y mxe-i686-w64-mingw32.static-zlib        &&
+    cd "$TRAVIS_BUILD_DIR"                                          &&
+    curl -fsSL -o db-4.8.30.NC.tar.gz \
+        $BASE1/db-4.8.30.NC.tar.gz &&
+    curl -fsSL -o db-4.8.30-fix-for-mingw.patch \
+        $REPOL/raw/master/patches/db-4.8.30-fix-for-mingw.patch &&
+    tar -zxf db-4.8.30.NC.tar.gz                                &&
+    mv db-4.8.30.NC db                                          &&
+    cd db                                                       &&
+    cd build_unix                                               &&
+    export MXE_PATH=/usr/lib/mxe                                &&
+    export CC=$MXE_PATH/usr/bin/i686-w64-mingw32.static-gcc     &&
+    export CXX=$MXE_PATH/usr/bin/i686-w64-mingw32.static-g++    &&
+    sh ../dist/configure \
+        --enable-mingw \
+        --enable-cxx \
+        --host x86 \
+        --disable-replication \
+        --prefix=$MXE_PATH/usr/i686-w64-mingw32.static          &&
+    perl -i -pe 's/define socklen_t int/define socklen_t_xx int/m' db_config.h &&
+    perl -i -pe 's/define HAVE_REPLICATION_THREADS 1/define HAVE_REPLICATION_THREADS_XX 1/m' db_config.h &&
+    cd ..                                                       &&
+    patch -p1 < ../db-4.8.30-fix-for-mingw.patch                &&
+    cd build_unix                                               &&
+    make -j2                                                    &&
+    cd ..                                                       &&
+    cd ..                                                       &&
+    mkdir static_db_4_8_win                                     &&
+    mkdir static_db_4_8_win/include                             &&
+    cp db/build_unix/*.h static_db_4_8_win/include/             &&
+    cp db/build_unix/lib*a static_db_4_8_win/                   ;
+  fi
+
 before_script:
-- '[[ "$TRAVIS_OS_NAME" != osx   || "$CXX" != clang++ ]] || export QMAKESPEC=macx-clang'
+- export REPOL=https://github.com/bitbaymarket/bitbay-prebuilt-libs1
+- export BASE1=$REPOL/releases/download/base1
+- >
+  if [[ $ARCH == "mac" ]]; then
+    export QMAKESPEC=macx-clang;
+  fi
+
 script:
-- |
-  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
-    sudo add-apt-repository -y ppa:beineri/opt-qt593-trusty;
-    sudo add-apt-repository -y ppa:bitcoin/bitcoin;
-    sudo apt-get update;
-    if [[ $ARCH == "x86" ]]; then
-      sudo apt-get install --no-install-recommends -y gcc-multilib g++-multilib;
-      sudo apt-get install -y libdb4.8-dev:i386;
-      sudo apt-get install -y libdb4.8++-dev:i386;
-      sudo apt-get install -y libboost-filesystem-dev:i386;
-      sudo apt-get install -y libboost-program-options-dev:i386;
-      sudo apt-get install -y libboost-thread-dev:i386;
-      sudo apt-get install -y libssl-dev:i386;
-      sudo apt-get install -y libgl1-mesa-dev:i386;
-      sudo apt-get install -y libminiupnpc-dev:i386;
-      sudo apt-get install -y libfuse-dev:i386;
-      sudo apt-get install -y qt59base:i386;
-      sudo apt-get install -y qt59tools:i386;
-      gcc --print-multiarch;
-    else
-      sudo apt-get install -y libdb4.8-dev;
-      sudo apt-get install -y libdb4.8++-dev;
-      sudo apt-get install -y libboost-filesystem-dev;
-      sudo apt-get install -y libboost-program-options-dev;
-      sudo apt-get install -y libboost-thread-dev;
-      sudo apt-get install -y libssl-dev;
-      sudo apt-get install -y libminiupnpc-dev;
-      sudo apt-get install -y qt59-meta-minimal;
-      sudo apt-get install -y qt59tools;
-    fi;
-    source /opt/qt59/bin/qt59-env.sh;
-    export;
-  else
-    cd "$TRAVIS_BUILD_DIR";
-    curl -fsSL -o db-4.8.30.NC.tar.gz https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/db-4.8.30.NC.tar.gz;
-    tar -zxf db-4.8.30.NC.tar.gz;
-    mv db-4.8.30.NC db;
-    cd db;
-    patch dbinc/atomic.h < ../doc/mac_db-4.8_atomic.patch;
-    cd build_unix;
-    CFLAGS="-mmacosx-version-min=10.9" CXXFLAGS="-mmacosx-version-min=10.9" sh ../dist/configure --enable-cxx --prefix=`pwd`/inst;
-    make -j2;
-    make install;
-    cd ..;
-    cd ..;
-  fi;
-- qmake -v
 - cd "$TRAVIS_BUILD_DIR"
 - |
   if [[ $ARCH == "x86" ]]; then
-    qmake "CICD=travis_mac" QMAKE_CFLAGS+=-m32 QMAKE_CXXFLAGS+=-m32 QMAKE_LFLAGS+=-m32 bitbay-qt.pro;
-  else
-    qmake "CICD=travis_mac" bitbay-qt.pro;
-  fi;
-- make -j2
-- ls -l
-- |
-  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
-    ldd bitbay-wallet-qt;
-    file bitbay-wallet-qt;
-    cp -r contrib/appimage appdir;
-    cp src/qt/res/icons/BitBay-Wallet-Icon-128.png appdir/usr/share/icons/hicolor/128x128/bitbay-wallet-qt.png;
-    cp src/qt/res/icons/BitBay-Wallet-Icon-256.png appdir/usr/share/icons/hicolor/256x256/bitbay-wallet-qt.png;
-    cp bitbay-wallet-qt appdir/usr/bin/;
+    qmake -v &&
+    qmake \
+        CICD=travis_x86 \
+        QMAKE_CFLAGS+=-m32 \
+        QMAKE_CXXFLAGS+=-m32 \
+        QMAKE_LFLAGS+=-m32 \
+        bitbay-qt.pro &&
+    make -j2;
+  fi &&
+  if [[ $ARCH == "x64" ]]; then
+    qmake -v &&
+    qmake \
+        CICD=travis_x64 \
+        bitbay-qt.pro &&
+    make -j2;
+  fi &&
+  if [[ $ARCH == "mac" ]]; then
+    qmake -v &&
+    qmake \
+        CICD=travis_mac \
+        bitbay-qt.pro &&
+    make -j2;
+  fi &&
+  if [[ $ARCH == "mxe_skip_now" ]]; then
+    echo $MXE_PATH/usr/bin/i686-w64-mingw32.static-qmake -v &&
+    echo $MXE_PATH/usr/bin/i686-w64-mingw32.static-qmake \
+        CICD=travis_mxe \
+        bitbay-qt.pro &&
+    echo make -j2;
+  fi
 
-    if [[ $ARCH == "x86" ]]; then
-      curl -fsSL -o appimagetool https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/appimagetool-i686.AppImage;
-      chmod 755 appimagetool;
-      ./appimagetool --help;
-      export PATH=`pwd`:$PATH;
-      curl -fsSL -o linuxdeployqt-continuous.tar.gz https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/linuxdeployqt-continuous.tar.gz;
-      tar -zxf linuxdeployqt-continuous.tar.gz;
-      cd linuxdeployqt-continuous;
-      qmake QMAKE_CFLAGS+=-m32 QMAKE_CXXFLAGS+=-m32 QMAKE_LFLAGS+=-m32;
-      make -j2;
-      ls;
-      cd ..;
-      curl -fsSL -o patchelf.tar.gz https://github.com/NixOS/patchelf/archive/0.9.tar.gz;
-      tar -zxf patchelf.tar.gz;
-      cd patchelf-0.9;
-      ./bootstrap.sh;
-      ./configure;
-      make -j2;
-      sudo make install;
-      cd ..;
-      ./linuxdeployqt-continuous/bin/linuxdeployqt appdir/usr/share/bitbay-wallet-qt.desktop -appimage;
-      mv bitbay-wallet-qt-i386.AppImage bitbay-wallet-qt;
-      tar -zcf $DEPLOY_FILE bitbay-wallet-qt;
-    else
-      curl -fsSL -o linuxdeployqt https://github.com/bitbaymarket/bitbay-prebuilt-libs1/releases/download/base1/linuxdeployqt-continuous-x86_64.AppImage;
-      chmod 755 linuxdeployqt;
-      ./linuxdeployqt appdir/usr/share/bitbay-wallet-qt.desktop -appimage;
-      ls -l;
-      mv bitbay-wallet-qt-x86_64.AppImage bitbay-wallet-qt;
-      tar -zcf $DEPLOY_FILE bitbay-wallet-qt;
-    fi;
+- ls -l
+- >
+  if [[ $ARCH == "x86" ]]; then
+    ldd bitbay-wallet-qt                        &&
+    file bitbay-wallet-qt                       &&
+    cp -r contrib/appimage appdir               &&
+    cp src/qt/res/icons/BitBay-Wallet-Icon-128.png \
+        appdir/usr/share/icons/hicolor/128x128/bitbay-wallet-qt.png &&
+    cp src/qt/res/icons/BitBay-Wallet-Icon-256.png \
+        appdir/usr/share/icons/hicolor/256x256/bitbay-wallet-qt.png &&
+    cp bitbay-wallet-qt appdir/usr/bin/         &&
+    curl -fsSL -o appimagetool \
+        $BASE1/appimagetool-i686.AppImage       &&
+    chmod 755 appimagetool                      &&
+    ./appimagetool --help                       &&
+    export PATH=`pwd`:$PATH                     &&
+    curl -fsSL -o linuxdeployqt-continuous.tar.gz \
+        $BASE1/linuxdeployqt-continuous.tar.gz  &&
+    tar -zxf linuxdeployqt-continuous.tar.gz    &&
+    cd linuxdeployqt-continuous                 &&
+    qmake \
+        QMAKE_CFLAGS+=-m32 \
+        QMAKE_CXXFLAGS+=-m32 \
+        QMAKE_LFLAGS+=-m32                      &&
+    make -j2                                    &&
+    ls                                          &&
+    cd ..                                       &&
+    curl -fsSL -o patchelf.tar.gz \
+        $BASE1/patchelf-0.9.tar.gz &&
+    tar -zxf patchelf.tar.gz                    &&
+    cd patchelf-0.9                             &&
+    ./bootstrap.sh                              &&
+    ./configure                                 &&
+    make -j2                                    &&
+    sudo make install                           &&
+    cd ..                                       &&
+    ./linuxdeployqt-continuous/bin/linuxdeployqt \
+        appdir/usr/share/bitbay-wallet-qt.desktop \
+        -appimage                               &&
+    mv bitbay-wallet-qt-i386.AppImage \
+        bitbay-wallet-qt                        &&
+    tar -zcf $DEPLOY_FILE bitbay-wallet-qt      ;
+  fi &&
+  if [[ $ARCH == "x64" ]]; then
+    ldd bitbay-wallet-qt                        &&
+    file bitbay-wallet-qt                       &&
+    cp -r contrib/appimage appdir               &&
+    cp src/qt/res/icons/BitBay-Wallet-Icon-128.png \
+        appdir/usr/share/icons/hicolor/128x128/bitbay-wallet-qt.png &&
+    cp src/qt/res/icons/BitBay-Wallet-Icon-256.png \
+        appdir/usr/share/icons/hicolor/256x256/bitbay-wallet-qt.png &&
+    cp bitbay-wallet-qt appdir/usr/bin/         &&
+    ls                                          &&
+    curl -fsSL -o linuxdeployqt \
+        $BASE1/linuxdeployqt-continuous-x86_64.AppImage &&
+    chmod 755 linuxdeployqt                     &&
+    ./linuxdeployqt \
+        appdir/usr/share/bitbay-wallet-qt.desktop \
+        -appimage                               &&
+    ls -l                                       &&
+    mv bitbay-wallet-qt-x86_64.AppImage \
+        bitbay-wallet-qt                        &&
+    tar -zcf $DEPLOY_FILE bitbay-wallet-qt      ;
+  fi
+
+- >
+  if [[ $ARCH == "x86" ]]; then
+    cd src                          &&
+    echo make -j2 -f makefile.unix  &&
+    cd ..                           ;
+  fi &&
+  if [[ $ARCH == "x64" ]]; then
+    cd src                          &&
+    echo make -j2 -f makefile.unix  &&
+    cd ..                           ;
   fi;
-- cd src
-- |
-  if [[ $TRAVIS_OS_NAME == "linux" ]]; then
-    echo make -j2 -f makefile.unix;
-  else
-    make -j2 -f makefile.osx;
-    cd ..
-    cp src/bitbayd BitBay-Wallet-Qt.app/Contents/MacOS/
-    macdeployqt BitBay-Wallet-Qt.app -verbose=2 -executable=BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
-    otool -L BitBay-Wallet-Qt.app/Contents/MacOS/BitBay-Wallet-Qt
-    otool -L BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd
-    install_name_tool -change /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib \
-      @executable_path/../Frameworks/libcrypto.1.0.0.dylib BitBay-Wallet-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib;
-    ls;
+  if [[ $ARCH == "mac" ]]; then
+    cd src                          &&
+    make -j2 -f makefile.osx        &&
+    cd ..                           &&
+    cp src/bitbayd \
+        BitBay-Wallet-Qt.app/Contents/MacOS/    &&
+    macdeployqt \
+        BitBay-Wallet-Qt.app \
+        -verbose=2 \
+        -executable=BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd     &&
+    otool -L BitBay-Wallet-Qt.app/Contents/MacOS/BitBay-Wallet-Qt   &&
+    otool -L BitBay-Wallet-Qt.app/Contents/MacOS/bitbayd            &&
+    install_name_tool \
+        -change \
+        /usr/local/Cellar/openssl/1.0.2l/lib/libcrypto.1.0.0.dylib \
+        @executable_path/../Frameworks/libcrypto.1.0.0.dylib \
+        BitBay-Wallet-Qt.app/Contents/Frameworks/libssl.1.0.0.dylib &&
+    ls                                                              &&
     zip -r $DEPLOY_FILE BitBay-Wallet-Qt.app;
+  fi &&
+  if [[ $ARCH == "mxe" ]]; then
+    cd src                              &&
+    make -j2 -f makefile.linux-mingw    &&
+    zip -r $DEPLOY_FILE bitbayd.exe     &&
+    cd ..                               &&
+    mv src/$DEPLOY_FILE .               ;
   fi;
+
+- file $DEPLOY_FILE
+
 deploy:
-  provider: releases
-  api_key:
-    secure: hrs2GuAfxrKtREvbs+IJIovABbR4dyMqh47Z/73lup+d8NwMQLzIHW7q1YGJ6T6YznUgL7IZyY4JvRXdIGk+OazToWWbu0uyzM4tx5iRabsGGvnlev8O4UcAMBNgZDavIxYApH4zJq2hyew8BC7fSKHLDSpVBOfThEea4tOEUs+3389bCBi99K1LW97Pwt+jWYmqfkNlPZOgLJh3yIIOL7t1Yz1HizGI1b44JpkvYX0zSuDl5FBqQTOtkWX4BWy8wdJPqYeH4GHRgla+sPIRVIjW7/ktgP4WNJSn+5YOwz0yKMhbAwZZIvHM5Ncb0pDjpPitIF6jiriuvWH7Far1G7GqiNfk2WZAZ6pzs7Gy4H4ikPqJDwHsVR5S52fneFtm8F4fP5b/DfyVFhqRf/BPJt+68587KV6W65Gy/+ZogLchu295cEfBOB6ytKPzNVMje6p+LswmY+kmYk1iWIcPyansbPGLJFUeura0dr6ykp717LBC1MHgvW0Ok5qYbCu51gIhfQd+Xz+OemeJwYQ+OZa5cOZE+FtV2XKmLjgy1J1iafqiOLeV+eLPkAUrLqxykwTBsTZrr1xQIEtHGMsR3/w7bLjWkB4O+iVC27mlOpslMDOlhQaF6IyrUQoYhQr6RrYTvbTOWIQBSdMCvKOj8kXkLjCbXM0lYQTy3WXiml0=
-  file: ".travis.yml"
-  on:
-    repo: dzimbeck/BitBay
+  - provider: releases
+    api_key:
+      secure: AHuZPRysIoRuF2MBKxwOHQ6RrCOHA1vTh+hiqWznHdvf1/Db0ITtk/E78JUCgKmrV7d9mDUN1SV1cBogYycu4ecxQZvHOAyNoFi4FFkthndGzrPQMjzmyZCH4DS0jZT9suq3L0dr+N9/U1K1DxZvkFPulsJS1zIHuAyGIhaBvOnJ0o1K4bLltWLaPnOsc+bIFH7lX33Vu1aHmlOjt2BAXYVNdeSRQzIh0ffCYw0DM+NjIq7mUFkMhUoq5zASENgtypN9i/+edCi9IMk/zBPit3vry/9u6L0EUD8GaSDXNsk072uFxqL94juO+kSdJqiHCv1UdQYkPADJXyo8VaMlmovrt5lKa0CL7s0QzH+qw8VDl7ezgcoSFxiyztkVrX+l97arsvtkom5Laa7mrScQttLaDyki2jLiC6tFySHbhW0W7cTnvXlTM3PkJvuXszrxHn5Ifhvt3jLphQ+8iafwfC9M3uqEoCP/rXkXJtLzQVpwPUSQ/S1vuqlZKci4o2YJ7ftemuZ/1Kh04J+cd/RFRf3vOVgr1ujPsBYr95tUVrwBni6LTu/LcXxoUDq2W08XYwHzRqrdsILRILx8Gs/siO8OMdoB/II0qEq0vyAsuVHbeOH0OYtYbbNUnyAfgDjSzFd/VZHN/ZevDicaS3G4D/gOXyNhS9B1hG+OFTivzQE=
+    file: $TRAVIS_BUILD_DIR/$DEPLOY_FILE
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: bitbaymarket/bitbay-core
+
+  - provider: releases
+    api_key:
+      secure: pLwB88n+hu56NAojvbdCcbzf80LiWKNAD4jlpQdXLisM/9pFQlyjZGo1mwyY7Sy4DuouCWkoWB895flsnBH2sVQzeJhXE9Jb3cTx8VGMlOTTeMqDcJJSswTpqf8MBXwQKAVOjhQIRBDZ27q/5+KRT3TaK9MrNmW2ul+PaGI1PWGvq5Qer9wNgqGIf9sDHIPhdG46YNa9eXzdq/e8xpD6kUxUWFoSx8w6w8mBAGXcKCpxZQqEZs1V9HUDo+a+x69fJFiA8qN9OsfbIeN7NG22/2Ahw9SUw/nYa5JLokbLLFG5wIpKh4u8/7zFTOuWiHz+A64kLaanlMjIM1otz1aS3/iOsd6LZ7bhtTCLYGMsjvGnkhlXwO45hdUHz5YeTY4/oM6yC8mB5VYvPiSsTtgu/C9brydo2a6KXc6yfYkHjEX0AD5E4QwnZAVAyjsIP+0jR+0Ljs3Nh/VfU16kBclIj6lnv2sjYxetMgPkk29HlelUEa/WL/IUhWzlL1/M2a2vwI/aCg3c7niLmmYLIo1dd8pt0GVxfqQVVGGGHXOH9LyCR4x3A6wZKaLDEKc8VArWJl+jRtqltrrxQuY9W8Vw7pbphgeORpoOVZ3lbWZrhr5aiMicYEPHYJ7Yd7bItLxX8wiyMdkK13cgLU9z6s24SVqK5cxgsbnANM1LEIfwPjA=
+    file: $TRAVIS_BUILD_DIR/$DEPLOY_FILE
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: yshurik/BitBay
+
+  - provider: releases
+    api_key:
+      secure: hrs2GuAfxrKtREvbs+IJIovABbR4dyMqh47Z/73lup+d8NwMQLzIHW7q1YGJ6T6YznUgL7IZyY4JvRXdIGk+OazToWWbu0uyzM4tx5iRabsGGvnlev8O4UcAMBNgZDavIxYApH4zJq2hyew8BC7fSKHLDSpVBOfThEea4tOEUs+3389bCBi99K1LW97Pwt+jWYmqfkNlPZOgLJh3yIIOL7t1Yz1HizGI1b44JpkvYX0zSuDl5FBqQTOtkWX4BWy8wdJPqYeH4GHRgla+sPIRVIjW7/ktgP4WNJSn+5YOwz0yKMhbAwZZIvHM5Ncb0pDjpPitIF6jiriuvWH7Far1G7GqiNfk2WZAZ6pzs7Gy4H4ikPqJDwHsVR5S52fneFtm8F4fP5b/DfyVFhqRf/BPJt+68587KV6W65Gy/+ZogLchu295cEfBOB6ytKPzNVMje6p+LswmY+kmYk1iWIcPyansbPGLJFUeura0dr6ykp717LBC1MHgvW0Ok5qYbCu51gIhfQd+Xz+OemeJwYQ+OZa5cOZE+FtV2XKmLjgy1J1iafqiOLeV+eLPkAUrLqxykwTBsTZrr1xQIEtHGMsR3/w7bLjWkB4O+iVC27mlOpslMDOlhQaF6IyrUQoYhQr6RrYTvbTOWIQBSdMCvKOj8kXkLjCbXM0lYQTy3WXiml0=
+    file: $TRAVIS_BUILD_DIR/$DEPLOY_FILE
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: dzimbeck/BitBay

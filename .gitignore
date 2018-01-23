@@ -22,6 +22,8 @@ qrc_*.cpp
 #mac specific
 .DS_Store
 build
+nodes
+db
 
 !src/leveldb/Makefile
 .qmake.stash

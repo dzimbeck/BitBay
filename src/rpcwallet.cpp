@@ -792,10 +792,12 @@ struct tallyitem
 {
     int64_t nAmount;
     int nConf;
+    bool fIsWatchonly;
     tallyitem()
     {
         nAmount = 0;
         nConf = std::numeric_limits<int>::max();
+        fIsWatchonly = false;
     }
 };
 
@@ -810,6 +812,11 @@ Value ListReceived(const Array& params, bool fByAccounts)
     bool fIncludeEmpty = false;
     if (params.size() > 1)
         fIncludeEmpty = params[1].get_bool();
+
+    isminefilter filter = MINE_SPENDABLE;
+    if(params.size() > 2)
+        if(params[2].get_bool())
+            filter = filter | MINE_WATCH_ONLY;
 
     // Tally
     map<CBitcoinAddress, tallyitem> mapTally;
@@ -830,9 +837,15 @@ Value ListReceived(const Array& params, bool fByAccounts)
             if (!ExtractDestination(txout.scriptPubKey, address) || !IsMine(*pwalletMain, address))
                 continue;
 
+            isminefilter mine = IsMine(*pwalletMain, address);
+            if(!(mine & filter))
+                continue;
+
             tallyitem& item = mapTally[address];
             item.nAmount += txout.nValue;
             item.nConf = min(item.nConf, nDepth);
+            if (mine & MINE_WATCH_ONLY)
+                item.fIsWatchonly = true;
         }
     }
 
@@ -849,10 +862,12 @@ Value ListReceived(const Array& params, bool fByAccounts)
 
         int64_t nAmount = 0;
         int nConf = std::numeric_limits<int>::max();
+        bool fIsWatchonly = false;
         if (it != mapTally.end())
         {
             nAmount = (*it).second.nAmount;
             nConf = (*it).second.nConf;
+            fIsWatchonly = (*it).second.fIsWatchonly;
         }
 
         if (fByAccounts)
@@ -860,10 +875,13 @@ Value ListReceived(const Array& params, bool fByAccounts)
             tallyitem& item = mapAccountTally[strAccount];
             item.nAmount += nAmount;
             item.nConf = min(item.nConf, nConf);
+            item.fIsWatchonly = fIsWatchonly;
         }
         else
         {
             Object obj;
+            if(fIsWatchonly)
+                obj.push_back(Pair("involvesWatchonly", true));
             obj.push_back(Pair("address",       address.ToString()));
             obj.push_back(Pair("account",       strAccount));
             obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
@@ -879,6 +897,8 @@ Value ListReceived(const Array& params, bool fByAccounts)
             int64_t nAmount = (*it).second.nAmount;
             int nConf = (*it).second.nConf;
             Object obj;
+            if((*it).second.fIsWatchonly)
+                obj.push_back(Pair("involvesWatchonly", true));
             obj.push_back(Pair("account",       (*it).first));
             obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
             obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
@@ -891,12 +911,14 @@ Value ListReceived(const Array& params, bool fByAccounts)
 
 Value listreceivedbyaddress(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() > 2)
+    if (fHelp || params.size() > 3)
         throw runtime_error(
-            "listreceivedbyaddress [minconf=1] [includeempty=false]\n"
+            "listreceivedbyaddress [minconf=1] [includeempty=false] [includewatchonly=false]\n"
             "[minconf] is the minimum number of confirmations before payments are included.\n"
             "[includeempty] whether to include addresses that haven't received any payments.\n"
+            "[includewatchonly] whether to include watchonly addresses (see 'importaddress').\n"
             "Returns an array of objects containing:\n"
+            "  \"involvesWatchonly\" : \"true\", (bool) only returned if imported addresses were involved in transaction\n"
             "  \"address\" : receiving address\n"
             "  \"account\" : the account of the receiving address\n"
             "  \"amount\" : total amount received by the address\n"

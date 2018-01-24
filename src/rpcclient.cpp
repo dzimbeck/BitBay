@@ -111,6 +111,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "getreceivedbyaccount", 1 },
     { "listreceivedbyaddress", 0 },
     { "listreceivedbyaddress", 1 },
+    { "listreceivedbyaddress", 2 },
     { "listreceivedbyaccount", 0 },
     { "listreceivedbyaccount", 1 },
     { "getbalance", 1 },

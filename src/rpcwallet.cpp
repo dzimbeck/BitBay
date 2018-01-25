@@ -792,6 +792,7 @@ struct tallyitem
 {
     int64_t nAmount;
     int nConf;
+    vector<uint256> txids;
     bool fIsWatchonly;
     tallyitem()
     {
@@ -813,10 +814,13 @@ Value ListReceived(const Array& params, bool fByAccounts)
     if (params.size() > 1)
         fIncludeEmpty = params[1].get_bool();
 
-    isminefilter filter = MINE_SPENDABLE;
-    if(params.size() > 2)
-        if(params[2].get_bool())
-            filter = filter | MINE_WATCH_ONLY;
+    bool fIncludeWatchOnly = false;
+    isminefilter filter = MINE_ALL;
+    if(params.size() > 2) {
+        if(params[2].get_bool()) {
+            fIncludeWatchOnly = true;
+        }
+    }
 
     // Tally
     map<CBitcoinAddress, tallyitem> mapTally;
@@ -834,7 +838,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
             CTxDestination address;
-            if (!ExtractDestination(txout.scriptPubKey, address) || !IsMine(*pwalletMain, address))
+            if (!ExtractDestination(txout.scriptPubKey, address))
                 continue;
 
             isminefilter mine = IsMine(*pwalletMain, address);
@@ -844,6 +848,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
             tallyitem& item = mapTally[address];
             item.nAmount += txout.nValue;
             item.nConf = min(item.nConf, nDepth);
+            item.txids.push_back(wtx.GetHash());
             if (mine & MINE_WATCH_ONLY)
                 item.fIsWatchonly = true;
         }
@@ -868,6 +873,8 @@ Value ListReceived(const Array& params, bool fByAccounts)
             nAmount = (*it).second.nAmount;
             nConf = (*it).second.nConf;
             fIsWatchonly = (*it).second.fIsWatchonly;
+            if (fIsWatchonly && !fIncludeWatchOnly)
+                continue;
         }
 
         if (fByAccounts)
@@ -886,6 +893,15 @@ Value ListReceived(const Array& params, bool fByAccounts)
             obj.push_back(Pair("account",       strAccount));
             obj.push_back(Pair("amount",        ValueFromAmount(nAmount)));
             obj.push_back(Pair("confirmations", (nConf == std::numeric_limits<int>::max() ? 0 : nConf)));
+            Array transactions;
+            if (it != mapTally.end())
+            {
+                BOOST_FOREACH(const uint256& item, (*it).second.txids)
+                {
+                    transactions.push_back(item.GetHex());
+                }
+            }
+            obj.push_back(Pair("txids", transactions));
             ret.push_back(obj);
         }
     }

@@ -75,7 +75,7 @@ uint64_t nLastBlockSize = 0;
 int64_t nLastCoinStakeSearchInterval = 0;
  
 // We want to sort transactions by priority and fee, so:
-typedef boost::tuple<double, double, CTransaction*> TxPriority;
+typedef boost::tuple<unsigned int, double, double, CTransaction*> TxPriority;
 class TxPriorityCompare
 {
     bool byFee;
@@ -83,18 +83,24 @@ public:
     TxPriorityCompare(bool _byFee) : byFee(_byFee) { }
     bool operator()(const TxPriority& a, const TxPriority& b)
     {
-        if (byFee)
-        {
-            if (a.get<1>() == b.get<1>())
-                return a.get<0>() < b.get<0>();
-            return a.get<1>() < b.get<1>();
-        }
-        else
-        {
-            if (a.get<0>() == b.get<0>())
+        // first priority of comparing is by nLockTime
+        if (a.get<0>() == b.get<0>()) {
+            // nLockTime is same, logic by priority and fee
+            if (byFee)
+            {
+                if (a.get<2>() == b.get<2>())
+                    return a.get<1>() < b.get<1>();
+                return a.get<2>() < b.get<2>();
+            }
+            else
+            {
+                if (a.get<1>() == b.get<1>())
+                    return a.get<2>() < b.get<2>();
                 return a.get<1>() < b.get<1>();
-            return a.get<0>() < b.get<0>();
+            }
         }
+        // lesser nLockTime should be first
+        return a.get<0>() > b.get<0>();
     }
 };
 
@@ -238,7 +244,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                 porphan->dFeePerKb = dFeePerKb;
             }
             else
-                vecPriority.push_back(TxPriority(dPriority, dFeePerKb, &(*mi).second));
+                vecPriority.push_back(TxPriority(tx.nLockTime, dPriority, dFeePerKb, &(*mi).second));
         }
 
         // Collect transactions into block
@@ -254,9 +260,10 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
         while (!vecPriority.empty())
         {
             // Take highest priority transaction off the priority queue:
-            double dPriority = vecPriority.front().get<0>();
-            double dFeePerKb = vecPriority.front().get<1>();
-            CTransaction& tx = *(vecPriority.front().get<2>());
+            //unsigned int nLockTime = vecPriority.front().get<0>();
+            double dPriority = vecPriority.front().get<1>();
+            double dFeePerKb = vecPriority.front().get<2>();
+            CTransaction& tx = *(vecPriority.front().get<3>());
 
             std::pop_heap(vecPriority.begin(), vecPriority.end(), comparer);
             vecPriority.pop_back();
@@ -337,10 +344,16 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                 {
                     if (!porphan->setDependsOn.empty())
                     {
-                        porphan->setDependsOn.erase(hash);
+                        // clean-up dependency for inserting the dependent tx (porphan->ptx)
+                        // only in case if dependent tx has same or greater locktime, so then
+                        // it can be in the same block and in the order with respect of locktime
+                        // sorting, otherwise it will be just mined in next blocks.
+                        if (tx.nLockTime <= porphan->ptx->nLockTime) {
+                            porphan->setDependsOn.erase(hash);
+                        }
                         if (porphan->setDependsOn.empty())
                         {
-                            vecPriority.push_back(TxPriority(porphan->dPriority, porphan->dFeePerKb, porphan->ptx));
+                            vecPriority.push_back(TxPriority(porphan->ptx->nLockTime, porphan->dPriority, porphan->dFeePerKb, porphan->ptx));
                             std::push_heap(vecPriority.begin(), vecPriority.end(), comparer);
                         }
                     }

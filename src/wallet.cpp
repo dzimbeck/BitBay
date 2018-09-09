@@ -2036,17 +2036,22 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         nCredit += nReward;
     }
 
-    if (nCredit >= GetStakeSplitThreshold())
-        txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
-
+    // The stake split is disabled for peg codes, dzimbeck:
+    // The reason of split was to get consecutive stakes in a 200 block period
+    // But no reason to have it for wallets with the balance less than 100K coins
+    // Otherwise the probability is extremely low and there is no reason to split as
+    // it only bloats the wallet
+    // if (nCredit >= GetStakeSplitThreshold())
+    //    txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
+    //
     // Set output amount
-    if (txNew.vout.size() == 3)
-    {
-        txNew.vout[1].nValue = (nCredit / 2 / CENT) * CENT;
-        txNew.vout[2].nValue = nCredit - txNew.vout[1].nValue;
-    }
-    else
-        txNew.vout[1].nValue = nCredit;
+    // if (txNew.vout.size() == 3)
+    // {
+    //    txNew.vout[1].nValue = (nCredit / 2 / CENT) * CENT;
+    //    txNew.vout[2].nValue = nCredit - txNew.vout[1].nValue;
+    // }
+    // else
+    txNew.vout[1].nValue = nCredit;
 
     // Sign
     int nIn = 0;

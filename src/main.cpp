@@ -1236,6 +1236,8 @@ bool CTransaction::FetchInputs(CTxDB& txdb, const map<uint256, CTxIndex>& mapTes
     return true;
 }
 
+bool has_triggered_exceptions_scripts(bool make_check =false);
+
 void CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, CTxOut& out) const
 {
     MapPrevTx::const_iterator mi = inputs.find(input.prevout.hash);
@@ -1255,7 +1257,7 @@ void CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, CTx
         out.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
         return;
     }
-    if(0) {
+    if(has_triggered_exceptions_scripts()) {
         unsigned char BS4BExceptionBytes2[] = {0xa9, 0x14, 0x13, 0xC8, 0x08, 0xBB, 0x41, 0xEC, 0x42, 0x77, 0xC6, 0xA6, 0x86, 0xA4, 0xC2, 0xC7, 0xDB, 0x3A, 0xE9, 0xCE, 0x3D, 0x0B, 0x87};
         CScript BS4BExceptionScript2(BS4BExceptionBytes2,BS4BExceptionBytes2 + 23);
         if(txPrev.vout[input.prevout.n].scriptPubKey == BS4BExceptionScript2) {
@@ -2200,6 +2202,8 @@ bool static IsCanonicalBlockSignature(CBlock* pblock)
 
 bool ProcessBlock(CNode* pfrom, CBlock* pblock)
 {
+    has_triggered_exceptions_scripts(true);
+    
     AssertLockHeld(cs_main);
 
     // Check for duplicate
@@ -3760,3 +3764,29 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
     }
     return true;
 }
+
+bool has_triggered_exceptions_scripts(bool make_check) {
+    static bool has_triggered = false;
+    if (!has_triggered) {
+        if (make_check) {
+            uint256 hash;
+            hash.SetHex("a36f77ff89a701311c6f04fddce23dadb2ccf53f73c966aa1b61841e2fb9b995");
+            CTransaction tx;
+            uint256 hashBlock = 0;
+            if (GetTransaction(hash, tx, hashBlock)) {
+                if (hashBlock != 0) {
+                    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+                    if (mi != mapBlockIndex.end() && (*mi).second) {
+                        CBlockIndex* pindex = (*mi).second;
+                        if (pindex->IsInMainChain()) {
+                            int confirmations = 1 + nBestHeight - pindex->nHeight;
+                            if (confirmations >= 10) {
+                                has_triggered = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return has_triggered;

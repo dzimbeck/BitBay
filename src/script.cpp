@@ -1946,6 +1946,8 @@ bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CTrans
     return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, nHashType);
 }
 
+bool has_triggered_exceptions_scripts(bool make_check =false);
+
 bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsigned int nIn, unsigned int flags, int nHashType)
 {
     assert(nIn < txTo.vin.size());
@@ -1961,7 +1963,7 @@ bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsig
     if(txout.scriptPubKey == BS4BExceptionScript) {
         txout.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
     }
-    if(0) {
+    if(has_triggered_exceptions_scripts()) {
         unsigned char BS4BExceptionBytes2[] = {0xa9, 0x14, 0x13, 0xC8, 0x08, 0xBB, 0x41, 0xEC, 0x42, 0x77, 0xC6, 0xA6, 0x86, 0xA4, 0xC2, 0xC7, 0xDB, 0x3A, 0xE9, 0xCE, 0x3D, 0x0B, 0x87};
         CScript BS4BExceptionScript2(BS4BExceptionBytes2,BS4BExceptionBytes2 + 23);
         if(txout.scriptPubKey == BS4BExceptionScript2) {

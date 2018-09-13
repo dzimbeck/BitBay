@@ -277,6 +277,8 @@ bool InitSanityCheck(void)
     return true;
 }
 
+bool has_triggered_exceptions_scripts(bool make_check =false);
+
 /** Initialize bitcoin.
  *  @pre Parameters should be parsed and config file should be read.
  */
@@ -855,5 +857,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
 #endif
 
+    has_triggered_exceptions_scripts(true);
+    
     return !fRequestShutdown;
 }

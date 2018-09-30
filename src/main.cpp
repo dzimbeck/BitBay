@@ -1257,22 +1257,6 @@ void CTransaction::GetOutputFor(const CTxIn& input, const MapPrevTx& inputs, CTx
         out.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
         return;
     }
-    if(has_triggered_exceptions_scripts()) {
-        unsigned char BS4BExceptionBytes2[] = {0xa9, 0x14, 0x13, 0xC8, 0x08, 0xBB, 0x41, 0xEC, 0x42, 0x77, 0xC6, 0xA6, 0x86, 0xA4, 0xC2, 0xC7, 0xDB, 0x3A, 0xE9, 0xCE, 0x3D, 0x0B, 0x87};
-        CScript BS4BExceptionScript2(BS4BExceptionBytes2,BS4BExceptionBytes2 + 23);
-        if(txPrev.vout[input.prevout.n].scriptPubKey == BS4BExceptionScript2) {
-            out.nValue = txPrev.vout[input.prevout.n].nValue;
-            out.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
-            return;
-        }
-        unsigned char BS4BExceptionBytes3[] = {0xa9, 0x14, 0x79, 0x35, 0x02, 0x4B, 0xEB, 0xDA, 0x90, 0xCB, 0x77, 0x38, 0xE8, 0xDC, 0x1B, 0x7F, 0x91, 0x2E, 0x4B, 0xCD, 0x5D, 0x8E, 0x87};
-        CScript BS4BExceptionScript3(BS4BExceptionBytes3,BS4BExceptionBytes3 + 23);
-        if(txPrev.vout[input.prevout.n].scriptPubKey == BS4BExceptionScript3) {
-            out.nValue = txPrev.vout[input.prevout.n].nValue;
-            out.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
-            return;
-        }
-    }
     out = txPrev.vout[input.prevout.n];
 }
 

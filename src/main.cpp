@@ -3774,3 +3774,5 @@ bool has_triggered_exceptions_scripts(bool make_check) {
         }
     }
     return has_triggered;
+}
+

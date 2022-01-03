@@ -17,7 +17,7 @@ BitcoinAmountField::BitcoinAmountField(QWidget *parent):
     amount->setLocale(QLocale::c());
     amount->setDecimals(8);
     amount->installEventFilter(this);
-    amount->setMaximumWidth(170);
+    amount->setMaximumWidth(250);
     amount->setSingleStep(0.001);
     amount->setValue(0.0);
 

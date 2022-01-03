@@ -6,6 +6,7 @@
 #include "netbase.h"
 #include "optionsmodel.h"
 #include "guiutil.h"
+#include "txdb-leveldb.h"
 
 #include <QDir>
 #include <QIntValidator>
@@ -87,6 +88,30 @@ OptionsDialog::OptionsDialog(QWidget *parent) :
     connect(mapper, SIGNAL(currentIndexChanged(int)), this, SLOT(disableApplyButton()));
     /* setup/change UI elements when proxy IP is invalid/valid */
     connect(this, SIGNAL(proxyIpValid(QValidatedLineEdit *, bool)), this, SLOT(handleProxyIpValid(QValidatedLineEdit *, bool)));
+    
+    {
+        LOCK(cs_main);
+        CTxDB txdb("r");
+        bool fPegPruneEnabled = true;
+        if (!txdb.ReadPegPruneEnabled(fPegPruneEnabled)) {
+            fPegPruneEnabled = true;
+        }
+        ui->prunePegInfo->setChecked(fPegPruneEnabled);
+#ifdef ENABLE_EXCHANGE
+        ui->prunePegInfo->setEnabled(false);
+#endif
+        bool fUtxoDbEnabled = false;
+        if (!txdb.ReadUtxoDbEnabled(fUtxoDbEnabled)) {
+            fUtxoDbEnabled = false;
+        }
+        ui->utxoAddressInfo->setChecked(fUtxoDbEnabled);
+#ifdef ENABLE_EXPLORER
+        ui->prunePegInfo->setEnabled(false);
+        ui->utxoAddressInfo->setEnabled(false);
+#endif
+    }
+    connect(ui->prunePegInfo, SIGNAL(toggled(bool)), this, SLOT(changePegPrune(bool)));
+    connect(ui->utxoAddressInfo, SIGNAL(toggled(bool)), this, SLOT(changeUtxoAddress(bool)));
 }
 
 OptionsDialog::~OptionsDialog()
@@ -141,7 +166,6 @@ void OptionsDialog::setMapper()
     mapper->addMapping(ui->lang, OptionsModel::Language);
     mapper->addMapping(ui->unit, OptionsModel::DisplayUnit);
     mapper->addMapping(ui->coinControlFeatures, OptionsModel::CoinControlFeatures);
-    mapper->addMapping(ui->minimizeCoinAge, OptionsModel::MinimizeCoinAge);
 }
 
 void OptionsDialog::enableApplyButton()
@@ -175,6 +199,15 @@ void OptionsDialog::setSaveButtonState(bool fState)
 void OptionsDialog::on_okButton_clicked()
 {
     mapper->submit();
+    {
+        LOCK(cs_main);
+        CTxDB txdb("r+");
+        txdb.WritePegPruneEnabled(ui->prunePegInfo->isChecked());
+        txdb.WriteUtxoDbEnabled(ui->utxoAddressInfo->isChecked());
+        if (!ui->utxoAddressInfo->isChecked()) {
+            txdb.WriteUtxoDbIsReady(false);
+        }
+    }
     accept();
 }
 
@@ -186,6 +219,15 @@ void OptionsDialog::on_cancelButton_clicked()
 void OptionsDialog::on_applyButton_clicked()
 {
     mapper->submit();
+    {
+        LOCK(cs_main);
+        CTxDB txdb("r+");
+        txdb.WritePegPruneEnabled(ui->prunePegInfo->isChecked());
+        txdb.WriteUtxoDbEnabled(ui->utxoAddressInfo->isChecked());
+        if (!ui->utxoAddressInfo->isChecked()) {
+            txdb.WriteUtxoDbIsReady(false);
+        }
+    }
     disableApplyButton();
 }
 
@@ -248,3 +290,14 @@ bool OptionsDialog::eventFilter(QObject *object, QEvent *event)
     }
     return QDialog::eventFilter(object, event);
 }
+
+void OptionsDialog::changePegPrune(bool f)
+{
+    Q_UNUSED(f);
+}
+
+void OptionsDialog::changeUtxoAddress(bool f)
+{
+    Q_UNUSED(f);
+}
+

@@ -250,12 +250,7 @@ void TransactionTableModel::updateTransaction(const QString &hash, int status)
 
 void TransactionTableModel::updateConfirmations()
 {
-    // Blocks came in since last poll.
-    // Invalidate status (number of confirmations) and (possibly) description
-    //  for all rows. Qt is smart enough to only actually request the data for the
-    //  visible rows.
-    emit dataChanged(index(0, Status), index(priv->size()-1, Status));
-    emit dataChanged(index(0, ToAddress), index(priv->size()-1, ToAddress));
+    emit updateConfirmationsColumns();
 }
 
 int TransactionTableModel::rowCount(const QModelIndex &parent) const
@@ -292,7 +287,11 @@ QString TransactionTableModel::formatTxStatus(const TransactionRecord *wtx) cons
         status = tr("Confirming (%1 of %2 recommended confirmations)").arg(wtx->status.depth).arg(TransactionRecord::RecommendedNumConfirmations);
         break;
     case TransactionStatus::Confirmed:
-        status = tr("Confirmed (%1 confirmations)").arg(wtx->status.depth);
+        if (wtx->status.depth > Params().MaxReorganizationDepth()) {
+            status = tr("Confirmed (more than %1 confirmations)").arg(Params().MaxReorganizationDepth());
+        } else {
+            status = tr("Confirmed (%1 confirmations)").arg(wtx->status.depth);
+        }
         break;
     case TransactionStatus::Conflicted:
         status = tr("Conflicted");

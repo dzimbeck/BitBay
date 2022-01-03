@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QString>
+#include "walletmodel.h"
 
 namespace Ui {
     class SendCoinsDialog;
@@ -20,6 +21,13 @@ class SendCoinsDialog : public QDialog
 {
     Q_OBJECT
 
+    enum {
+        SEND_STD = 0,
+        SEND_RESERVE,
+        FREEZE_RESERVE,
+        FREEZE_LIQUIDITY,
+    };
+    
 public:
     explicit SendCoinsDialog(QWidget *parent = 0);
     ~SendCoinsDialog();
@@ -39,7 +47,10 @@ public slots:
     void accept();
     SendCoinsEntry *addEntry();
     void updateRemoveEnabled();
-    void setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance);
+    void setBalance(qint64 balance, 
+                    qint64 reserves, qint64 liquidity, qint64 frozen,
+                    std::vector<CFrozenCoinInfo> frozenCoins,
+                    qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance);
 
 private:
     Ui::SendCoinsDialog *ui;
@@ -50,10 +61,9 @@ private slots:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);
     void updateDisplayUnit();
+    void txPreviewButtonClicked();
     void coinControlFeatureChanged(bool);
     void coinControlButtonClicked();
-    void coinControlChangeChecked(int);
-    void coinControlChangeEdited(const QString &);
     void coinControlUpdateLabels();
     void coinControlClipboardQuantity();
     void coinControlClipboardAmount();

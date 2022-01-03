@@ -59,6 +59,11 @@ public:
     CInPoint(CTransaction* ptxIn, unsigned int nIn) { ptx = ptxIn; n = nIn; }
     void SetNull() { ptx = NULL; n = (unsigned int) -1; }
     bool IsNull() const { return (ptx == NULL && n == (unsigned int) -1); }
+    
+    friend bool operator<(const CInPoint& a, const CInPoint& b)
+    {
+        return (a.ptx < b.ptx || (a.ptx == b.ptx && a.n < b.n));
+    }
 };
 
 /** An input of a transaction.  It contains the location of the previous

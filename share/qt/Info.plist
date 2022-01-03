@@ -6,6 +6,10 @@
 	<string>wallet.icns</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<key>CFBundleVersion</key>
+	<string>3.1.1</string>
+	<key>CFBundleShortVersionString</key>
+	<string>3.1.1</string>
 	<key>CFBundleGetInfoString</key>
 	<string>BitBay-Wallet-Qt</string>
 	<key>CFBundleSignature</key>

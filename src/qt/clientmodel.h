@@ -2,6 +2,9 @@
 #define CLIENTMODEL_H
 
 #include <QObject>
+#include <boost/tuple/tuple.hpp>
+
+#include "net.h"
 
 class OptionsModel;
 class AddressTableModel;
@@ -24,9 +27,15 @@ public:
 
     OptionsModel *getOptionsModel();
 
+    CNodeShortStats getConnections() const;
     int getNumConnections() const;
     int getNumBlocks() const;
     int getNumBlocksAtStartup();
+    int getPegSupplyIndex() const;
+    int getPegNextSupplyIndex() const;
+    int getPegNextNextSupplyIndex() const;
+    int getPegStartBlockNum() const;
+    boost::tuple<int,int,int> getPegVotes() const;
 
     quint64 getTotalBytesRecv() const;
     quint64 getTotalBytesSent() const;
@@ -61,6 +70,7 @@ private:
     void unsubscribeFromCoreSignals();
 
 signals:
+    void connectionsChanged(const CNodeShortStats &);
     void numConnectionsChanged(int count);
     void numBlocksChanged(int count);
     void alertsChanged(const QString &warnings);
@@ -72,6 +82,7 @@ signals:
 public slots:
     void updateTimer();
     void updateNumConnections(int numConnections);
+    void updateConnections(const CNodeShortStats &);
     void updateAlert(const QString &hash, int status);
 };
 

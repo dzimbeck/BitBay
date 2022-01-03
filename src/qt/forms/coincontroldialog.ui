@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
-    <height>500</height>
+    <width>1285</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -409,7 +409,7 @@
       <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>11</number>
+      <number>16</number>
      </property>
      <attribute name="headerShowSortIndicator" stdset="0">
       <bool>true</bool>
@@ -425,6 +425,21 @@
      <column>
       <property name="text">
        <string>Amount</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Spendable</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Reserve</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Fractions</string>
       </property>
      </column>
      <column>
@@ -457,34 +472,38 @@
      </column>
      <column>
       <property name="text">
-       <string/>
+       <string>txhash</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string/>
+       <string>vout</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string/>
+       <string>amount64</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string/>
+       <string>reserve64</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>liquidity64</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>priority64</string>
       </property>
      </column>
     </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>

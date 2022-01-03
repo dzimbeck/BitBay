@@ -1,6 +1,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "util.h"
+#include "utilstrencodings.h"
 
 BOOST_AUTO_TEST_SUITE(base32_tests)
 

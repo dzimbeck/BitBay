@@ -29,7 +29,6 @@ public:
         DisplayUnit,       // BitcoinUnits::Unit
         Language,          // QString
         CoinControlFeatures, // bool
-        MinimizeCoinAge,   // bool
         OptionIDRowCount,
     };
 
@@ -58,7 +57,7 @@ private:
 signals:
     void displayUnitChanged(int unit);
     void transactionFeeChanged(qint64);
-    void reserveBalanceChanged(qint64);
+    void nostakeBalanceChanged(qint64);
     void coinControlFeaturesChanged(bool);
 };
 

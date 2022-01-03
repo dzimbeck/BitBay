@@ -2,9 +2,12 @@
 #define WALLETMODEL_H
 
 #include <QObject>
+#include <QVector>
 #include <vector>
 #include <map>
 
+#include "peg.h"
+#include "wallet.h"
 #include "allocators.h" /* for SecureString */
 
 class OptionsModel;
@@ -17,6 +20,9 @@ class COutput;
 class COutPoint;
 class uint256;
 class CCoinControl;
+class CWalletTx;
+class CFrozenCoinInfo;
+struct RewardInfo;
 
 QT_BEGIN_NAMESPACE
 class QTimer;
@@ -44,6 +50,7 @@ public:
         OK,
         InvalidAmount,
         InvalidAddress,
+        InvalidTxType,
         AmountExceedsBalance,
         AmountWithFeeExceedsBalance,
         DuplicateAddress,
@@ -63,10 +70,18 @@ public:
     AddressTableModel *getAddressTableModel();
     TransactionTableModel *getTransactionTableModel();
 
+    int getPegSupplyIndex() const;
+    int getPegSupplyNIndex() const;
+    int getPegSupplyNNIndex() const;
     qint64 getBalance(const CCoinControl *coinControl=NULL) const;
+    qint64 getReserve(const CCoinControl *coinControl=NULL) const;
+    qint64 getLiquidity(const CCoinControl *coinControl=NULL) const;
+    qint64 getFrozen(const CCoinControl *coinControl=NULL, 
+                     std::vector<CFrozenCoinInfo> *pFrozenCoins=NULL) const;
     qint64 getStake() const;
     qint64 getUnconfirmedBalance() const;
     qint64 getImmatureBalance() const;
+    bool getRewardInfo(std::vector<RewardInfo> &) const;
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
@@ -85,7 +100,15 @@ public:
     };
 
     // Send coins to a list of recipients
-    SendCoinsReturn sendCoins(const QList<SendCoinsRecipient> &recipients, const CCoinControl *coinControl=NULL);
+    SendCoinsReturn sendCoins(const QList<SendCoinsRecipient> &recipients, 
+                              PegTxType nTxType, 
+                              const CCoinControl *coinControl,
+                              std::string & sFailCause);
+    SendCoinsReturn sendCoinsTest(CWalletTx& wtx,
+                                  const QList<SendCoinsRecipient> &recipients, 
+                                  PegTxType nTxType, 
+                                  const CCoinControl *coinControl,
+                                  std::string & sFailCause);
 
     // Wallet encryption
     bool setWalletEncrypted(bool encrypted, const SecureString &passphrase);
@@ -120,11 +143,11 @@ public:
     bool getPubKey(const CKeyID &address, CPubKey& vchPubKeyOut) const;
     void getOutputs(const std::vector<COutPoint>& vOutpoints, std::vector<COutput>& vOutputs);
     void listCoins(std::map<QString, std::vector<COutput> >& mapCoins) const;
-    bool isLockedCoin(uint256 hash, unsigned int n) const;
-    void lockCoin(COutPoint& output);
-    void unlockCoin(COutPoint& output);
-    void listLockedCoins(std::vector<COutPoint>& vOutpts);
 
+    void setBayRates(std::vector<double>);
+    void setBtcRates(std::vector<double>);
+    void setTrackerVote(PegVoteType, double dPeakRate);
+    
 private:
     CWallet *wallet;
     bool fForceCheckBalanceChanged;
@@ -138,11 +161,16 @@ private:
 
     // Cache some values to be able to detect changes
     qint64 cachedBalance;
+    qint64 cachedReserve;
+    qint64 cachedLiquidity;
+    qint64 cachedFrozen;
     qint64 cachedStake;
     qint64 cachedUnconfirmedBalance;
     qint64 cachedImmatureBalance;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
+    std::vector<RewardInfo> cachedRewardsInfo;
+    std::vector<CFrozenCoinInfo> cachedFrozenCoins;
 
     QTimer *pollTimer;
 
@@ -163,8 +191,16 @@ public slots:
 
 signals:
     // Signal that balance in wallet changed
-    void balanceChanged(qint64 balance, qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance);
+    void balanceChanged(qint64 balance, 
+                        qint64 reserves, qint64 liquidity, qint64 frozen,
+                        std::vector<CFrozenCoinInfo>,
+                        qint64 stake, qint64 unconfirmedBalance, qint64 immatureBalance);
 
+    // Signal that balance in wallet changed
+    void rewardsInfoChanged(qint64 reward5, qint64 reward10, qint64 reward20, qint64 reward40, 
+                            int count5, int count10, int count20, int count40,
+                            int stake5, int stake10, int stake20, int stake40);
+    
     // Encryption status of wallet changed
     void encryptionStatusChanged(int status);
 

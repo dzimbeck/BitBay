@@ -4,6 +4,7 @@
 
 USE_UPNP:=0
 USE_WALLET:=1
+USE_EXCHANGE:=1
 
 LINK:=$(CXX)
 ARCH:=$(system lscpu | head -n 1 | awk '{print $2}')
@@ -129,12 +130,10 @@ OBJS= \
     obj/hash.o \
     obj/noui.o \
     obj/kernel.o \
-    obj/pbkdf2.o \
-    obj/scrypt.o \
-    obj/scrypt-arm.o \
-    obj/scrypt-x86.o \
-    obj/scrypt-x86_64.o \
-    obj/chainparams.o
+    obj/crypto/pbkdf2.o \
+    obj/crypto/scrypt.o \
+    obj/chainparams.o \
+    obj/peg.o
 
 ifeq (${USE_WALLET}, 1)
     DEFS += -DENABLE_WALLET
@@ -144,6 +143,20 @@ ifeq (${USE_WALLET}, 1)
         obj/rpcdump.o \
         obj/rpcmining.o \
         obj/rpcwallet.o \
+        obj/rpcexchange.o \
+        obj/wallet.o \
+        obj/walletdb.o
+endif
+
+ifeq (${USE_EXCHANGE}, 1)
+    DEFS += -DENABLE_EXCHANGE
+    OBJS += \
+        obj/db.o \
+        obj/miner.o \
+        obj/rpcdump.o \
+        obj/rpcmining.o \
+        obj/rpcwallet.o \
+        obj/rpcexchange.o \
         obj/wallet.o \
         obj/walletdb.o
 endif
@@ -154,6 +167,7 @@ LIBS += $(CURDIR)/leveldb/out-static/libleveldb.a $(CURDIR)/leveldb/out-static/l
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/helpers)
 OBJS += obj/txdb-leveldb.o
+OBJS += obj/pegdb-leveldb.o
 leveldb/out-static/libleveldb.a:
 	@echo "Building LevelDB ..."; cd leveldb; make out-static/libleveldb.a out-static/libmemenv.a; cd ..;
 obj/txdb-leveldb.o: leveldb/out-static/libleveldb.a
@@ -166,16 +180,15 @@ obj/build.h: FORCE
 version.cpp: obj/build.h
 DEFS += -DHAVE_BUILD_INFO
 
-obj/scrypt-x86.o: scrypt-x86.S
-	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
-
-obj/scrypt-x86_64.o: scrypt-x86_64.S
-	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
-
-obj/scrypt-arm.o: scrypt-arm.S
-	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
-
 obj/%.o: %.cpp
+	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
+	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
+	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
+	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
+	  rm -f $(@:%.o=%.d)
+
+obj/crypto/%.o: crypto/%.cpp
+	mkdir -p obj/crypto
 	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<
 	@cp $(@:%.o=%.d) $(@:%.o=%.P); \
 	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \

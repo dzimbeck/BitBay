@@ -1,0 +1,38 @@
+From f9c8f9ec091ad232c0a291904f7839d665d098e0 Mon Sep 17 00:00:00 2001
+From: jzmaddock <john@johnmaddock.co.uk>
+Date: Thu, 3 Mar 2016 10:52:03 +0000
+Subject: Add some needed casts for cases where limb_type is wider than
+ unsigned int.
+
+
+diff --git a/include/boost/multiprecision/cpp_int.hpp b/include/boost/multiprecision/cpp_int.hpp
+index 60ad876..b868167 100644
+--- a/include/boost/multiprecision/cpp_int.hpp
++++ b/include/boost/multiprecision/cpp_int.hpp
+@@ -174,7 +174,7 @@
+ public:
+    BOOST_STATIC_CONSTANT(unsigned, limb_bits = sizeof(limb_type) * CHAR_BIT);
+    BOOST_STATIC_CONSTANT(limb_type, max_limb_value = ~static_cast<limb_type>(0u));
+-   BOOST_STATIC_CONSTANT(limb_type, sign_bit_mask = 1u << (limb_bits - 1));
++   BOOST_STATIC_CONSTANT(limb_type, sign_bit_mask = static_cast<limb_type>(1u) << (limb_bits - 1));
+    BOOST_STATIC_CONSTANT(unsigned, internal_limb_count =
+       MinBits
+          ? MinBits / limb_bits + (MinBits % limb_bits ? 1 : 0)
+@@ -414,7 +414,7 @@
+ public:
+    BOOST_STATIC_CONSTANT(unsigned, limb_bits = sizeof(limb_type) * CHAR_BIT);
+    BOOST_STATIC_CONSTANT(limb_type, max_limb_value = ~static_cast<limb_type>(0u));
+-   BOOST_STATIC_CONSTANT(limb_type, sign_bit_mask = 1u << (limb_bits - 1));
++   BOOST_STATIC_CONSTANT(limb_type, sign_bit_mask = static_cast<limb_type>(1u) << (limb_bits - 1));
+    BOOST_STATIC_CONSTANT(unsigned, internal_limb_count = MinBits / limb_bits + (MinBits % limb_bits ? 1 : 0));
+    BOOST_STATIC_CONSTANT(bool, variable = false);
+    BOOST_STATIC_CONSTANT(limb_type, upper_limb_mask = MinBits % limb_bits ? (limb_type(1) << (MinBits % limb_bits)) -1 : (~limb_type(0)));
+@@ -565,7 +565,7 @@
+ public:
+    BOOST_STATIC_CONSTANT(unsigned, limb_bits = sizeof(limb_type) * CHAR_BIT);
+    BOOST_STATIC_CONSTANT(limb_type, max_limb_value = ~static_cast<limb_type>(0u));
+-   BOOST_STATIC_CONSTANT(limb_type, sign_bit_mask = 1u << (limb_bits - 1));
++   BOOST_STATIC_CONSTANT(limb_type, sign_bit_mask = static_cast<limb_type>(1u) << (limb_bits - 1));
+    BOOST_STATIC_CONSTANT(unsigned, internal_limb_count = MinBits / limb_bits + (MinBits % limb_bits ? 1 : 0));
+    BOOST_STATIC_CONSTANT(bool, variable = false);
+    BOOST_STATIC_CONSTANT(limb_type, upper_limb_mask = MinBits % limb_bits ? (limb_type(1) << (MinBits % limb_bits)) -1 : (~limb_type(0)));

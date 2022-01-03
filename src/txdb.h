@@ -7,5 +7,6 @@
 #define BITCOIN_TXDB_H
 
 #include "txdb-leveldb.h"
+#include "pegdb-leveldb.h"
 
 #endif  // BITCOIN_TXDB_H

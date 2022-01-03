@@ -1,6 +1,7 @@
 #ifndef GUIUTIL_H
 #define GUIUTIL_H
 
+#include <QLabel>
 #include <QString>
 #include <QObject>
 #include <QMessageBox>
@@ -114,6 +115,23 @@ namespace GUIUtil
         QString header;
         QString coreOptions;
         QString uiOptions;
+    };
+    
+    /** Clickable QLabel */
+    class ClickableLabel : public QLabel 
+    {
+        Q_OBJECT
+        
+    public:
+        ClickableLabel(QWidget *parent = 0)
+            :QLabel(parent)
+        {}
+        
+    signals:
+        void clicked();
+        
+    protected:
+        void mouseReleaseEvent(QMouseEvent *me) override;
     };
 
     void SetBitBayThemeQSS(QApplication& app);

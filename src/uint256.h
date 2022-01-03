@@ -399,11 +399,13 @@ public:
 
     friend class uint160;
     friend class uint256;
+    friend class uint320;
     friend inline int Testuint256AdHoc(std::vector<std::string> vArg);
 };
 
 typedef base_uint<160> base_uint160;
 typedef base_uint<256> base_uint256;
+typedef base_uint<320> base_uint320;
 
 //
 // uint160 and uint256 could be implemented as templates, but to keep
@@ -573,6 +575,13 @@ public:
             pn[i] = 0;
         return *this;
     }
+    
+    uint256& from320(base_uint320 b)
+    {
+        for (int i = 0; i < WIDTH; i++)
+            pn[i] = b.pn[i];
+        return *this;
+    }
 
     explicit uint256(const std::string& str)
     {
@@ -586,6 +595,7 @@ public:
         else
             *this = 0;
     }
+    friend class uint320;
 };
 
 inline bool operator==(const uint256& a, uint64_t b)                         { return (base_uint256)a == b; }
@@ -782,5 +792,139 @@ inline int Testuint256AdHoc(std::vector<std::string> vArg)
 
 // Temporary for migration to opaque uint160/256
 inline uint256 uint256S(const std::string &x) { return uint256(x); }
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// uint320
+//
+
+/** 320-bit unsigned integer */
+class uint320 : public base_uint320
+{
+public:
+    typedef base_uint320 basetype;
+
+    uint320()
+    {
+        for (int i = 0; i < WIDTH; i++)
+            pn[i] = 0;
+    }
+
+    uint320(const basetype& b)
+    {
+        for (int i = 0; i < WIDTH; i++)
+            pn[i] = b.pn[i];
+    }
+
+    uint320& operator=(const basetype& b)
+    {
+        for (int i = 0; i < WIDTH; i++)
+            pn[i] = b.pn[i];
+        return *this;
+    }
+
+    uint320(uint64_t b)
+    {
+        pn[0] = (unsigned int)b;
+        pn[1] = (unsigned int)(b >> 32);
+        for (int i = 2; i < WIDTH; i++)
+            pn[i] = 0;
+    }
+
+    uint320(uint256 b1, uint64_t b2)
+    {
+        for (int i = 0; i < 8; i++)
+            pn[i] = b1.pn[i];
+        pn[8] = (unsigned int)b2;
+        pn[9] = (unsigned int)(b2 >> 32);
+    }
+    
+    uint256 b1() const {
+        uint256 b;
+        b.from320(*this);
+        return b;
+    }
+    
+    uint64_t b2() const {
+        uint64_t b;
+        b = pn[8];
+        b += (uint64_t)pn[9] << 32;
+        return b;
+    }
+
+    uint320& operator=(uint64_t b)
+    {
+        pn[0] = (unsigned int)b;
+        pn[1] = (unsigned int)(b >> 32);
+        for (int i = 2; i < WIDTH; i++)
+            pn[i] = 0;
+        return *this;
+    }
+
+    explicit uint320(const std::string& str)
+    {
+        SetHex(str);
+    }
+
+    explicit uint320(const std::vector<unsigned char>& vch)
+    {
+        if (vch.size() == sizeof(pn))
+            memcpy(pn, &vch[0], sizeof(pn));
+        else
+            *this = 0;
+    }
+};
+
+extern uint320 uint320_MAX;
+
+inline bool operator==(const uint320& a, uint64_t b)                         { return (base_uint320)a == b; }
+inline bool operator!=(const uint320& a, uint64_t b)                         { return (base_uint320)a != b; }
+inline const uint320 operator<<(const base_uint320& a, unsigned int shift)   { return uint320(a) <<= shift; }
+inline const uint320 operator>>(const base_uint320& a, unsigned int shift)   { return uint320(a) >>= shift; }
+inline const uint320 operator<<(const uint320& a, unsigned int shift)        { return uint320(a) <<= shift; }
+inline const uint320 operator>>(const uint320& a, unsigned int shift)        { return uint320(a) >>= shift; }
+
+inline const uint320 operator^(const base_uint320& a, const base_uint320& b) { return uint320(a) ^= b; }
+inline const uint320 operator&(const base_uint320& a, const base_uint320& b) { return uint320(a) &= b; }
+inline const uint320 operator|(const base_uint320& a, const base_uint320& b) { return uint320(a) |= b; }
+inline const uint320 operator+(const base_uint320& a, const base_uint320& b) { return uint320(a) += b; }
+inline const uint320 operator-(const base_uint320& a, const base_uint320& b) { return uint320(a) -= b; }
+
+inline bool operator<(const base_uint320& a, const uint320& b)          { return (base_uint320)a <  (base_uint320)b; }
+inline bool operator<=(const base_uint320& a, const uint320& b)         { return (base_uint320)a <= (base_uint320)b; }
+inline bool operator>(const base_uint320& a, const uint320& b)          { return (base_uint320)a >  (base_uint320)b; }
+inline bool operator>=(const base_uint320& a, const uint320& b)         { return (base_uint320)a >= (base_uint320)b; }
+inline bool operator==(const base_uint320& a, const uint320& b)         { return (base_uint320)a == (base_uint320)b; }
+inline bool operator!=(const base_uint320& a, const uint320& b)         { return (base_uint320)a != (base_uint320)b; }
+inline const uint320 operator^(const base_uint320& a, const uint320& b) { return (base_uint320)a ^  (base_uint320)b; }
+inline const uint320 operator&(const base_uint320& a, const uint320& b) { return (base_uint320)a &  (base_uint320)b; }
+inline const uint320 operator|(const base_uint320& a, const uint320& b) { return (base_uint320)a |  (base_uint320)b; }
+inline const uint320 operator+(const base_uint320& a, const uint320& b) { return (base_uint320)a +  (base_uint320)b; }
+inline const uint320 operator-(const base_uint320& a, const uint320& b) { return (base_uint320)a -  (base_uint320)b; }
+
+inline bool operator<(const uint320& a, const base_uint320& b)          { return (base_uint320)a <  (base_uint320)b; }
+inline bool operator<=(const uint320& a, const base_uint320& b)         { return (base_uint320)a <= (base_uint320)b; }
+inline bool operator>(const uint320& a, const base_uint320& b)          { return (base_uint320)a >  (base_uint320)b; }
+inline bool operator>=(const uint320& a, const base_uint320& b)         { return (base_uint320)a >= (base_uint320)b; }
+inline bool operator==(const uint320& a, const base_uint320& b)         { return (base_uint320)a == (base_uint320)b; }
+inline bool operator!=(const uint320& a, const base_uint320& b)         { return (base_uint320)a != (base_uint320)b; }
+inline const uint320 operator^(const uint320& a, const base_uint320& b) { return (base_uint320)a ^  (base_uint320)b; }
+inline const uint320 operator&(const uint320& a, const base_uint320& b) { return (base_uint320)a &  (base_uint320)b; }
+inline const uint320 operator|(const uint320& a, const base_uint320& b) { return (base_uint320)a |  (base_uint320)b; }
+inline const uint320 operator+(const uint320& a, const base_uint320& b) { return (base_uint320)a +  (base_uint320)b; }
+inline const uint320 operator-(const uint320& a, const base_uint320& b) { return (base_uint320)a -  (base_uint320)b; }
+
+inline bool operator<(const uint320& a, const uint320& b)               { return (base_uint320)a <  (base_uint320)b; }
+inline bool operator<=(const uint320& a, const uint320& b)              { return (base_uint320)a <= (base_uint320)b; }
+inline bool operator>(const uint320& a, const uint320& b)               { return (base_uint320)a >  (base_uint320)b; }
+inline bool operator>=(const uint320& a, const uint320& b)              { return (base_uint320)a >= (base_uint320)b; }
+inline bool operator==(const uint320& a, const uint320& b)              { return (base_uint320)a == (base_uint320)b; }
+inline bool operator!=(const uint320& a, const uint320& b)              { return (base_uint320)a != (base_uint320)b; }
+inline const uint320 operator^(const uint320& a, const uint320& b)      { return (base_uint320)a ^  (base_uint320)b; }
+inline const uint320 operator&(const uint320& a, const uint320& b)      { return (base_uint320)a &  (base_uint320)b; }
+inline const uint320 operator|(const uint320& a, const uint320& b)      { return (base_uint320)a |  (base_uint320)b; }
+inline const uint320 operator+(const uint320& a, const uint320& b)      { return (base_uint320)a +  (base_uint320)b; }
+inline const uint320 operator-(const uint320& a, const uint320& b)      { return (base_uint320)a -  (base_uint320)b; }
+
 
 #endif // BITCOIN_UINT256_H

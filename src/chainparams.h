@@ -58,6 +58,7 @@ public:
     const vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
     int GetDefaultPort() const { return nDefaultPort; }
     const CBigNum& ProofOfWorkLimit() const { return bnProofOfWorkLimit; }
+    int MaxReorganizationDepth() const { return nMaxReorganizationDepth; }
     int SubsidyHalvingInterval() const { return nSubsidyHalvingInterval; }
     virtual const CBlock& GenesisBlock() const = 0;
     virtual bool RequireRPCPassword() const { return true; }
@@ -68,8 +69,22 @@ public:
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
     int LastPOWBlock() const { return nLastPOWBlock; }
+    
+    string PegInflateAddr() const { return sPegInflateAddr; }
+    string PegDeflateAddr() const { return sPegDeflateAddr; }
+    string PegNochangeAddr()  const { return sPegNochangeAddr; }
+    
+    int PegFrozenTime() const { return nPegFrozenTime; }
+    int PegVFrozenTime() const { return nPegVFrozenTime; }
+    
+    int nPegIntervalProbeHeight = 100000;
+    virtual int PegInterval(int /*nHeight*/) const { return nPegInterval; } 
+    uint256 PegActivationTxhash() const { return hashPegActivationTx; }
+    
+    std::set<string> sTrustedStakers;
+    
 protected:
-    CChainParams() {};
+    CChainParams() {}
 
     uint256 hashGenesisBlock;
     MessageStartChars pchMessageStart;
@@ -78,11 +93,22 @@ protected:
     int nDefaultPort;
     int nRPCPort;
     CBigNum bnProofOfWorkLimit;
+    int nMaxReorganizationDepth;
     int nSubsidyHalvingInterval;
     string strDataDir;
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     int nLastPOWBlock;
+    
+    string sPegInflateAddr;
+    string sPegDeflateAddr;
+    string sPegNochangeAddr;
+    
+    int nPegFrozenTime;
+    int nPegVFrozenTime;
+    
+    int nPegInterval;
+    uint256 hashPegActivationTx;
 };
 
 /**

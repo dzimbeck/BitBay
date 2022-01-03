@@ -14,12 +14,17 @@
 #include <QTimer>
 #include <QDebug>
 
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
+
 static const int64_t nClientStartupTime = GetTime();
 
 ClientModel::ClientModel(OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), optionsModel(optionsModel),
     cachedNumBlocks(0), numBlocksAtStartup(-1), pollTimer(0)
 {
+    qRegisterMetaType<CNodeShortStats>("CNodeShortStats");
+    
     pollTimer = new QTimer(this);
     pollTimer->setInterval(MODEL_UPDATE_DELAY);
     pollTimer->start();
@@ -33,6 +38,24 @@ ClientModel::~ClientModel()
     unsubscribeFromCoreSignals();
 }
 
+CNodeShortStats ClientModel::getConnections() const
+{
+    CNodeShortStats vStats;
+    {
+        LOCK(cs_vNodes);
+        for(const CNode* pNode : vNodes) {
+            CNodeShortStat nodeStat = {
+                pNode->addrName,
+                pNode->nVersion,
+                pNode->strSubVer,
+                pNode->nStartingHeight
+            };
+            vStats.push_back(nodeStat);
+        }
+    }
+    return vStats;
+}
+
 int ClientModel::getNumConnections() const
 {
     return vNodes.size();
@@ -42,6 +65,42 @@ int ClientModel::getNumBlocks() const
 {
     LOCK(cs_main);
     return nBestHeight;
+}
+
+int ClientModel::getPegSupplyIndex() const
+{
+    LOCK(cs_main);
+    CBlockIndex* pblockindex = pindexBest;
+    return pblockindex->nPegSupplyIndex;
+}
+
+int ClientModel::getPegNextSupplyIndex() const
+{
+    LOCK(cs_main);
+    CBlockIndex* pblockindex = pindexBest;
+    return pblockindex->GetNextIntervalPegSupplyIndex();
+}
+
+int ClientModel::getPegNextNextSupplyIndex() const
+{
+    LOCK(cs_main);
+    CBlockIndex* pblockindex = pindexBest;
+    return pblockindex->GetNextNextIntervalPegSupplyIndex();
+}
+
+int ClientModel::getPegStartBlockNum() const 
+{
+    LOCK(cs_main);
+    return nPegStartHeight;
+}
+
+boost::tuple<int,int,int> ClientModel::getPegVotes() const
+{
+    LOCK(cs_main);
+    CBlockIndex* pblockindex = pindexBest;
+    return boost::make_tuple(pblockindex->nPegVotesInflate, 
+                             pblockindex->nPegVotesDeflate, 
+                             pblockindex->nPegVotesNochange);
 }
 
 int ClientModel::getNumBlocksAtStartup()
@@ -95,6 +154,11 @@ void ClientModel::updateTimer()
 void ClientModel::updateNumConnections(int numConnections)
 {
     emit numConnectionsChanged(numConnections);
+}
+
+void ClientModel::updateConnections(const CNodeShortStats & stats)
+{
+    emit connectionsChanged(stats);
 }
 
 void ClientModel::updateAlert(const QString &hash, int status)
@@ -171,6 +235,14 @@ static void NotifyNumConnectionsChanged(ClientModel *clientmodel, int newNumConn
                               Q_ARG(int, newNumConnections));
 }
 
+static void NotifyConnectionsChanged(ClientModel *clientmodel, const CNodeShortStats & stats)
+{
+    // Too noisy: qDebug() << "NotifyConnectionsChanged : " + QString::number(stats.size());
+    CNodeShortStats stats_copy = stats;
+    QMetaObject::invokeMethod(clientmodel, "updateConnections", Qt::QueuedConnection,
+                              Q_ARG(CNodeShortStats, stats_copy));
+}
+
 static void NotifyAlertChanged(ClientModel *clientmodel, const uint256 &hash, ChangeType status)
 {
     qDebug() << "NotifyAlertChanged : " + QString::fromStdString(hash.GetHex()) + " status=" + QString::number(status);
@@ -183,6 +255,7 @@ void ClientModel::subscribeToCoreSignals()
 {
     // Connect signals to client
     uiInterface.NotifyNumConnectionsChanged.connect(boost::bind(NotifyNumConnectionsChanged, this, _1));
+    uiInterface.NotifyConnectionsChanged.connect(boost::bind(NotifyConnectionsChanged, this, _1));
     uiInterface.NotifyAlertChanged.connect(boost::bind(NotifyAlertChanged, this, _1, _2));
 }
 
@@ -190,5 +263,6 @@ void ClientModel::unsubscribeFromCoreSignals()
 {
     // Disconnect signals from client
     uiInterface.NotifyNumConnectionsChanged.disconnect(boost::bind(NotifyNumConnectionsChanged, this, _1));
+    uiInterface.NotifyConnectionsChanged.disconnect(boost::bind(NotifyConnectionsChanged, this, _1));
     uiInterface.NotifyAlertChanged.disconnect(boost::bind(NotifyAlertChanged, this, _1, _2));
 }

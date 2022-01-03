@@ -42,7 +42,7 @@ void OptionsModel::Init()
     fMinimizeOnClose = settings.value("fMinimizeOnClose", false).toBool();
     fCoinControlFeatures = settings.value("fCoinControlFeatures", false).toBool();
     nTransactionFee = settings.value("nTransactionFee").toLongLong();
-    nReserveBalance = settings.value("nReserveBalance").toLongLong();
+    nNoStakeBalance = settings.value("nNoStakeBalance").toLongLong();
     language = settings.value("language", "").toString();
 
     // These are shared with core Bitcoin; we want
@@ -51,8 +51,6 @@ void OptionsModel::Init()
         SoftSetBoolArg("-upnp", settings.value("fUseUPnP").toBool());
     if (settings.contains("addrProxy") && settings.value("fUseProxy").toBool())
         SoftSetArg("-proxy", settings.value("addrProxy").toString().toStdString());
-    if (settings.contains("fMinimizeCoinAge"))
-        SoftSetBoolArg("-minimizecoinage", settings.value("fMinimizeCoinAge").toBool());
     if (!language.isEmpty())
         SoftSetArg("-lang", language.toStdString());
 }
@@ -96,15 +94,13 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
         case Fee:
             return QVariant((qint64) nTransactionFee);
         case ReserveBalance:
-            return QVariant((qint64) nReserveBalance);
+            return QVariant((qint64) nNoStakeBalance);
         case DisplayUnit:
             return QVariant(nDisplayUnit);
         case Language:
             return settings.value("language", "");
         case CoinControlFeatures:
             return QVariant(fCoinControlFeatures);
-        case MinimizeCoinAge:
-            return settings.value("fMinimizeCoinAge", GetBoolArg("-minimizecoinage", false));
         default:
             return QVariant();
         }
@@ -166,9 +162,9 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             emit transactionFeeChanged(nTransactionFee);
             break;
         case ReserveBalance:
-            nReserveBalance = value.toLongLong();
-            settings.setValue("nReserveBalance", (qint64) nReserveBalance);
-            emit reserveBalanceChanged(nReserveBalance);
+            nNoStakeBalance = value.toLongLong();
+            settings.setValue("nNoStakeBalance", (qint64) nNoStakeBalance);
+            emit nostakeBalanceChanged(nNoStakeBalance);
             break;
         case DisplayUnit:
             nDisplayUnit = value.toInt();
@@ -184,10 +180,6 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             emit coinControlFeaturesChanged(fCoinControlFeatures);
             }
             break;
-        case MinimizeCoinAge:
-           fMinimizeCoinAge = value.toBool();
-           settings.setValue("fMinimizeCoinAge", fMinimizeCoinAge);
-           break;
         default:
             break;
         }
@@ -204,7 +196,7 @@ qint64 OptionsModel::getTransactionFee()
 
 qint64 OptionsModel::getReserveBalance()
 {
-    return nReserveBalance;
+    return nNoStakeBalance;
 }
 
 bool OptionsModel::getCoinControlFeatures()

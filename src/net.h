@@ -7,7 +7,6 @@
 
 #include <deque>
 #include <boost/array.hpp>
-#include <boost/foreach.hpp>
 #include <boost/signals2/signal.hpp>
 #include <openssl/rand.h>
 
@@ -131,8 +130,20 @@ public:
     std::string addrLocal;
 };
 
-
-
+class CNodeShortStat {
+public:
+    std::string addrName;
+    int nVersion;
+    std::string strSubVer;
+    int nStartingHeight;
+    bool operator==(const CNodeShortStat & b) const {
+        return  addrName        == b.addrName           &&
+                nVersion        == b.nVersion           &&
+                strSubVer       == b.strSubVer          &&
+                nStartingHeight == b.nStartingHeight;
+    }
+};
+typedef std::vector<CNodeShortStat> CNodeShortStats;
 
 class CNetMessage {
 public:
@@ -324,8 +335,9 @@ public:
     unsigned int GetTotalRecvSize()
     {
         unsigned int total = 0;
-        BOOST_FOREACH(const CNetMessage &msg, vRecvMsg) 
+        for(const CNetMessage &msg : vRecvMsg) {
             total += msg.vRecv.size() + 24;
+        }
         return total;
     }
 
@@ -336,8 +348,9 @@ public:
     void SetRecvVersion(int nVersionIn)
     {
         nRecvVersion = nVersionIn;
-        BOOST_FOREACH(CNetMessage &msg, vRecvMsg)
+        for(CNetMessage &msg : vRecvMsg) {
             msg.SetVersion(nVersionIn);
+        }
     }
 
     CNode* AddRef()
@@ -660,8 +673,9 @@ inline void RelayInventory(const CInv& inv)
     // Put on lists to offer to the other nodes
     {
         LOCK(cs_vNodes);
-        BOOST_FOREACH(CNode* pnode, vNodes)
+        for(CNode* pnode : vNodes) {
             pnode->PushInventory(inv);
+        }
     }
 }
 

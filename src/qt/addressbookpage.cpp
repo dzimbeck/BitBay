@@ -72,6 +72,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
 
     // Context menu actions
     QAction *copyAddressAction = new QAction(ui->copyToClipboard->text(), this);
+    QAction *copyPubKeyAction = new QAction(tr("Copy Pub Key"), this);
     QAction *copyLabelAction = new QAction(tr("Copy &Label"), this);
     QAction *editAction = new QAction(tr("&Edit"), this);
     QAction *showQRCodeAction = new QAction(ui->showQRCode->text(), this);
@@ -82,6 +83,7 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
     // Build context menu
     contextMenu = new QMenu();
     contextMenu->addAction(copyAddressAction);
+    contextMenu->addAction(copyPubKeyAction);
     contextMenu->addAction(copyLabelAction);
     contextMenu->addAction(editAction);
     if(tab == SendingTab)
@@ -94,9 +96,12 @@ AddressBookPage::AddressBookPage(Mode mode, Tabs tab, QWidget *parent) :
         contextMenu->addAction(signMessageAction);
     else if(tab == SendingTab)
         contextMenu->addAction(verifyMessageAction);
+    
+    copyPubKeyAction->setVisible(false);
 
     // Connect signals for context menu actions
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(on_copyToClipboard_clicked()));
+    //connect(copyPubKeyAction, SIGNAL(triggered()), this, SLOT(on_copyPubKeyToClipboard_clicked()));
     connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(onCopyLabelAction()));
     connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
     connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteButton_clicked()));
@@ -167,6 +172,11 @@ void AddressBookPage::on_copyToClipboard_clicked()
 {
     GUIUtil::copyEntryData(ui->tableView, AddressTableModel::Address);
 }
+
+//void AddressBookPage::on_copyPubKeyToClipboard_clicked()
+//{
+//    //GUIUtil::copyEntryData(ui->tableView, AddressTableModel::Address);
+//}
 
 void AddressBookPage::onCopyLabelAction()
 {

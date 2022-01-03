@@ -37,6 +37,8 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
+    void updateColumn(int col);
+
 protected:
     bool filterAcceptsRow(int source_row, const QModelIndex & source_parent) const;
 

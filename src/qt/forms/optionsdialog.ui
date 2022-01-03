@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
+    <width>541</width>
     <height>380</height>
    </rect>
   </property>
@@ -79,7 +79,7 @@
        <item>
         <widget class="QLabel" name="reserveBalanceInfoLabel">
          <property name="text">
-          <string>Reserved amount does not participate in staking and is therefore spendable at any time.</string>
+          <string>Non-staking amount does not participate in staking and is therefore operable at any time.</string>
          </property>
          <property name="textFormat">
           <enum>Qt::PlainText</enum>
@@ -94,7 +94,7 @@
          <item>
           <widget class="QLabel" name="reserveBalanceLabel">
            <property name="text">
-            <string>Reserve</string>
+            <string>Non-staking amount</string>
            </property>
            <property name="textFormat">
             <enum>Qt::PlainText</enum>
@@ -256,6 +256,43 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabBlockchain">
+      <attribute name="title">
+       <string>&amp;Blockchain</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="2" column="0" colspan="2">
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>501</width>
+           <height>231</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="prunePegInfo">
+         <property name="text">
+          <string>Prune peg information (apply after restart)</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QCheckBox" name="utxoAddressInfo">
+         <property name="text">
+          <string>Balance/UTXO per-address information (apply after restart)</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="tabWindow">
       <attribute name="title">
        <string>&amp;Window</string>
@@ -360,16 +397,6 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="minimizeCoinAge">
-         <property name="toolTip">
-          <string>Whether to select the coin outputs randomly or with minimal coin age.</string>
-         </property>
-         <property name="text">
-          <string>Minimize weight consumption (experimental)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer_Display">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -466,19 +493,20 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>QValidatedLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>qvalidatedlineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>BitcoinAmountField</class>
-   <extends>QSpinBox</extends>
+   <extends>QLineEdit</extends>
    <header>bitcoinamountfield.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>QValueComboBox</class>
    <extends>QComboBox</extends>
    <header>qvaluecombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>QValidatedLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>qvalidatedlineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

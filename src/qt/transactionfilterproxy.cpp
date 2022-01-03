@@ -96,3 +96,8 @@ int TransactionFilterProxy::rowCount(const QModelIndex &parent) const
         return QSortFilterProxyModel::rowCount(parent);
     }
 }
+
+void TransactionFilterProxy::updateColumn(int col)
+{
+    emit dataChanged(index(0, col), index(rowCount()-1, col));
+}

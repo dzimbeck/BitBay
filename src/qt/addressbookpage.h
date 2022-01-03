@@ -65,6 +65,8 @@ private slots:
     void on_newAddressButton_clicked();
     /** Copy address of currently selected address entry to clipboard */
     void on_copyToClipboard_clicked();
+    // /** Copy pub key of currently selected address entry to clipboard */
+    // void on_copyPubKeyToClipboard_clicked();
     /** Open the sign message tab in the Sign/Verify Message dialog with currently selected address */
     void on_signMessage_clicked();
     /** Open the verify message tab in the Sign/Verify Message dialog with currently selected address */

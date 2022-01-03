@@ -3,26 +3,25 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include "leveldb/env.h"
-
 #include "port/port.h"
-#include "util/testharness.h"
 #include "util/env_posix_test_helper.h"
+#include "util/testharness.h"
 
 namespace leveldb {
 
-static const int kDelayMicros = 100000;
 static const int kReadOnlyFileLimit = 4;
 static const int kMMapLimit = 4;
 
 class EnvPosixTest {
  public:
-  Env* env_;
-  EnvPosixTest() : env_(Env::Default()) { }
-
   static void SetFileLimits(int read_only_file_limit, int mmap_limit) {
     EnvPosixTestHelper::SetReadOnlyFDLimit(read_only_file_limit);
     EnvPosixTestHelper::SetReadOnlyMMapLimit(mmap_limit);
   }
+
+  EnvPosixTest() : env_(Env::Default()) {}
+
+  Env* env_;
 };
 
 TEST(EnvPosixTest, TestOpenOnRead) {
@@ -32,7 +31,7 @@ TEST(EnvPosixTest, TestOpenOnRead) {
   std::string test_file = test_dir + "/open_on_read.txt";
 
   FILE* f = fopen(test_file.c_str(), "w");
-  ASSERT_TRUE(f != NULL);
+  ASSERT_TRUE(f != nullptr);
   const char kFileData[] = "abcdefghijklmnopqrstuvwxyz";
   fputs(kFileData, f);
   fclose(f);

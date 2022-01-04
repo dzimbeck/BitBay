@@ -17,7 +17,7 @@ BitBay also is the only coin in the world with a truly variable supply. Since ot
 
 The target price of this dynamic supply(also called dynamic peg) is determined by the users of the coin. So unlike a stablecoin, collateral is not required and BitBay can change(and even possibly increase) in price or it can hold a stable price. This is purely determined by the stakers/users who also protect the network. So the decision to increase or decrease supply is purely decentralized and based on user consensus. Typically users choose an algorithm to vote on supply for them to target peaks or fulfill other economic goals.
 
-This variable supply is accomplished because all user balances are arrays and liquid and reserve balances are determined based on the supply index of the entire economy. When moving liquid funds, users pull coins from each array column based on it's ratio. When moving reserve funds the coins that are less than the supply index are moved and subject to a one month time delay similar to a bond or long term savings. Therefore a user has two balances, liquid and reserve. BitBay also supplies code for central exchanges that wish to implement this peg so that they can handle the arrays on their orderbooks. There was also a mock exchange set up for over a year to demonstrate the process. Although ultimately, BitBay is best suited for decentralized exchanges as we consider that safer and better suited for the technical challenge of exchange implementation.
+This variable supply is accomplished because all user balances are arrays and liquid and reserve balances are determined based on the supply index of the entire economy. When moving liquid funds, users pull coins from each array column based on it's ratio. When moving reserve funds the coins that are less than the supply index are moved and subject to a one month time delay similar to a bond or long term savings. Therefore a user has two balances, liquid and reserve. BitBay also supplies code for central exchanges that wish to implement this peg so that they can handle the arrays on their order books. There was also a mock exchange set up for over a year to demonstrate the process. Although ultimately, BitBay is best suited for decentralized exchanges as it can be considered safer and better suited for the technical challenge of exchange implementation.
 
 Development process
 ===========================
@@ -50,7 +50,7 @@ labeled 'stale'.
 Useful information
 ===========================
 
-To better understand how BitBay works, you can see our visual explainer here:
+To better understand how BitBay works, you can see a visual explainer here:
 https://github.com/bitbaymarket/website/blob/cc9cddf386bbdf8da9e97af4917f406bc16794b2/bitbay-dynamic-peg-visual-reference.pdf
 
 Full documentation for integration of BitBay to exchanges can be found here: https://github.com/bitbaymarket/bitbay-doc-exchange

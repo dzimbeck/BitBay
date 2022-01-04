@@ -37,15 +37,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         //
         // Credit
         //
-        
-        if (wtx.IsCoinStake()) {
-            if (wtx.GetBlocksToMaturity() >0) { // to recalc nNet
-                nCredit = wallet->GetCredit(wtx);
-                nNet = nCredit - nDebit;
-            }
-        } 
-
-        for(const CTxOut& txout : wtx.vout)
+        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
             if(wallet->IsMine(txout))
             {
@@ -89,14 +81,12 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     else
     {
         bool fAllFromMe = true;
-        for(const CTxIn& txin : wtx.vin) {
+        BOOST_FOREACH(const CTxIn& txin, wtx.vin)
             fAllFromMe = fAllFromMe && wallet->IsMine(txin);
-        }
 
         bool fAllToMe = true;
-        for(const CTxOut& txout : wtx.vout) {
+        BOOST_FOREACH(const CTxOut& txout, wtx.vout)
             fAllToMe = fAllToMe && wallet->IsMine(txout);
-        }
 
         if (fAllFromMe && fAllToMe)
         {
@@ -251,9 +241,6 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
 
 bool TransactionRecord::statusUpdateNeeded()
 {
-    if (status.depth > Params().MaxReorganizationDepth()) {
-        return false;
-    }
     AssertLockHeld(cs_main);
     return status.cur_num_blocks != nBestHeight;
 }

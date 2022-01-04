@@ -44,12 +44,10 @@ public:
     static int decimals(int unit);
     //! Format as string
     static QString format(int unit, qint64 amount, bool plussign=false);
-    //! Format as string for right-justified view
-    static QString formatR(int unit, qint64 amount, bool plussign=false);
     //! Format as string (with unit)
     static QString formatWithUnit(int unit, qint64 amount, bool plussign=false);
     //! Format as string (with unit)
-    static QString formatWithUnitForLabel(int unit, qint64 amount, bool plussign=false, int hli=-1);
+    static QString formatWithUnitForLabel(int unit, qint64 amount, bool plussign=false);
     //! Parse string to coin amount
     static bool parse(int unit, const QString &value, qint64 *val_out);
     ///@}

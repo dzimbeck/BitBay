@@ -15,13 +15,9 @@ class AddressBookPage;
 class SendCoinsDialog;
 class SignMessagePage;
 class VerifyMessagePage;
-class StakingPage;
-class DynamicPegPage;
-class BlockchainPage;
 class SignVerifyMessageDialog;
 class Notificator;
 class RPCConsole;
-class ReserveMeter;
 
 QT_BEGIN_NAMESPACE
 class QLabel;
@@ -29,8 +25,6 @@ class QToolButton;
 class QModelIndex;
 class QProgressBar;
 class QStackedWidget;
-class QNetworkReply;
-class QNetworkAccessManager;
 QT_END_NAMESPACE
 
 /**
@@ -60,17 +54,11 @@ protected:
     void closeEvent(QCloseEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
-    void showEvent(QShowEvent *event);
 
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
 
-    bool firstTimeRequest = true;
-    QNetworkAccessManager * netAccessManager;
-    std::vector<double> vFirstRetrievedBtcRates;
-    std::vector<double> vFirstRetrievedBayRates;
-    
     QStackedWidget *centralStackedWidget;
 
     OverviewPage *overviewPage;
@@ -80,29 +68,13 @@ private:
     SendCoinsDialog *sendCoinsPage;
     SignMessagePage *signMessagePage;
     VerifyMessagePage *verifyMessagePage;
-    StakingPage *stakingPage;
-    DynamicPegPage *dynamicPegPage;
-    BlockchainPage *infoPage;
 
-    QLabel *lastBlockLabel;
-    QLabel *oneUsdRateLabel;
-    QLabel *oneBayRateLabel;
     QLabel *labelEncryptionIcon;
     QLabel *labelStakingIcon;
     QLabel *labelConnectionsIcon;
     QLabel *labelBlocksIcon;
     QLabel *progressBarLabel;
     QProgressBar *progressBar;
-    ReserveMeter* liquidMeter;
-    QLabel *inflateLabel;
-    QLabel *deflateLabel;
-    QLabel *nochangeLabel;
-    QLabel *pegNowTextLabel;
-    QLabel *pegNextTextLabel;
-    QLabel *pegNextNextTextLabel;
-    QLabel *pegNowLabel;
-    QLabel *pegNextLabel;
-    QLabel *pegNextNextLabel;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
@@ -132,9 +104,6 @@ private:
     QToolButton * tabAddresses = nullptr;
     QToolButton * tabSign = nullptr;
     QToolButton * tabVerify = nullptr;
-    QToolButton * tabStaking = nullptr;
-    QToolButton * tabDynamicPeg = nullptr;
-    QToolButton * tabInfo = nullptr;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -159,12 +128,6 @@ public slots:
     void setNumConnections(int count);
     /** Set number of blocks shown in the UI */
     void setNumBlocks(int count);
-    /** Returns text for time behind */
-    QString timeBehindText(int secs);
-    /** Update number of blocks shown in the UI */
-    void updateNumBlocksLabel();
-    /** Update peg info (1) in the UI */
-    void updatePegInfo1Label();
     /** Set the encryption status as shown in the UI.
        @param[in] status            current encryption status
        @see WalletModel::EncryptionStatus
@@ -205,18 +168,6 @@ private slots:
     void gotoSignMessagePage();
     /** Switch to verify message page */
     void gotoVerifyMessagePage();
-    /** Switch to stake page */
-    void gotoStakingPage();
-    /** Switch to dynamic peg page */
-    void gotoDynamicPegPage();
-    /** Switch to info page */
-    void gotoInfoPage();
-    /** Switch to info page and blocks tab */
-    void gotoInfoPageBlocks();
-    /** Switch to info page and net tab */
-    void gotoInfoPageNet();
-    /** Activated on tab changed */
-    void onTabChanged(int);
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");
@@ -257,14 +208,6 @@ private slots:
 
     /** called by a timer to check if fRequestShutdown has been set **/
     void detectShutdown();
-
-    /** initiate request to retrieve rates */
-    void ratesRequestInitiate();
-    /** called as retrieved all bytes for rates */
-    void netDataReplyFinished(QNetworkReply *reply);
-
-    /** initiate request to retrieve release info */
-    void releaseRequestInitiate();
 };
 
 #endif // BITCOINGUI_H

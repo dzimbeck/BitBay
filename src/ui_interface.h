@@ -13,7 +13,6 @@
 
 #include <stdint.h>
 
-class CNodeShortStat;
 class CBasicKeyStore;
 class CWallet;
 class uint256;
@@ -89,9 +88,6 @@ public:
     /** Number of network connections changed. */
     boost::signals2::signal<void (int newNumConnections)> NotifyNumConnectionsChanged;
 
-    /** Network connections are changed. */
-    boost::signals2::signal<void (const std::vector<CNodeShortStat> & newConnections)> NotifyConnectionsChanged;
-    
     /**
      * New, updated or cancelled alert.
      * @note called with lock cs_mapAlerts held.

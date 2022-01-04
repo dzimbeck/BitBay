@@ -48,12 +48,7 @@ void SendCoinsEntry::on_addressBookButton_clicked()
 {
     if(!model)
         return;
-    AddressBookPage::Tabs tab = AddressBookPage::SendingTab;
-    if (txType == PEG_MAKETX_FREEZE_RESERVE ||
-        txType == PEG_MAKETX_FREEZE_LIQUIDITY) {
-        tab = AddressBookPage::ReceivingTab;
-    }
-    AddressBookPage dlg(AddressBookPage::ForSending, tab, this);
+    AddressBookPage dlg(AddressBookPage::ForSending, AddressBookPage::SendingTab, this);
     dlg.setModel(model->getAddressTableModel());
     if(dlg.exec())
     {
@@ -82,11 +77,6 @@ void SendCoinsEntry::setModel(WalletModel *model)
     connect(ui->payAmount, SIGNAL(textChanged()), this, SIGNAL(payAmountChanged()));
 
     clear();
-}
-
-void SendCoinsEntry::setTxType(PegTxType t)
-{
-    txType = t;
 }
 
 void SendCoinsEntry::setRemoveEnabled(bool enabled)

@@ -5,7 +5,6 @@
 #define  BITCOIN_CHECKPOINT_H
 
 #include <map>
-#include <vector>
 #include "net.h"
 #include "util.h"
 
@@ -28,9 +27,6 @@ namespace Checkpoints
 
     const CBlockIndex* AutoSelectSyncCheckpoint();
     bool CheckSync(int nHeight);
-    
-    // Return vector of checkpoint block heights
-    std::vector<int> GetCheckpointsHeights();
 }
 
 #endif

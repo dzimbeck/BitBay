@@ -3,7 +3,6 @@
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
 #include <stdio.h>
-
 #include "leveldb/dumpfile.h"
 #include "leveldb/env.h"
 #include "leveldb/status.h"
@@ -39,9 +38,11 @@ bool HandleDumpCommand(Env* env, char** files, int num) {
 }  // namespace leveldb
 
 static void Usage() {
-  fprintf(stderr,
-          "Usage: leveldbutil command...\n"
-          "   dump files...         -- dump contents of specified files\n");
+  fprintf(
+      stderr,
+      "Usage: leveldbutil command...\n"
+      "   dump files...         -- dump contents of specified files\n"
+      );
 }
 
 int main(int argc, char** argv) {
@@ -53,7 +54,7 @@ int main(int argc, char** argv) {
   } else {
     std::string command = argv[1];
     if (command == "dump") {
-      ok = leveldb::HandleDumpCommand(env, argv + 2, argc - 2);
+      ok = leveldb::HandleDumpCommand(env, argv+2, argc-2);
     } else {
       Usage();
       ok = false;

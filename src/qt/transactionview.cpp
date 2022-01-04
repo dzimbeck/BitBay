@@ -47,9 +47,9 @@ TransactionView::TransactionView(QWidget *parent) :
     dateWidget = new QComboBox(this);
     dateWidget->setItemDelegate(new QStyledItemDelegate());
 #ifdef Q_OS_MAC
-    dateWidget->setFixedWidth(181);
+    dateWidget->setFixedWidth(121);
 #else
-    dateWidget->setFixedWidth(180);
+    dateWidget->setFixedWidth(120);
 #endif
     dateWidget->addItem(tr("All"), All);
     dateWidget->addItem(tr("Today"), Today);
@@ -161,8 +161,6 @@ void TransactionView::setModel(WalletModel *model)
     this->model = model;
     if(model)
     {
-        connect(model->getTransactionTableModel(), SIGNAL(updateConfirmationsColumns()),
-                this, SLOT(updateConfirmationsColumns()));
         transactionProxyModel = new TransactionFilterProxy(this);
         transactionProxyModel->setSourceModel(model->getTransactionTableModel());
         transactionProxyModel->setDynamicSortFilter(true);
@@ -170,7 +168,6 @@ void TransactionView::setModel(WalletModel *model)
         transactionProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
         transactionProxyModel->setSortRole(Qt::EditRole);
-        transactionProxyModel->setFilterRole(Qt::EditRole);
 
         transactionView->setModel(transactionProxyModel);
         transactionView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -180,7 +177,7 @@ void TransactionView::setModel(WalletModel *model)
         transactionView->verticalHeader()->hide();
 
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Status, 23);
-        transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Date, 180);
+        transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Date, 120);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Type, 120);
         transactionView->horizontalHeader()->setResizeMode(TransactionTableModel::ToAddress, QHeaderView::Stretch);
         transactionView->horizontalHeader()->resizeSection(TransactionTableModel::Amount, 120);
@@ -434,12 +431,4 @@ void TransactionView::focusTransaction(const QModelIndex &idx)
     transactionView->scrollTo(targetIdx);
     transactionView->setCurrentIndex(targetIdx);
     transactionView->setFocus();
-}
-
-void TransactionView::updateConfirmationsColumns()
-{
-    if(!transactionProxyModel)
-        return;
-    transactionProxyModel->updateColumn(TransactionTableModel::Status);
-    transactionProxyModel->updateColumn(TransactionTableModel::ToAddress);
 }

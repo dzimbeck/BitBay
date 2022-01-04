@@ -2,7 +2,6 @@
 #define SENDCOINSENTRY_H
 
 #include <QFrame>
-#include "peg.h"
 
 namespace Ui {
     class SendCoinsEntry;
@@ -20,7 +19,6 @@ public:
     ~SendCoinsEntry();
 
     void setModel(WalletModel *model);
-    void setTxType(PegTxType);
     bool validate();
     SendCoinsRecipient getValue();
 
@@ -53,7 +51,6 @@ private slots:
 private:
     Ui::SendCoinsEntry *ui;
     WalletModel *model;
-    PegTxType txType;
 };
 
 #endif // SENDCOINSENTRY_H

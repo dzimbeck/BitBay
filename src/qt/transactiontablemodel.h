@@ -59,9 +59,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
 
-signals:
-    void updateConfirmationsColumns();
-
 private:
     CWallet* wallet;
     WalletModel *walletModel;

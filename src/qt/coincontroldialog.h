@@ -9,7 +9,6 @@
 #include <QPoint>
 #include <QString>
 #include <QTreeWidgetItem>
-#include "peg.h"
 
 namespace Ui {
     class CoinControlDialog;
@@ -26,10 +25,9 @@ public:
     ~CoinControlDialog();
 
     void setModel(WalletModel *model);
-    void setTxType(PegTxType);
 
     // static because also called from sendcoinsdialog
-    static void updateLabels(WalletModel*, QDialog*, PegTxType);
+    static void updateLabels(WalletModel*, QDialog*);
     static QString getPriorityLabel(double);
 
     static QList<qint64> payAmounts;
@@ -40,10 +38,6 @@ private:
     WalletModel *model;
     int sortColumn;
     Qt::SortOrder sortOrder;
-    PegTxType txType;
-    QPixmap pmChange;
-    QPixmap pmNotaryF;
-    QPixmap pmNotaryV;
 
     QMenu *contextMenu;
     QTreeWidgetItem *contextMenuItem;
@@ -59,9 +53,6 @@ private:
     {
         COLUMN_CHECKBOX,
         COLUMN_AMOUNT,
-        COLUMN_LIQUIDITY,
-        COLUMN_RESERVE,
-        COLUMN_FRACTIONS,
         COLUMN_LABEL,
         COLUMN_ADDRESS,
         COLUMN_DATE,
@@ -70,16 +61,12 @@ private:
         COLUMN_TXHASH,
         COLUMN_VOUT_INDEX,
         COLUMN_AMOUNT_INT64,
-        COLUMN_RESERVE_INT64,
-        COLUMN_LIQUIDITY_INT64,
         COLUMN_PRIORITY_INT64
     };
 
 private slots:
     void showMenu(const QPoint &);
-    void copyTotalAmount();
-    void copyReserveAmount();
-    void copySpendableAmount();
+    void copyAmount();
     void copyLabel();
     void copyAddress();
     void copyTransactionHash();
@@ -96,8 +83,6 @@ private slots:
     void radioTreeMode(bool);
     void radioListMode(bool);
     void viewItemChanged(QTreeWidgetItem*, int);
-    void openFractions(QTreeWidgetItem*,int);
-    void openFractionsMenu(const QPoint &);
     void headerSectionClicked(int);
     void buttonBoxClicked(QAbstractButton*);
     void buttonSelectAllClicked();

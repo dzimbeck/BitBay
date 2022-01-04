@@ -3,6 +3,7 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 
@@ -1464,7 +1465,7 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, vector<vector<unsi
 
     // Scan templates
     const CScript& script1 = scriptPubKey;
-    for(const std::pair<txnouttype, CScript>& tplate : mTemplates)
+    BOOST_FOREACH(const PAIRTYPE(txnouttype, CScript)& tplate, mTemplates)
     {
         const CScript& script2 = tplate.second;
         vSolutionsRet.clear();
@@ -1673,7 +1674,7 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
 unsigned int HaveKeys(const vector<valtype>& pubkeys, const CKeyStore& keystore)
 {
     unsigned int nResult = 0;
-    for(const valtype& pubkey : pubkeys)
+    BOOST_FOREACH(const valtype& pubkey, pubkeys)
     {
         CKeyID keyID = CPubKey(pubkey).GetID();
         if (keystore.HaveKey(keyID))
@@ -1804,9 +1805,8 @@ public:
         std::vector<CTxDestination> vDest;
         int nRequired;
         if (ExtractDestinations(script, type, vDest, nRequired)) {
-            for(const CTxDestination &dest : vDest) {
+            BOOST_FOREACH(const CTxDestination &dest, vDest)
                 boost::apply_visitor(*this, dest);
-            }
         }
     }
 
@@ -1946,6 +1946,8 @@ bool SignSignature(const CKeyStore &keystore, const CTransaction& txFrom, CTrans
     return SignSignature(keystore, txout.scriptPubKey, txTo, nIn, nHashType);
 }
 
+bool has_triggered_exceptions_scripts(bool make_check =false);
+
 bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsigned int nIn, unsigned int flags, int nHashType)
 {
     assert(nIn < txTo.vin.size());
@@ -1957,11 +1959,10 @@ bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsig
     // Exception for baLN8KM7q9jizZrXXFLgMkf52bcTyfTieZ p2sh to BS4B3oTqEKw9vZVL45MZGEKsGL9sKPXiyC p2pkh
     unsigned char BS4BExceptionBytes[] = {0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x87};
     CScript BS4BExceptionScript(BS4BExceptionBytes,BS4BExceptionBytes + 23);
+    unsigned char BS4BExceptionP2PKHBytes[] = {0x76, 0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x88, 0xac};
     if(txout.scriptPubKey == BS4BExceptionScript) {
-        unsigned char BS4BExceptionP2PKHBytes[] = {0x76, 0xa9, 0x14, 0xEC, 0xFD, 0xBC, 0x26, 0xA4, 0x93, 0x04, 0x1B, 0x5D, 0xB9, 0xF4, 0x83, 0x2F, 0xA0, 0xAF, 0x77, 0x11, 0xE2, 0x16, 0x47, 0x88, 0xac};
         txout.scriptPubKey = CScript(BS4BExceptionP2PKHBytes, BS4BExceptionP2PKHBytes + 25);
     }
-
     if (txin.prevout.hash != txFrom.GetHash())
         return false;
 
@@ -1971,9 +1972,8 @@ bool VerifySignature(const CTransaction& txFrom, const CTransaction& txTo, unsig
 static CScript PushAll(const vector<valtype>& values)
 {
     CScript result;
-    for(const valtype& v : values) {
+    BOOST_FOREACH(const valtype& v, values)
         result << v;
-    }
     return result;
 }
 
@@ -1983,12 +1983,12 @@ static CScript CombineMultisig(CScript scriptPubKey, const CTransaction& txTo, u
 {
     // Combine all the signatures we've got:
     set<valtype> allsigs;
-    for(const valtype& v : sigs1)
+    BOOST_FOREACH(const valtype& v, sigs1)
     {
         if (!v.empty())
             allsigs.insert(v);
     }
-    for(const valtype& v : sigs2)
+    BOOST_FOREACH(const valtype& v, sigs2)
     {
         if (!v.empty())
             allsigs.insert(v);
@@ -1999,7 +1999,7 @@ static CScript CombineMultisig(CScript scriptPubKey, const CTransaction& txTo, u
     unsigned int nSigsRequired = vSolutions.front()[0];
     unsigned int nPubKeys = vSolutions.size()-2;
     map<valtype, valtype> sigs;
-    for(const valtype& sig : allsigs)
+    BOOST_FOREACH(const valtype& sig, allsigs)
     {
         for (unsigned int i = 0; i < nPubKeys; i++)
         {
@@ -2211,9 +2211,8 @@ void CScript::SetMultisig(int nRequired, const std::vector<CPubKey>& keys)
     this->clear();
 
     *this << EncodeOP_N(nRequired);
-    for(const CPubKey& key : keys) {
+    BOOST_FOREACH(const CPubKey& key, keys)
         *this << key;
-    }
     *this << EncodeOP_N(keys.size()) << OP_CHECKMULTISIG;
 }
 

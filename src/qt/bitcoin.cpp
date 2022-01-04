@@ -45,9 +45,6 @@ static QSplashScreen *splashref;
 static void ThreadSafeMessageBox(const std::string& message, const std::string& caption, unsigned int style)
 {
     // Message from network thread
-    if(splashref && splashref->isVisible()) {
-       splashref->setVisible(false);
-    }
     if(guiref)
     {
         bool modal = (style & CClientUIInterface::MODAL);
@@ -109,7 +106,7 @@ static std::string Translate(const char* psz)
 static void handleRunawayException(std::exception *e)
 {
     PrintExceptionContinue(e, "Runaway exception");
-    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. BitBay can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
+    QMessageBox::critical(0, "Runaway exception", BitcoinGUI::tr("A fatal error occurred. BlackCoin can no longer continue safely and will quit.") + QString("\n\n") + QString::fromStdString(strMiscWarning));
     exit(1);
 }
 
@@ -186,9 +183,6 @@ int main(int argc, char *argv[])
         app.setApplicationName("BitBay-Qt-testnet");
     else
         app.setApplicationName("BitBay-Qt");
-#ifdef USE_TESTNET
-    app.setApplicationName("BitBay-Qt-testnet");
-#endif
 
     // ... then GUI settings:
     OptionsModel optionsModel;

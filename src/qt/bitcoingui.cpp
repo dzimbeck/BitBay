@@ -14,10 +14,6 @@
 #include "sendcoinsdialog.h"
 #include "signmessagepage.h"
 #include "verifymessagepage.h"
-#include "stakingpage.h"
-#include "dynamicpegpage.h"
-#include "blockchainpage.h"
-#include "blockchainmodel.h"
 #include "optionsdialog.h"
 #include "aboutdialog.h"
 #include "clientmodel.h"
@@ -37,7 +33,6 @@
 #include "wallet.h"
 #include "init.h"
 #include "ui_interface.h"
-#include "qwt/reserve_meter.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -48,7 +43,6 @@
 #include <QIcon>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-#include <QGridLayout>
 #include <QToolBar>
 #include <QStatusBar>
 #include <QLabel>
@@ -68,16 +62,7 @@
 #include <QToolButton>
 #include <QButtonGroup>
 
-#include <QNetworkReply>
-#include <QNetworkAccessManager>
-#include <QJsonDocument>
-#include <QJsonArray>
-#include <QJsonValue>
-
 #include <iostream>
-
-#include "qwt/qwt_plot.h"
-#include "qwt/qwt_plot_curve.h"
 
 extern CWallet* pwalletMain;
 extern int64_t nLastCoinStakeSearchInterval;
@@ -138,12 +123,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     verifyMessagePage = new VerifyMessagePage(this);
 
-    stakingPage = new StakingPage(this);
-
-    dynamicPegPage = new DynamicPegPage(this);
-    
-    infoPage = new BlockchainPage(this);
-    
     centralStackedWidget = new QStackedWidget(this);
     centralStackedWidget->addWidget(overviewPage);
     centralStackedWidget->addWidget(transactionsPage);
@@ -152,13 +131,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     centralStackedWidget->addWidget(sendCoinsPage);
     centralStackedWidget->addWidget(signMessagePage);
     centralStackedWidget->addWidget(verifyMessagePage);
-    centralStackedWidget->addWidget(stakingPage);
-    centralStackedWidget->addWidget(dynamicPegPage);
-    centralStackedWidget->addWidget(infoPage);
 
-    connect(centralStackedWidget, SIGNAL(currentChanged(int)),
-            this, SLOT(onTabChanged(int)));
-    
     QWidget * leftPanel = new QWidget();
     leftPanel->setFixedWidth(160);
     leftPanel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
@@ -185,113 +158,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     space1->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
     space1->setStyleSheet("QWidget { background-color: rgb(75,78,162); }");
     headerLayout->addWidget(space1);
-    
-    QGridLayout * topHeaderLayout = new QGridLayout;
-    topHeaderLayout->setSpacing(0);
-    topHeaderLayout->setMargin(7);
-    space1->setLayout(topHeaderLayout);
 
-    lastBlockLabel = new QLabel;
-    lastBlockLabel->setText(tr("Last block:"));
-    lastBlockLabel->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    lastBlockLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(lastBlockLabel, 0,0);
-
-    oneBayRateLabel = new QLabel;
-    oneBayRateLabel->setText(tr("1 BAY = ??? USD"));
-    oneBayRateLabel->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    oneBayRateLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(oneBayRateLabel, 1,0);
-
-    oneUsdRateLabel = new QLabel;
-    oneUsdRateLabel->setText(tr("1 USD = ??? BAY"));
-    oneUsdRateLabel->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    oneUsdRateLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(oneUsdRateLabel, 2,0);
-    
-    QWidget* space12 = new QWidget();
-    space12->setFixedHeight(70);
-    space12->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    space12->setStyleSheet("QWidget { background-color: rgb(75,78,162); }");
-    topHeaderLayout->addWidget(space12, 2,1);
-
-    pegNowTextLabel = new QLabel;
-    pegNowTextLabel->setText(tr("Peg index now - 200: "));
-    pegNowTextLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    pegNowTextLabel->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    topHeaderLayout->addWidget(pegNowTextLabel, 0,2);
-    pegNextTextLabel = new QLabel;
-    pegNextTextLabel->setText(tr("200 - 400: "));
-    pegNextTextLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    pegNextTextLabel->setStyleSheet("QLabel { color: rgba(240,240,240, 170); }");
-    topHeaderLayout->addWidget(pegNextTextLabel, 1,2);
-    pegNextNextTextLabel = new QLabel;
-    pegNextNextTextLabel->setText(tr("400 - 600: "));
-    pegNextNextTextLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    pegNextNextTextLabel->setStyleSheet("QLabel { color: rgba(240,240,240, 100); }");
-    topHeaderLayout->addWidget(pegNextNextTextLabel, 2,2);
-    
-    pegNowLabel = new QLabel;
-    pegNowLabel->setText(tr(""));
-    pegNowLabel->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    pegNowLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    pegNowLabel->setMinimumWidth(20);
-    topHeaderLayout->addWidget(pegNowLabel, 0,3);
-    pegNextLabel = new QLabel;
-    pegNextLabel->setText(tr(""));
-    pegNextLabel->setStyleSheet("QLabel { color: rgba(240,240,240, 170); }");
-    pegNextLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(pegNextLabel, 1,3);
-    pegNextNextLabel = new QLabel;
-    pegNextNextLabel->setText(tr(""));
-    pegNextNextLabel->setStyleSheet("QLabel { color: rgba(240,240,240, 100); }");
-    pegNextNextLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(pegNextNextLabel, 2,3);
-    
-    QWidget* space13 = new QWidget();
-    space13->setFixedHeight(10);
-    space13->setFixedWidth(50);
-    space13->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    space13->setStyleSheet("QWidget { background-color: rgb(75,78,162); }");
-    topHeaderLayout->addWidget(space13, 2,4);
-    
-    auto lv1 = new QLabel;
-    lv1->setText(tr("Inflate: "));
-    lv1->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    lv1->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    topHeaderLayout->addWidget(lv1, 0,5);
-    auto lv2 = new QLabel;
-    lv2->setText(tr("Deflate: "));
-    lv2->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    lv2->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    topHeaderLayout->addWidget(lv2, 1,5);
-    auto lv3 = new QLabel;
-    lv3->setText(tr("No change: "));
-    lv3->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    lv3->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    topHeaderLayout->addWidget(lv3, 2,5);
-    
-    inflateLabel = new QLabel;
-    inflateLabel->setText(tr(""));
-    inflateLabel->setStyleSheet("QLabel { color: #2da5e0; }");
-    inflateLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    inflateLabel->setMinimumWidth(20);
-    topHeaderLayout->addWidget(inflateLabel, 0,6);
-    deflateLabel = new QLabel;
-    deflateLabel->setText(tr(""));
-    deflateLabel->setStyleSheet("QLabel { color: #c06a15; }");
-    deflateLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(deflateLabel, 1,6);
-    nochangeLabel = new QLabel;
-    nochangeLabel->setText(tr(""));
-    nochangeLabel->setStyleSheet("QLabel { color: rgb(240,240,240); }");
-    nochangeLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-    topHeaderLayout->addWidget(nochangeLabel, 2,6);
-    
-    liquidMeter = new ReserveMeter;
-    liquidMeter->setFixedSize(180,180);
-    topHeaderLayout->addWidget(liquidMeter, 0,7, 3,1);
-    
     QWidget *centralWidget = new QWidget();
     QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
     centralLayout->addLayout(headerLayout);
@@ -416,50 +283,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     tabsGroup->addButton(tabVerify);
     leftPanelLayout->addWidget(tabVerify);
 
-    tabStaking = new QToolButton();
-    tabStaking->setFixedSize(160,50);
-    tabStaking->setText(tr("STAKING"));
-    tabStaking->setCheckable(true);
-    tabStaking->setAutoRaise(true);
-    tabStaking->setFont(font);
-    tabStaking->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    tabStaking->setIcon(QIcon(":/icons/mining"));
-    tabStaking->setIconSize(QSize(16,16));
-    tabsGroup->addButton(tabStaking);
-    leftPanelLayout->addWidget(tabStaking);
-    
-#if defined(ENABLE_EXCHANGE)
-    tabStaking->setEnabled(false);
-#endif
-
-    tabDynamicPeg = new QToolButton();
-    tabDynamicPeg->setFixedSize(160,50);
-    tabDynamicPeg->setText(tr("DYNAMIC PEG"));
-    tabDynamicPeg->setCheckable(true);
-    tabDynamicPeg->setAutoRaise(true);
-    tabDynamicPeg->setFont(font);
-    tabDynamicPeg->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    tabDynamicPeg->setIcon(QIcon(":/icons/dynpeg"));
-    tabDynamicPeg->setIconSize(QSize(16,16));
-    tabsGroup->addButton(tabDynamicPeg);
-    leftPanelLayout->addWidget(tabDynamicPeg);
-    
-#if defined(ENABLE_EXCHANGE)
-    tabDynamicPeg->setEnabled(false);
-#endif
-    
-    tabInfo = new QToolButton();
-    tabInfo->setFixedSize(160,50);
-    tabInfo->setText(tr("BLOCKCHAIN"));
-    tabInfo->setCheckable(true);
-    tabInfo->setAutoRaise(true);
-    tabInfo->setFont(font);
-    tabInfo->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-    tabInfo->setIcon(QIcon(":/icons/info"));
-    tabInfo->setIconSize(QSize(16,16));
-    tabsGroup->addButton(tabInfo);
-    leftPanelLayout->addWidget(tabInfo);
-    
     connect(tabDashboard, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
     connect(tabDashboard, SIGNAL(clicked()), this, SLOT(gotoOverviewPage()));
     connect(tabReceive, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
@@ -474,12 +297,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(tabSign, SIGNAL(clicked()), this, SLOT(gotoSignMessagePage()));
     connect(tabVerify, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
     connect(tabVerify, SIGNAL(clicked()), this, SLOT(gotoVerifyMessagePage()));
-    connect(tabStaking, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
-    connect(tabStaking, SIGNAL(clicked()), this, SLOT(gotoStakingPage()));
-    connect(tabDynamicPeg, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
-    connect(tabDynamicPeg, SIGNAL(clicked()), this, SLOT(gotoDynamicPegPage()));
-    connect(tabInfo, SIGNAL(clicked()), this, SLOT(showNormalIfMinimized()));
-    connect(tabInfo, SIGNAL(clicked()), this, SLOT(gotoInfoPage()));
 
     QWidget * space2 = new QWidget;
     space2->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);
@@ -496,17 +313,9 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     frameBlocksLayout->setSpacing(3);
     frameBlocksLayout->setAlignment(Qt::AlignHCenter);
     labelEncryptionIcon = new QLabel();
-    labelStakingIcon = new GUIUtil::ClickableLabel();
-    labelConnectionsIcon = new GUIUtil::ClickableLabel();
-    labelBlocksIcon = new GUIUtil::ClickableLabel();
-    
-    connect(labelStakingIcon, SIGNAL(clicked()),
-            this, SLOT(gotoStakingPage()));
-    connect(labelConnectionsIcon, SIGNAL(clicked()),
-            this, SLOT(gotoInfoPageNet()));
-    connect(labelBlocksIcon, SIGNAL(clicked()),
-            this, SLOT(gotoInfoPageBlocks()));
-    
+    labelStakingIcon = new QLabel();
+    labelConnectionsIcon = new QLabel();
+    labelBlocksIcon = new QLabel();
     frameBlocksLayout->addStretch();
     frameBlocksLayout->addWidget(labelEncryptionIcon);
     frameBlocksLayout->addStretch();
@@ -518,7 +327,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     frameBlocksLayout->addStretch();
     leftPanelLayout->addWidget(frameBlocks);
 
-#if !defined(ENABLE_EXCHANGE)
     if (GetBoolArg("-staking", true))
     {
         QTimer *timerStakingIcon = new QTimer(labelStakingIcon);
@@ -526,8 +334,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
         timerStakingIcon->start(30 * 1000);
         updateStakingIcon();
     }
-#endif
-    
+
     // Progress bar and label for blocks download
     progressBarLabel = new QLabel();
     progressBarLabel->setStyleSheet("QLabel { padding-left: 10px; }");
@@ -582,19 +389,6 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     connect(receiveCoinsPage, SIGNAL(signMessage(QString)), this, SLOT(gotoSignMessageTab(QString)));
 
     gotoOverviewPage();
-    
-    // Request rates
-    netAccessManager = new QNetworkAccessManager(this);
-    connect(netAccessManager, &QNetworkAccessManager::finished,
-            this, &BitcoinGUI::netDataReplyFinished);
-    
-    QTimer* timer1 = new QTimer(this);
-    connect(timer1, SIGNAL(timeout()), this, SLOT(ratesRequestInitiate()));
-    timer1->start(1000*60*15); // updates rates every 15 minutes
-
-    QTimer* timer2 = new QTimer(this);
-    connect(timer2, SIGNAL(timeout()), this, SLOT(releaseRequestInitiate()));
-    timer2->start(1000*60*60*24*2); // check the release info every 2 days
 }
 
 BitcoinGUI::~BitcoinGUI()
@@ -751,11 +545,7 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
             if(trayIcon)
             {
                 trayIcon->setToolTip(tr("BitBay client") + QString(" ") + tr("[testnet]"));
-#ifdef Q_WS_WIN
                 trayIcon->setIcon(QIcon(":/icons/toolbar_testnet"));
-#else
-                trayIcon->setIcon(QIcon(":/icons/trayicon32_testnet"));
-#endif
                 toggleHideAction->setIcon(QIcon(":/icons/toolbar_testnet"));
             }
         }
@@ -766,16 +556,10 @@ void BitcoinGUI::setClientModel(ClientModel *clientModel)
 
         setNumBlocks(clientModel->getNumBlocks());
         connect(clientModel, SIGNAL(numBlocksChanged(int)), this, SLOT(setNumBlocks(int)));
-        connect(clientModel, SIGNAL(numBlocksChanged(int)), infoPage->blockchainModel(), SLOT(setNumBlocks(int)));
-        QTimer * numBlocksLabelTimer = new QTimer(this);
-        connect(numBlocksLabelTimer, SIGNAL(timeout()), this, SLOT(updateNumBlocksLabel()));
-        numBlocksLabelTimer->setInterval(1000);
-        numBlocksLabelTimer->start();
 
         // Receive and report messages from network/worker thread
         connect(clientModel, SIGNAL(message(QString,QString,bool,unsigned int)), this, SLOT(message(QString,QString,bool,unsigned int)));
 
-        infoPage->setClientModel(clientModel);
         overviewPage->setClientModel(clientModel);
         rpcConsole->setClientModel(clientModel);
         addressBookPage->setOptionsModel(clientModel->getOptionsModel());
@@ -799,8 +583,6 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         sendCoinsPage->setModel(walletModel);
         signMessagePage->setModel(walletModel);
         verifyMessagePage->setModel(walletModel);
-        stakingPage->setWalletModel(walletModel);
-        dynamicPegPage->setWalletModel(walletModel);
 
         setEncryptionStatus(walletModel->getEncryptionStatus());
         connect(walletModel, SIGNAL(encryptionStatusChanged(int)), this, SLOT(setEncryptionStatus(int)));
@@ -811,15 +593,6 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
 
         // Ask for passphrase if needed
         connect(walletModel, SIGNAL(requireUnlock()), this, SLOT(unlockWallet()));
-        
-        if (!vFirstRetrievedBayRates.empty()) {
-            walletModel->setBayRates(vFirstRetrievedBayRates);
-            vFirstRetrievedBayRates.clear();
-        }
-        if (!vFirstRetrievedBtcRates.empty()) {
-            walletModel->setBtcRates(vFirstRetrievedBtcRates);
-            vFirstRetrievedBtcRates.clear();
-        }
     }
 }
 
@@ -941,11 +714,33 @@ void BitcoinGUI::setNumBlocks(int count)
     else
     {
         // Represent time from last generated block in human readable text
-        QString time_behind_text = timeBehindText(secs);
+        QString timeBehindText;
+        const int HOUR_IN_SECONDS = 60*60;
+        const int DAY_IN_SECONDS = 24*60*60;
+        const int WEEK_IN_SECONDS = 7*24*60*60;
+        const int YEAR_IN_SECONDS = 31556952; // Average length of year in Gregorian calendar
+        if(secs < 2*DAY_IN_SECONDS)
+        {
+            timeBehindText = tr("%n hour(s)","",secs/HOUR_IN_SECONDS);
+        }
+        else if(secs < 2*WEEK_IN_SECONDS)
+        {
+            timeBehindText = tr("%n day(s)","",secs/DAY_IN_SECONDS);
+        }
+        else if(secs < YEAR_IN_SECONDS)
+        {
+            timeBehindText = tr("%n week(s)","",secs/WEEK_IN_SECONDS);
+        }
+        else
+        {
+            int years = secs / YEAR_IN_SECONDS;
+            int remainder = secs % YEAR_IN_SECONDS;
+            timeBehindText = tr("%1 and %2").arg(tr("%n year(s)", "", years)).arg(tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
+        }
 
         progressBarLabel->setText(tr(clientModel->isImporting() ? "Importing blocks..." : "Synchronizing with network..."));
         progressBarLabel->setVisible(true);
-        progressBar->setFormat(tr("%1 behind").arg(time_behind_text));
+        progressBar->setFormat(tr("%1 behind").arg(timeBehindText));
         progressBar->setMaximum(totalSecs);
         progressBar->setValue(totalSecs - secs);
         progressBar->setVisible(true);
@@ -960,7 +755,7 @@ void BitcoinGUI::setNumBlocks(int count)
         overviewPage->showOutOfSyncWarning(true);
 
         tooltip += QString("<br>");
-        tooltip += tr("Last received block was generated %1 ago.").arg(time_behind_text);
+        tooltip += tr("Last received block was generated %1 ago.").arg(timeBehindText);
         tooltip += QString("<br>");
         tooltip += tr("Transactions after this will not yet be visible.");
     }
@@ -971,100 +766,6 @@ void BitcoinGUI::setNumBlocks(int count)
     labelBlocksIcon->setToolTip(tooltip);
     progressBarLabel->setToolTip(tooltip);
     progressBar->setToolTip(tooltip);
-    lastBlockLabel->setText(tr("Last block: %1, %2 ago").arg(count).arg(timeBehindText(secs)));
-    updatePegInfo1Label();
-}
-
-void BitcoinGUI::updateNumBlocksLabel() 
-{
-    int count = clientModel->getNumBlocks();
-    QDateTime lastBlockDate = clientModel->getLastBlockDate();
-    QDateTime currentDate = QDateTime::currentDateTime();
-    int secs = lastBlockDate.secsTo(currentDate);
-    
-    lastBlockLabel->setText(tr("Last block: %1, %2 ago").arg(count).arg(timeBehindText(secs)));
-    updatePegInfo1Label();
-}
-
-void BitcoinGUI::updatePegInfo1Label() 
-{
-    int last_block_num = clientModel->getNumBlocks();
-    int peg_supply = clientModel->getPegSupplyIndex();
-    int peg_next_supply = clientModel->getPegNextSupplyIndex();
-    int peg_next_next_supply = clientModel->getPegNextNextSupplyIndex();
-    int peg_start = clientModel->getPegStartBlockNum();
-    Q_UNUSED(peg_start);
-    int votes_inflate, votes_deflate, votes_nochange;
-    boost::tie(votes_inflate, votes_deflate, votes_nochange) = clientModel->getPegVotes();
-    int peg_interval = Params().PegInterval(last_block_num);
-    int interval_num = last_block_num / peg_interval;
-    pegNowTextLabel->setText(tr("Peg index now - %1: ")
-                             .arg((interval_num +1)*peg_interval-1));
-    pegNextTextLabel->setText(tr("%1 - %2: ")
-                              .arg((interval_num +1)*peg_interval)
-                              .arg((interval_num +2)*peg_interval-1));
-    pegNextNextTextLabel->setText(tr("%1 - %2: ")
-                                  .arg((interval_num +2)*peg_interval)
-                                  .arg((interval_num +3)*peg_interval-1));
-    if (last_block_num < nPegStartHeight) {
-        pegNowLabel->setText("off");
-        pegNextLabel->setText("off");
-        pegNextNextLabel->setText("off");
-        inflateLabel->setText("off");
-        deflateLabel->setText("off");
-        nochangeLabel->setText("off");
-    } else {
-        pegNowLabel->setText(QString::number(peg_supply));
-        pegNextLabel->setText(QString::number(peg_next_supply));
-        pegNextNextLabel->setText(QString::number(peg_next_next_supply));
-        inflateLabel->setText(tr("%1").arg(votes_inflate));
-        deflateLabel->setText(tr("%1").arg(votes_deflate));
-        nochangeLabel->setText(tr("%1").arg(votes_nochange));
-    }
-    double liquid = 100.0;
-    for(int i=0; i< peg_supply; i++) {
-        double f = liquid/100.0;
-        liquid -= f;
-    }
-    liquidMeter->setValue(liquid);
-}
-
-QString BitcoinGUI::timeBehindText(int secs) 
-{
-    QString time_behind_text;
-    const int MINUTE_IN_SECONDS = 60;
-    const int HOUR_IN_SECONDS = 60*60;
-    const int DAY_IN_SECONDS = 24*60*60;
-    const int WEEK_IN_SECONDS = 7*24*60*60;
-    const int YEAR_IN_SECONDS = 31556952; // Average length of year in Gregorian calendar
-   
-    if(secs < 2*MINUTE_IN_SECONDS) 
-    {
-        time_behind_text = tr("%n second(s)","",secs);
-    }
-    else if(secs < 2*HOUR_IN_SECONDS) 
-    {
-        time_behind_text = tr("%n minute(s)","",secs/MINUTE_IN_SECONDS);
-    }
-    else if(secs < 2*DAY_IN_SECONDS)
-    {
-        time_behind_text = tr("%n hour(s)","",secs/HOUR_IN_SECONDS);
-    }
-    else if(secs < 2*WEEK_IN_SECONDS)
-    {
-        time_behind_text = tr("%n day(s)","",secs/DAY_IN_SECONDS);
-    }
-    else if(secs < YEAR_IN_SECONDS)
-    {
-        time_behind_text = tr("%n week(s)","",secs/WEEK_IN_SECONDS);
-    }
-    else
-    {
-        int years = secs / YEAR_IN_SECONDS;
-        int remainder = secs % YEAR_IN_SECONDS;
-        time_behind_text = tr("%1 and %2").arg(tr("%n year(s)", "", years)).arg(tr("%n week(s)","", remainder/WEEK_IN_SECONDS));
-    }
-    return time_behind_text;
 }
 
 void BitcoinGUI::message(const QString &title, const QString &message, bool modal, unsigned int style)
@@ -1111,16 +812,6 @@ void BitcoinGUI::message(const QString &title, const QString &message, bool moda
     }
     else
         notificator->notify((Notificator::Class)nNotifyIcon, strTitle, message);
-}
-
-void BitcoinGUI::showEvent(QShowEvent *e)
-{
-    QMainWindow::showEvent(e);
-    if (firstTimeRequest) {
-        firstTimeRequest = false;
-        ratesRequestInitiate();
-        releaseRequestInitiate();
-    }
 }
 
 void BitcoinGUI::changeEvent(QEvent *e)
@@ -1271,54 +962,6 @@ void BitcoinGUI::gotoVerifyMessagePage()
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);
 }
 
-void BitcoinGUI::gotoStakingPage()
-{
-    tabStaking->setChecked(true);
-    centralStackedWidget->setCurrentWidget(stakingPage);
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
-
-void BitcoinGUI::gotoDynamicPegPage()
-{
-    tabDynamicPeg->setChecked(true);
-    centralStackedWidget->setCurrentWidget(dynamicPegPage);
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
-
-void BitcoinGUI::gotoInfoPage()
-{
-    tabInfo->setChecked(true);
-    centralStackedWidget->setCurrentWidget(infoPage);
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
-
-void BitcoinGUI::gotoInfoPageBlocks()
-{
-    tabInfo->setChecked(true);
-    centralStackedWidget->setCurrentWidget(infoPage);
-    infoPage->showChainPage();
-    infoPage->jumpToTop();
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
-
-void BitcoinGUI::gotoInfoPageNet()
-{
-    tabInfo->setChecked(true);
-    centralStackedWidget->setCurrentWidget(infoPage);
-    infoPage->showNetPage();
-
-    exportAction->setEnabled(false);
-    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
-}
-
 void BitcoinGUI::gotoSignMessageTab(QString addr)
 {
     tabSign->setChecked(true);
@@ -1335,15 +978,6 @@ void BitcoinGUI::gotoVerifyMessageTab(QString addr)
 
     if(!addr.isEmpty())
         verifyMessagePage->setAddress_VM(addr);
-}
-
-void BitcoinGUI::onTabChanged(int)
-{
-    if (centralStackedWidget->currentWidget() == sendCoinsPage) {
-        fAboutToSendGUI = true;
-    } else {
-        fAboutToSendGUI = false;
-    }
 }
 
 void BitcoinGUI::dragEnterEvent(QDragEnterEvent *event)
@@ -1569,309 +1203,3 @@ void BitcoinGUI::detectShutdown()
     if (ShutdownRequested())
         QMetaObject::invokeMethod(QCoreApplication::instance(), "quit", Qt::QueuedConnection);
 }
-
-void BitcoinGUI::ratesRequestInitiate()
-{
-    QUrl ratedb_url = QUrl("https://bitbaymarket.github.io/ratedb/rates.json");
-    QUrl ratedb_1k_url = QUrl("https://bitbaymarket.github.io/ratedb/rates1k.json");
-    if (TestNet()) {
-        ratedb_url = QUrl("https://bitbaymarket.github.io/ratedb-testnet/rates.json");
-        ratedb_1k_url = QUrl("https://bitbaymarket.github.io/ratedb-testnet/rates1k.json");
-    } 
-
-    QNetworkRequest req_rates(ratedb_url);
-    req_rates.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    netAccessManager->get(req_rates);
-    
-    QNetworkRequest req_rates_1k(ratedb_1k_url);
-    req_rates_1k.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    netAccessManager->get(req_rates_1k);
-    
-    dynamicPegPage->setAlgorithmInfo("BitBay", ratedb_url.toString(), ratedb_1k_url.toString());
-}
-
-void BitcoinGUI::netDataReplyFinished(QNetworkReply *reply)
-{
-    // #NOTE18
-    if (!reply) {
-        return;
-    }
-    reply->deleteLater();
-    if (reply->error()) {
-        if (reply->url().path().endsWith("rates1k.json")) {
-            dynamicPegPage->setStatusMessage("Algorithm Chart error, "+
-                                             reply->errorString());
-            dynamicPegPage->setAlgorithmVote("disabled", 0.2);
-            if (walletModel) {
-                walletModel->setTrackerVote(PEG_VOTE_NONE, 0.2);
-            }
-        }
-        else if (reply->url().path().endsWith("rates.json")) {
-            dynamicPegPage->setStatusMessage("Algorithm URL error, "+
-                                             reply->errorString());
-            dynamicPegPage->setAlgorithmVote("disabled", 0.2);
-            if (walletModel) {
-                walletModel->setTrackerVote(PEG_VOTE_NONE, 0.2);
-            }
-        }
-        return;
-    }
-    QByteArray data = reply->readAll();
-    auto json_doc = QJsonDocument::fromJson(data);
-    
-    if (reply->url().path().endsWith("rates1k.json")) {
-        
-        auto records = json_doc.array();
-        
-        bool have_rate = false;
-        double btc_in_usd = 1.;
-        double bay_in_usd = 1.;
-        double usd_in_bay = 1.;
-        deque<double> btc_rates;
-        deque<double> bay_rates;
-        
-        QVector<double> xs_price;
-        QVector<double> ys_price;
-        QVector<double> xs_floor;
-        QVector<double> ys_floor;
-        QVector<double> xs_floormin;
-        QVector<double> ys_floormin;
-        QVector<double> xs_floormax;
-        QVector<double> ys_floormax;
-        uint64_t nTimeMin = 0;
-        uint64_t nTimeMax = 0;
-        
-        for(int i=0; i<records.size(); i++) {
-            auto record = records.at(i);
-            if (!record.isObject()) continue;
-            auto record_obj = record.toObject();
-            auto record_bay = record_obj["BAY"];
-            auto record_btc = record_obj["BTC"];
-            if (!record_bay.isObject()) continue;
-            if (!record_btc.isObject()) continue;
-            auto record_btc_obj = record_btc.toObject();
-            auto record_bay_obj = record_bay.toObject();
-            auto record_day_price = record_btc_obj["last_updated"];
-            auto record_btc_price = record_btc_obj["price"];
-            auto record_bay_price = record_bay_obj["price"];
-            auto record_bay_floor = record_bay_obj["floor"];
-            if (!record_bay_price.isDouble()) continue;
-            if (!record_btc_price.isDouble()) continue;
-            bay_in_usd = record_bay_price.toDouble();
-            if (bay_in_usd >0) {
-                have_rate = true;
-                usd_in_bay = 1. / bay_in_usd;
-            }
-            btc_in_usd = record_btc_price.toDouble();
-            
-            btc_rates.push_back(btc_in_usd);
-            bay_rates.push_back(bay_in_usd);
-            
-            while (btc_rates.size() > 1000) {
-                btc_rates.pop_front();
-            }
-            while (bay_rates.size() > 1000) {
-                bay_rates.pop_front();
-            }
-            
-            if (!record_bay_floor.isDouble()) continue;
-            auto floor_in_usd = record_bay_floor.toDouble();
-            auto dt = QDateTime::fromString(record_day_price.toString(), Qt::ISODate);
-            xs_price.push_back(dt.toMSecsSinceEpoch());
-            ys_price.push_back(bay_in_usd);
-            xs_floor.push_back(dt.toMSecsSinceEpoch());
-            ys_floor.push_back(floor_in_usd);
-            xs_floormin.push_back(dt.toMSecsSinceEpoch());
-            ys_floormin.push_back(floor_in_usd * 0.95);
-            xs_floormax.push_back(dt.toMSecsSinceEpoch());
-            ys_floormax.push_back(floor_in_usd * 1.05);
-            
-            uint64_t nTime = dt.toSecsSinceEpoch();
-            if (nTimeMin == 0) nTimeMin = nTime;
-            if (nTimeMax == 0) nTimeMax = nTime;
-            if (nTime < nTimeMin) nTimeMin = nTime;
-            if (nTime > nTimeMax) nTimeMax = nTime;
-        }
-        
-        {
-            LOCK(cs_main);
-            
-            if ((pindexBest->nTime > nTimeMax) && ((pindexBest->nTime - nTimeMax) > 12*3600)) {
-                dynamicPegPage->setStatusMessage("Algorithm Chart is not live, last record of "+
-                                                 QString::fromStdString(DateTimeStrFormat(nTimeMax)));
-                dynamicPegPage->setAlgorithmVote("disabled", 0.2);
-                if (walletModel) {
-                    walletModel->setTrackerVote(PEG_VOTE_NONE, 0.2);
-                }
-                return;
-            }
-
-            dynamicPegPage->setStatusMessage("LIVE, last record of "+
-                                             QString::fromStdString(DateTimeStrFormat(nTimeMax)));
-            
-            QVector<double> xs_peg;
-            QVector<double> ys_peg;
-            CBlockIndex * pindex = pindexBest;
-            xs_peg.push_back(uint64_t(pindex->nTime)*1000.);
-            ys_peg.push_back(pindex->nPegSupplyIndex);
-            while(pindex && pindex->nTime > nTimeMin) {
-                if ((pindex->nHeight % 200) == 0) {
-                    xs_peg.push_back(uint64_t(pindex->nTime)*1000.);
-                    ys_peg.push_back(pindex->nPegSupplyIndex);
-                }
-                pindex = pindex->pprev;
-            }
-            dynamicPegPage->curvePeg->setSamples(xs_peg, ys_peg);
-        }
-
-        dynamicPegPage->curvePrice->setSamples(xs_price, ys_price);
-        dynamicPegPage->curveFloor->setSamples(xs_floor, ys_floor);
-        dynamicPegPage->curveFloorMin->setSamples(xs_floormin, ys_floormin);
-        dynamicPegPage->curveFloorMax->setSamples(xs_floormax, ys_floormax);
-        dynamicPegPage->fplot->replot();
-        
-        if (have_rate) {
-            oneBayRateLabel->setText(tr("1 BAY = %1 USD").arg(bay_in_usd));
-            oneUsdRateLabel->setText(tr("1 USD = %1 BAY").arg(usd_in_bay));
-            
-            vector<double> v_btc_rates;
-            vector<double> v_bay_rates;
-            for(size_t i=0; i<btc_rates.size(); ++i) v_btc_rates.push_back(btc_rates[i]);
-            for(size_t i=0; i<bay_rates.size(); ++i) v_bay_rates.push_back(bay_rates[i]);
-            
-            if (walletModel) {
-                walletModel->setBtcRates(v_btc_rates);
-                walletModel->setBayRates(v_bay_rates);
-            } else {
-                vFirstRetrievedBtcRates = v_btc_rates;
-                vFirstRetrievedBayRates = v_bay_rates;
-            }
-        }
-    }
-    else if (reply->url().path().endsWith("rates.json")) {
-        bool have_rate = false;
-        double bay_in_usd = 1.;
-        double usd_in_bay = 1.;
-        double bay_floor_in_usd = 1.;
-        
-        auto record_obj = json_doc.object();
-        auto record_bay = record_obj["BAY"];
-        auto record_btc = record_obj["BTC"];
-        if (!record_bay.isObject()) return;
-        if (!record_btc.isObject()) return;
-        auto record_btc_obj = record_btc.toObject();
-        auto record_bay_obj = record_bay.toObject();
-        auto record_day_price = record_btc_obj["last_updated"];
-        auto record_btc_price = record_btc_obj["price"];
-        auto record_bay_price = record_bay_obj["price"];
-        auto record_bay_floor = record_bay_obj["floor"];
-        if (!record_bay_price.isDouble()) return;
-        if (!record_bay_floor.isDouble()) return;
-        if (!record_btc_price.isDouble()) return;
-        bay_floor_in_usd = record_bay_floor.toDouble();
-        bay_in_usd = record_bay_price.toDouble();
-        if (bay_in_usd >0) {
-            have_rate = true;
-            usd_in_bay = 1. / bay_in_usd;
-        }
-        
-        if (have_rate) {
-            oneBayRateLabel->setText(tr("1 BAY = %1 USD").arg(bay_in_usd));
-            oneUsdRateLabel->setText(tr("1 USD = %1 BAY").arg(usd_in_bay));
-
-            {
-                LOCK(cs_main);
-                auto dt = QDateTime::fromString(record_day_price.toString(), Qt::ISODate);
-                uint64_t nTime = dt.toSecsSinceEpoch();
-                
-                if ((pindexBest->nTime > nTime) && ((pindexBest->nTime - nTime) > 12*3600)) {
-                    dynamicPegPage->setStatusMessage("Algorithm URL is not live, last record of "+
-                                                     QString::fromStdString(DateTimeStrFormat(nTime)));
-                    dynamicPegPage->setAlgorithmVote("disabled", 0.2);
-                    if (walletModel) {
-                        walletModel->setTrackerVote(PEG_VOTE_NONE, 0.2);
-                    }
-                    return;
-                }
-            }
-            
-            auto record_bay_vote = record_bay_obj["pegvote"];
-            if (!record_bay_vote.isString()) {
-                dynamicPegPage->setStatusMessage("Algorithm URL record has no pegvote");
-                dynamicPegPage->setAlgorithmVote("disabled", 0.2);
-                if (walletModel) {
-                    walletModel->setTrackerVote(PEG_VOTE_NONE, 0.2);
-                }
-                return;
-            }
-            
-            QString pegvote = record_bay_vote.toString();
-            dynamicPegPage->setAlgorithmVote(pegvote, bay_floor_in_usd);
-            if (walletModel) {
-                if (pegvote == "inflate") {
-                    walletModel->setTrackerVote(PEG_VOTE_INFLATE, bay_floor_in_usd);
-                } else if (pegvote == "deflate") {
-                    walletModel->setTrackerVote(PEG_VOTE_DEFLATE, bay_floor_in_usd);
-                } else if (pegvote == "nochange") {
-                    walletModel->setTrackerVote(PEG_VOTE_NOCHANGE, bay_floor_in_usd);
-                } else {
-                    walletModel->setTrackerVote(PEG_VOTE_NONE, bay_floor_in_usd);
-                }
-            }
-        } 
-        else {
-            dynamicPegPage->setStatusMessage("Algorithm URL record has no rate");
-            dynamicPegPage->setAlgorithmVote("disabled", 0.2);
-            if (walletModel) {
-                walletModel->setTrackerVote(PEG_VOTE_NONE, 0.2);
-            }
-            return;
-        }
-    }
-    else if (reply->url().path().endsWith("release.json")) {
-        auto release_obj = json_doc.object();
-        auto record_ver_maj = release_obj["version_major"];
-        auto record_ver_min = release_obj["version_minor"];
-        auto record_ver_rev = release_obj["version_revision"];
-        if (!record_ver_maj.isDouble()) return;
-        if (!record_ver_min.isDouble()) return;
-        if (!record_ver_rev.isDouble()) return;
-        int ver_maj = record_ver_maj.toInt();
-        int ver_min = record_ver_min.toInt();
-        int ver_rev = record_ver_rev.toInt();
-        if (ver_maj < CLIENT_VERSION_MAJOR) return;
-        if (ver_maj == CLIENT_VERSION_MAJOR && 
-            ver_min < CLIENT_VERSION_MINOR) return;
-        if (ver_maj == CLIENT_VERSION_MAJOR && 
-            ver_min == CLIENT_VERSION_MINOR && 
-            ver_rev <=CLIENT_VERSION_REVISION) return;
-        if (!walletModel) {
-            return;
-        }
-        QMessageBox::warning(this, 
-                             tr("New Version Warning"), 
-                             tr("New Version of BitBay wallet is available %1.%2.%3.\n"
-                                "Current running has version %4.%5.%6.")
-                             .arg(ver_maj)
-                             .arg(ver_min)
-                             .arg(ver_rev)
-                             .arg(CLIENT_VERSION_MAJOR)
-                             .arg(CLIENT_VERSION_MINOR)
-                             .arg(CLIENT_VERSION_REVISION), 
-                             QMessageBox::Ok);
-    }
-}
-
-void BitcoinGUI::releaseRequestInitiate()
-{
-    QUrl release_url = QUrl("https://bitbaymarket.github.io/bitbay-core-peg/release.json");
-    if (TestNet()) {
-        // todo
-        return;
-    } 
-
-    QNetworkRequest req_release(release_url);
-    req_release.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    netAccessManager->get(req_release);
-}
-

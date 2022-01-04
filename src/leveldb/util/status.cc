@@ -2,11 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
 
-#include "leveldb/status.h"
-
 #include <stdio.h>
-
 #include "port/port.h"
+#include "leveldb/status.h"
 
 namespace leveldb {
 
@@ -36,7 +34,7 @@ Status::Status(Code code, const Slice& msg, const Slice& msg2) {
 }
 
 std::string Status::ToString() const {
-  if (state_ == nullptr) {
+  if (state_ == NULL) {
     return "OK";
   } else {
     char tmp[30];
@@ -61,8 +59,8 @@ std::string Status::ToString() const {
         type = "IO error: ";
         break;
       default:
-        snprintf(tmp, sizeof(tmp),
-                 "Unknown code(%d): ", static_cast<int>(code()));
+        snprintf(tmp, sizeof(tmp), "Unknown code(%d): ",
+                 static_cast<int>(code()));
         type = tmp;
         break;
     }

@@ -1,0 +1,28 @@
+If building leveldb fails in the last line of your build just use the ones included in the leveldb folders for your platform (win32 if cross platform linux)
+
+
+STEPS TAKING IN SCRIPT:
+Troubleshooting
+
+In the event you encounter problems compiling the daemon, feel free to consult the guide below:
+
+Receive the following error?
+
+PROBLEM:
+
+g++: error: /home/user/Desktop/onyx/OnyxCoin/src/leveldb/libleveldb.a: No such file or directory g++: error: /home/user/Desktop/onyx/OnyxCoin/src/leveldb/libmemenv.a: No such file or directory
+
+SOLUTION:
+
+cd src/leveldb make libleveldb.a libmemenv.a
+
+CD back to src and try to build it again.
+
+If you get the following error trying to do the above,
+
+/bin/sh: 1: ./build_detect_platform: Permission denied Makefile:18: build_config.mk: No such file or directory
+
+chmod 755 src/leveldb/build_detect_platform
+
+and try it again.
+

@@ -8,7 +8,7 @@
 #if !defined(LEVELDB_EXPORT)
 
 #if defined(LEVELDB_SHARED_LIBRARY)
-#if defined(_WIN32)
+#if defined(OS_WIN)
 
 #if defined(LEVELDB_COMPILE_LIBRARY)
 #define LEVELDB_EXPORT __declspec(dllexport)
@@ -16,13 +16,13 @@
 #define LEVELDB_EXPORT __declspec(dllimport)
 #endif  // defined(LEVELDB_COMPILE_LIBRARY)
 
-#else  // defined(_WIN32)
+#else  // defined(OS_WIN)
 #if defined(LEVELDB_COMPILE_LIBRARY)
 #define LEVELDB_EXPORT __attribute__((visibility("default")))
 #else
 #define LEVELDB_EXPORT
 #endif
-#endif  // defined(_WIN32)
+#endif  // defined(OS_WIN)
 
 #else  // defined(LEVELDB_SHARED_LIBRARY)
 #define LEVELDB_EXPORT

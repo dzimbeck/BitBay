@@ -4,7 +4,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 //
 // The use in another cyptocurrency project the code is licensed under
-// Jelurida Public License (JPL). See https://www.jelurida.com/resources/jpl
+// Coinleft Public License for BitBay. See https://bitbay.market/Coinleft-Public-License-v1.pdf
 
 #ifndef BITBAY_PEGOPSP_H
 #define BITBAY_PEGOPSP_H

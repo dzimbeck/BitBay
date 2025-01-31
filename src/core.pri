@@ -39,6 +39,7 @@ HEADERS += \
     $$PWD/threadsafety.h \
     $$PWD/tinyformat.h \
     $$PWD/blockindexmap.h \
+	$$PWD/proposals.h \
 
 SOURCES += \
     $$PWD/alert.cpp \
@@ -64,6 +65,7 @@ SOURCES += \
     $$PWD/noui.cpp \
     $$PWD/kernel.cpp \
     $$PWD/blockindexmap.cpp \
+	$$PWD/proposals.cpp \
 
 HEADERS += \
     $$PWD/crypto/pbkdf2.h \
@@ -88,6 +90,8 @@ SOURCES += \
     $$PWD/rpc/rpcnet.cpp \
     $$PWD/rpc/rpcblockchain.cpp \
     $$PWD/rpc/rpcrawtransaction.cpp \
+    $$PWD/rpc/rpcproposals.cpp \
+    $$PWD/rpc/rpcbridges.cpp \
 
 INCLUDEPATH += $$PWD/wallet
 
@@ -115,16 +119,21 @@ wallet {
 
     HEADERS += \
         $$PWD/wallet/db.h \
-        $$PWD/wallet/miner.h \
+		$$PWD/wallet/evmtx.h \
+		$$PWD/wallet/miner.h \
         $$PWD/wallet/wallet.h \
         $$PWD/wallet/walletdb.h \
     
     SOURCES += \
         $$PWD/wallet/db.cpp \
         $$PWD/wallet/miner.cpp \
-        $$PWD/wallet/rpcdump.cpp \
+		$$PWD/wallet/evmtx.cpp \
+		$$PWD/wallet/bauto1.cpp \
+		$$PWD/wallet/bauto2.cpp \
+		$$PWD/wallet/rpcdump.cpp \
         $$PWD/wallet/rpcmining.cpp \
         $$PWD/wallet/rpcwallet.cpp \
+        $$PWD/wallet/rpcmyproposals.cpp \
         $$PWD/wallet/wallet.cpp \
         $$PWD/wallet/walletdb.cpp \
 
@@ -134,3 +143,5 @@ wallet {
 include($$PWD/peg/peg.pri)
 
 LIBS += -lz
+LIBS += -lcurl $$LIBS_CURL_DEPS
+

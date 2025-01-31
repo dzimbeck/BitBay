@@ -409,7 +409,7 @@
       <bool>false</bool>
      </property>
      <property name="columnCount">
-      <number>16</number>
+      <number>14</number>
      </property>
      <attribute name="headerShowSortIndicator" stdset="0">
       <bool>true</bool>
@@ -467,11 +467,6 @@
      </column>
      <column>
       <property name="text">
-       <string>Priority</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
        <string>txhash</string>
       </property>
      </column>
@@ -493,11 +488,6 @@
      <column>
       <property name="text">
        <string>liquidity64</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>priority64</string>
       </property>
      </column>
     </widget>

@@ -60,7 +60,7 @@ public slots:
                 int nSupply, 
                 int nSupplyN, 
                 int nSupplyNN, 
-                unsigned int nTime);
+                uint32_t nTime);
     void showNotFound();
 
 signals:

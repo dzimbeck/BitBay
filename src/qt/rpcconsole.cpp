@@ -301,7 +301,7 @@ void RPCConsole::clear()
     ui->messagesWidget->document()->setDefaultStyleSheet(
                 "table { }"
                 "td.time { color: #808080; padding-top: 3px; } "
-                "td.message { font-family: Roboto Mono; font-size: 12px; } "
+                "td.message { font-family: Roboto Mono; } "
                 "td.cmd-request { color: #00C0C0; } "
                 "td.cmd-error { color: red; } "
                 "b { color: #00C0C0; } "

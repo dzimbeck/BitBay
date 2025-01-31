@@ -1,14 +1,13 @@
 TEMPLATE = app
 TARGET = bitbay-test
-VERSION = 3.0.0
+VERSION = 4.0.0
 
-count(USE_WALLET, 0) {
-    USE_WALLET=1
+exists(bitbay-qt-local.pri) {
+    include(bitbay-qt-local.pri)
 }
-contains(USE_WALLET, 1) {
-    message(Building with WALLET support)
-    CONFIG += wallet
-}
+
+message(Building with WALLET support)
+CONFIG += wallet
 
 count(USE_TESTNET, 1) {
     contains(USE_TESTNET, 1) {
@@ -87,22 +86,10 @@ UI_DIR = build
 #win32:QMAKE_LFLAGS *= -Wl,--dynamicbase -Wl,--nxcompat
 #win32:QMAKE_LFLAGS += -static-libgcc -static-libstdc++
 
+USE_UPNP=0
 # use: qmake "USE_UPNP=1" ( enabled by default; default)
 #  or: qmake "USE_UPNP=0" (disabled by default)
 #  or: qmake "USE_UPNP=-" (not supported)
-# miniupnpc (http://miniupnp.free.fr/files/) must be installed for support
-contains(USE_UPNP, -) {
-    message(Building without UPNP support)
-} else {
-    message(Building with UPNP support)
-    count(USE_UPNP, 0) {
-        USE_UPNP=1
-    }
-    DEFINES += USE_UPNP=$$USE_UPNP MINIUPNP_STATICLIB STATICLIB
-    INCLUDEPATH += $$MINIUPNPC_INCLUDE_PATH
-    LIBS += $$join(MINIUPNPC_LIB_PATH,,-L,) -lminiupnpc
-    win32:LIBS += -liphlpapi
-}
 
 INCLUDEPATH += src/leveldb/include src/leveldb/helpers
 LIBS += $$PWD/src/leveldb/out-static/libleveldb.a $$PWD/src/leveldb/out-static/libmemenv.a
@@ -133,6 +120,12 @@ QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wno-ignored-qu
 #json lib
 include(src/json/json.pri)
 
+#merkle lib
+include(src/merklecpp/merklecpp.pri)
+
+#libethc
+include(src/libethc/libethc.pri)
+
 #core
 include(src/core.pri)
 
@@ -145,12 +138,15 @@ SOURCES += \
 	src/test/bignum_tests.cpp \
 	src/test/getarg_tests.cpp \
 	src/test/hmac_tests.cpp \
-	src/test/mruset_tests.cpp \
+        src/test/merkle_tests.cpp \
+        src/test/mruset_tests.cpp \
 	src/test/netbase_tests.cpp \
 	src/test/serialize_tests.cpp \
 	src/test/sigopcount_tests.cpp \
 	src/test/uint160_tests.cpp \
 	src/test/uint256_tests.cpp \
+	src/test/cfractions_tests.cpp \
+	src/test/mintser_tests.cpp \
 
 # disabled tests
 #SOURCES += \

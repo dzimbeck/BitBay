@@ -1,0 +1,44 @@
+name: build-tests
+on: [push]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: run build
+        uses: addnab/docker-run-action@4f65fabd2431ebc8d299f8e5a018d79a769ae185
+        with:
+            image: bitbayofficial/builder-linux64:alpine
+            options: -v ${{ github.workspace }}:/mnt
+            run: |
+                cd /mnt
+                ls -al && pwd && gcc -v
+                rm -rf bitbay-qt-local.pri
+                echo "CONFIG += silent" >> bitbay-qt-local.pri
+                echo "LIBS += -static" >> bitbay-qt-local.pri
+                echo "DEFINES += CURL_STATICLIB" >> bitbay-qt-local.pri
+                echo "DEFINES += SECP256K1_STATIC" >> bitbay-qt-local.pri
+                echo "LIBS_CURL_DEPS += -lssh2 -lnghttp2" >> bitbay-qt-local.pri
+                /bin/sh -c "qmake-qt5 -v && \
+                  cd /mnt && \
+                  ls -al && \
+                  qmake-qt5 \
+                    CICD=travis_x64 \
+                    \"USE_DBUS=0\" \
+                    \"USE_QRCODE=0\" \
+                    \"USE_WALLET=1\" \
+                    \"USE_TESTNET=1\" \
+                    \"BOOST_LIB_SUFFIX=-mt\" \
+                    bitbay-test.pro && \
+                  sed -i 's/\/usr\/lib\/libssl.so/-lssl/' Makefile && \
+                  sed -i 's/\/usr\/lib\/libcrypto.so/-lcrypto/' Makefile && \
+                  sed -i s:sys/fcntl.h:fcntl.h: src/compat.h && \
+                  make -j4"
+                ./bitbay-test
+

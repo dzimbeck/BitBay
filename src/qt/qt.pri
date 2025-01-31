@@ -123,10 +123,6 @@ contains(USE_QRCODE, 1) {
     FORMS   += $$PWD/forms/qrcodedialog.ui
 }
 
-# for lrelease/lupdate
-# also add new translations to src/qt/bitcoin.qrc under translations/
-TRANSLATIONS = $$files($$PWD/locale/bitcoin_*.ts)
-
 macx {
     HEADERS += \
         src/qt/macdockiconhandler.h \
@@ -135,7 +131,9 @@ macx {
     OBJECTIVE_SOURCES += \
         src/qt/macdockiconhandler.mm \
         src/qt/macnotificationhandler.mm \
-    
+        src/qt/macdarklightmode.mm \
+
     ICON = $$PWD/res/icons/wallet.icns
 }
 
+include($$PWD/qt-tr.pri)

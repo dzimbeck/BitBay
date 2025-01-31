@@ -31,6 +31,7 @@ QT_END_NAMESPACE
 class SendCoinsRecipient
 {
 public:
+    QString network;
     QString address;
     QString label;
     qint64 amount;
@@ -148,6 +149,9 @@ public:
     void setBtcRates(std::vector<double>);
     void setTrackerVote(PegVoteType, double dPeakRate);
     
+    QMap<QString, QString> getBridges() const;
+    QMap<QString, QString> getBridgesHashes() const;
+
 private:
     CWallet *wallet;
     bool fForceCheckBalanceChanged;
@@ -210,7 +214,7 @@ signals:
     void requireUnlock();
 
     // Asynchronous message notification
-    void message(const QString &title, const QString &message, bool modal, unsigned int style);
+    void message(const QString &title, const QString &message, bool modal, uint32_t style);
 };
 
 #endif // WALLETMODEL_H

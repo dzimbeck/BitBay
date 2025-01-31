@@ -157,6 +157,12 @@ QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wno-ignored-qu
 #json lib
 include(src/json/json.pri)
 
+#merkle lib
+include(src/merklecpp/merklecpp.pri)
+
+#libethc
+include(src/libethc/libethc.pri)
+
 #core
 include(src/core.pri)
 

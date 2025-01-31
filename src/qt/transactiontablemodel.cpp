@@ -327,13 +327,27 @@ QString TransactionTableModel::formatTxDate(const TransactionRecord *wtx) const
  */
 QString TransactionTableModel::lookupAddress(const std::string &address, bool tooltip) const
 {
-    QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(address));
+    bool ext = false;
+    QString addr = QString::fromStdString(address);
+    QString label = walletModel->getAddressTableModel()->labelForAddress(addr);
     QString description;
     if(!label.isEmpty())
     {
         description += label + QString(" ");
     }
-    if(label.isEmpty() || tooltip)
+    else if (label.isEmpty() && addr.startsWith("EXT:")) {
+        ext = true;
+        description = addr;
+        QMap<QString,QString> brhashes = walletModel->getBridgesHashes();
+        QStringList args = addr.split(":");
+        if (args.size() ==3) {
+            QString brhash = args[1];
+            if (brhashes.contains(brhash)) {
+                description = brhashes[brhash]+":"+args[2];
+            }
+        }
+    }
+    if((label.isEmpty() && !ext) || tooltip)
     {
         description += QString("(") + QString::fromStdString(address) + QString(")");
     }
@@ -405,9 +419,13 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
         {
-        QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
-        if(label.isEmpty())
-            return COLOR_BAREADDRESS;
+            if (QString::fromStdString(wtx->address).startsWith("EXT:")) {
+                return COLOR_EXTADDRESS;
+            }
+            QString label = walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(wtx->address));
+            if(label.isEmpty()) {
+                return COLOR_BAREADDRESS;
+            }
         } break;
     case TransactionRecord::SendToSelf:
         return COLOR_BAREADDRESS;

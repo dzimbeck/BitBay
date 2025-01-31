@@ -37,12 +37,8 @@ StakingPage::StakingPage(QWidget *parent) :
     GUIUtil::SetBitBayFonts(this);
     
     setStyleSheet("QRadioButton { background: none; }");
-
-#ifdef Q_OS_MAC
-    QFont tfont("Roboto", 15, QFont::Bold);
-#else
-    QFont tfont("Roboto", 11, QFont::Bold);
-#endif
+    
+    QFont tfont = GUIUtil::tabFont();
     ui->labelRewards->setFont(tfont);
     
     QString white1 = R"(

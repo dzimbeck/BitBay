@@ -23,7 +23,7 @@
       <enum>QTabWidget::North</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tabMain">
       <attribute name="title">
@@ -261,7 +261,7 @@
        <string>&amp;Blockchain</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -281,13 +281,6 @@
          </property>
          <property name="checked">
           <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="QCheckBox" name="utxoAddressInfo">
-         <property name="text">
-          <string>Balance/UTXO per-address information (apply after restart)</string>
          </property>
         </widget>
        </item>
@@ -363,6 +356,56 @@
         </layout>
        </item>
        <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="fontScaleLabel">
+           <property name="text">
+            <string>User Interface font scale: (apply after restart)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="fontScale">
+           <item>
+            <property name="text">
+             <string>50%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>75%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>100%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>125%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>150%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>175%</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>200%</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2_Display">
          <item>
           <widget class="QLabel" name="unitLabel">
@@ -385,6 +428,13 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="displayNotifications">
+         <property name="text">
+          <string>Display desktop notifications</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QCheckBox" name="coinControlFeatures">
@@ -432,7 +482,6 @@
       <widget class="QLabel" name="statusLabel">
        <property name="font">
         <font>
-         <weight>75</weight>
          <bold>true</bold>
         </font>
        </property>
@@ -509,6 +558,27 @@
    <header>qvaluecombobox.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>transactionFee</tabstop>
+  <tabstop>reserveBalance</tabstop>
+  <tabstop>bitcoinAtStartup</tabstop>
+  <tabstop>mapPortUpnp</tabstop>
+  <tabstop>connectSocks</tabstop>
+  <tabstop>proxyIp</tabstop>
+  <tabstop>proxyPort</tabstop>
+  <tabstop>prunePegInfo</tabstop>
+  <tabstop>minimizeToTray</tabstop>
+  <tabstop>minimizeOnClose</tabstop>
+  <tabstop>lang</tabstop>
+  <tabstop>fontScale</tabstop>
+  <tabstop>unit</tabstop>
+  <tabstop>displayNotifications</tabstop>
+  <tabstop>coinControlFeatures</tabstop>
+  <tabstop>okButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+  <tabstop>applyButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

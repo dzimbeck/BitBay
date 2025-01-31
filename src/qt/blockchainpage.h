@@ -64,8 +64,7 @@ private slots:
     void showMempoolPage();
     void openBlock(uint256);
     void openBlock(const QModelIndex &);
-    void openBlock(QTreeWidgetItem*,int);
-    void openTx(QTreeWidgetItem*,int);
+    void blockValueDoubleClicked(QTreeWidgetItem*,int);
     void openTxFromInput();
     void openTxFromBalance(QTreeWidgetItem*,int);
     void openTxFromUnspent(QTreeWidgetItem*,int);

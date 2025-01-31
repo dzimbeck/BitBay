@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = bitbay-wallet-qt
-VERSION = 3.0.0
+VERSION = 4.0.0
 
 exists(bitbay-qt-local.pri) {
     include(bitbay-qt-local.pri)
@@ -49,6 +49,10 @@ CONFIG += wallet
 
 QT += widgets
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
+
+#profile
+#QMAKE_CXXFLAGS *= -g -gdwarf-3 -fno-omit-frame-pointer
+#QMAKE_CFLAGS *= -g -gdwarf-3 -fno-omit-frame-pointer
 
 # for boost 1.37, add -mt to the boost libraries
 # use: qmake BOOST_LIB_SUFFIX=-mt
@@ -163,10 +167,27 @@ contains(USE_O3, 1) {
     QMAKE_CFLAGS += -msse2
 }
 
-QMAKE_CXXFLAGS_WARN_ON = -fdiagnostics-show-option -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter -Wstack-protector
+QMAKE_CXXFLAGS_WARN_ON = \
+    -fdiagnostics-show-option \
+    -Wall \
+    -Wextra \
+    -Wno-ignored-qualifiers \
+    -Wformat \
+    -Wformat-security \
+    -Wno-unused-parameter \
+    -Wstack-protector \
+    -Wno-deprecated-copy \
+    -Wno-deprecated-builtins \
+    -Wno-deprecated-declarations \
 
 #json lib
 include(src/json/json.pri)
+
+#merkle lib
+include(src/merklecpp/merklecpp.pri)
+
+#libethc
+include(src/libethc/libethc.pri)
 
 #qt gui
 include(src/qt/qt.pri)
@@ -176,29 +197,18 @@ include(src/core.pri)
 
 QWT_CONFIG += QwtPlot
 QWT_CONFIG += QwtWidgets
-DEFINES += QWT_MOC_INCLUDE
+#DEFINES += QWT_MOC_INCLUDE
+mac:DEFINES += QWT_MOC_INCLUDE
+count(CICD, 1) {
+    DEFINES += QWT_MOC_INCLUDE
+}
 include(src/qt/qwt/qwt.pri)
 
 SOURCES += src/init.cpp
 
-CODECFORTR = UTF-8
-
-isEmpty(QMAKE_LRELEASE) {
-    win32:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]\\lrelease.exe
-    else:QMAKE_LRELEASE = $$[QT_INSTALL_BINS]/lrelease
-}
-isEmpty(QM_DIR):QM_DIR = $$PWD/src/qt/locale
-# automatically build translations, so they can be included in resource file
-TSQM.name = lrelease ${QMAKE_FILE_IN}
-TSQM.input = TRANSLATIONS
-TSQM.output = $$QM_DIR/${QMAKE_FILE_BASE}.qm
-TSQM.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm ${QMAKE_FILE_OUT}
-TSQM.CONFIG = no_link
-QMAKE_EXTRA_COMPILERS += TSQM
-
 # "Other files" to show in Qt Creator
 OTHER_FILES += \
-    doc/*.rst doc/*.txt doc/README README.md res/bitcoin-qt.rc
+    doc/*.rst doc/*.py doc/*.txt doc/README README.md res/bitcoin-qt.rc
 
 # platform specific defaults, if not overridden on command line
 isEmpty(BOOST_LIB_SUFFIX) {
@@ -246,6 +256,7 @@ LIBS += -lboost_filesystem$$BOOST_LIB_SUFFIX
 LIBS += -lboost_program_options$$BOOST_LIB_SUFFIX
 LIBS += -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
 LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
+LIBS += -lboost_regex$$BOOST_LIB_SUFFIX
 
 unix:LIBS += -lz
 windows:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
@@ -265,4 +276,5 @@ DISTFILES += \
     .travis.yml \
     .appveyor.yml
 
+message($$LIBS)
 

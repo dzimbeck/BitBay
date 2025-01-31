@@ -11,6 +11,10 @@
 #include <QApplication>
 #include <QClipboard>
 
+#include <boost/assign/list_of.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+
 SendCoinsEntry::SendCoinsEntry(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::SendCoinsEntry),
@@ -31,6 +35,14 @@ SendCoinsEntry::SendCoinsEntry(QWidget *parent) :
     setFocusProxy(ui->payTo);
 
     GUIUtil::setupAddressWidget(ui->payTo, this);
+
+    minuteTimer = new QTimer(this);
+    minuteTimer->setInterval(60*1000);
+    minuteTimer->start();
+    connect(minuteTimer, SIGNAL(timeout()), this, SLOT(updateBridges()));
+    updateBridges();
+
+    connect(ui->networkCombo, SIGNAL(currentTextChanged(QString)), this, SLOT(onNetworkChange(QString)));
 }
 
 SendCoinsEntry::~SendCoinsEntry()
@@ -82,6 +94,7 @@ void SendCoinsEntry::setModel(WalletModel *model)
     connect(ui->payAmount, SIGNAL(textChanged()), this, SIGNAL(payAmountChanged()));
 
     clear();
+    updateBridges();
 }
 
 void SendCoinsEntry::setTxType(PegTxType t)
@@ -128,11 +141,36 @@ bool SendCoinsEntry::validate()
         }
     }
 
-    if(!ui->payTo->hasAcceptableInput() ||
-       (model && !model->validateAddress(ui->payTo->text())))
+    if(!ui->payTo->hasAcceptableInput())
     {
         ui->payTo->setValid(false);
         retval = false;
+    }
+
+    QString bitbay = ui->networkCombo->itemText(0);
+    QString network = ui->networkCombo->currentText();
+    if (network == bitbay) {
+        if(model && !model->validateAddress(ui->payTo->text()))
+        {
+            ui->payTo->setValid(false);
+            retval = false;
+        }
+    }
+    else {
+        // validate eth-style address
+        string saddr = ui->payTo->text().trimmed().toStdString();
+
+        if (!boost::starts_with(saddr, "0x"))
+        {
+            ui->payTo->setValid(false);
+            retval = false;
+        }
+        if (!IsHex(saddr.substr(2)) || saddr.size() != 42)
+        {
+            ui->payTo->setValid(false);
+            retval = false;
+        }
+
     }
 
     return retval;
@@ -142,6 +180,7 @@ SendCoinsRecipient SendCoinsEntry::getValue()
 {
     SendCoinsRecipient rv;
 
+    rv.network = ui->networkCombo->currentData().toString();
     rv.address = ui->payTo->text();
     rv.label = ui->addAsLabel->text();
     rv.amount = ui->payAmount->value();
@@ -183,4 +222,33 @@ void SendCoinsEntry::updateDisplayUnit()
         // Update payAmount with the current unit
         ui->payAmount->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
     }
+}
+
+void SendCoinsEntry::updateBridges()
+{
+    QString cur = ui->networkCombo->currentText();
+    ui->networkCombo->clear();
+    ui->networkCombo->addItem(tr("BitBay"));
+    if (!model) return;
+    QMap<QString,QString> bridges = model->getBridges();
+    for (const QString & bridge : bridges.keys()) {
+        QString text = bridge+" "+bridges[bridge];
+        ui->networkCombo->addItem(text, bridge);
+        if (text == cur) {
+            ui->networkCombo->setCurrentText(cur);
+        }
+    }
+}
+
+void SendCoinsEntry::onNetworkChange(QString text)
+{
+    QString bitbay = ui->networkCombo->itemText(0);
+    if (text == bitbay) {
+        ui->addAsLabel->setEnabled(true);
+        ui->payTo->setPlaceholderText(tr("Enter a BitBay address:"));
+        return;
+    }
+    QString network = ui->networkCombo->currentData().toString();
+    ui->addAsLabel->setEnabled(false);
+    ui->payTo->setPlaceholderText("Enter a "+network+" address:");
 }

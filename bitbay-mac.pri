@@ -6,7 +6,7 @@ qt {
     QMAKE_INFO_PLIST = share/qt/Info.plist
 }
 
-LEVELDB_CXXFLAGS = -std=gnu++11 -isysroot $$QMAKE_MAC_SDK_PATH -Wno-unused-parameter -mmacosx-version-min=10.9
+LEVELDB_CXXFLAGS = -arch x86_64 -std=gnu++11 -isysroot $$QMAKE_MAC_SDK_PATH -Wno-unused-parameter -mmacosx-version-min=10.9
 
 # mac: default path to brew packages
 INCLUDEPATH += /usr/local/opt/boost/include

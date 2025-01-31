@@ -42,7 +42,7 @@ Q_IMPORT_PLUGIN(qtaccessiblewidgets)
 static BitcoinGUI *guiref;
 static QSplashScreen *splashref;
 
-static void ThreadSafeMessageBox(const std::string& message, const std::string& caption, unsigned int style)
+static void ThreadSafeMessageBox(const std::string& message, const std::string& caption, uint32_t style)
 {
     // Message from network thread
     if(splashref && splashref->isVisible()) {
@@ -57,7 +57,7 @@ static void ThreadSafeMessageBox(const std::string& message, const std::string& 
                                    Q_ARG(QString, QString::fromStdString(caption)),
                                    Q_ARG(QString, QString::fromStdString(message)),
                                    Q_ARG(bool, modal),
-                                   Q_ARG(unsigned int, style));
+                                   Q_ARG(uint32_t, style));
     }
     else
     {

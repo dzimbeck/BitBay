@@ -2,6 +2,7 @@
 #define SENDCOINSENTRY_H
 
 #include <QFrame>
+#include <QTimer>
 #include "peg.h"
 
 namespace Ui {
@@ -49,11 +50,14 @@ private slots:
     void on_addressBookButton_clicked();
     void on_pasteButton_clicked();
     void updateDisplayUnit();
+    void updateBridges();
+    void onNetworkChange(QString);
 
 private:
     Ui::SendCoinsEntry *ui;
     WalletModel *model;
     PegTxType txType;
+    QTimer* minuteTimer;
 };
 
 #endif // SENDCOINSENTRY_H

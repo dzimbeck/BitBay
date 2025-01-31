@@ -1,5 +1,10 @@
 #include "bitcoinaddressvalidator.h"
 
+#include <boost/assign/list_of.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include "utilstrencodings.h"
+
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
@@ -20,6 +25,26 @@ BitcoinAddressValidator::BitcoinAddressValidator(QObject *parent) :
 
 QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) const
 {
+    // ETH-style
+    {
+        std::string saddr = input.trimmed().toStdString();
+        if (boost::starts_with(saddr, "0x")) {
+            std::string hex = saddr.substr(2);
+            QValidator::State state = QValidator::Acceptable;
+            if (hex.size() % 2 ==0 && !IsHex(hex))
+            {
+                state = QValidator::Invalid;
+            }
+            if (saddr.size() > MaxMixAddressLength) {
+                state = QValidator::Invalid;
+            }
+            if (hex.empty()) {
+                state = QValidator::Intermediate;
+            }
+            return state;
+        }
+    }
+
     // Correction
     for(int idx=0; idx<input.size();)
     {
@@ -50,21 +75,27 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
 
     // Validation
     QValidator::State state = QValidator::Acceptable;
-    for(int idx=0; idx<input.size(); ++idx)
-    {
-        int ch = input.at(idx).unicode();
+    if (input.size()>2) {
+        for(int idx=0; idx<input.size(); ++idx)
+        {
+            int ch = input.at(idx).unicode();
 
-        if(((ch >= '0' && ch<='9') ||
-           (ch >= 'a' && ch<='z') ||
-           (ch >= 'A' && ch<='Z')) &&
-           ch != 'l' && ch != 'I' && ch != '0' && ch != 'O')
-        {
-            // Alphanumeric and not a 'forbidden' character
+            if(((ch >= '0' && ch<='9') ||
+               (ch >= 'a' && ch<='z') ||
+               (ch >= 'A' && ch<='Z')) &&
+               ch != 'l' && ch != 'I' && ch != '0' && ch != 'O')
+            {
+                // Alphanumeric and not a 'forbidden' character
+            }
+            else
+            {
+                state = QValidator::Invalid;
+            }
         }
-        else
-        {
-            state = QValidator::Invalid;
-        }
+    }
+
+    if (input.size() >MaxAddressLength) {
+        state = QValidator::Invalid;
     }
 
     // Empty address is "intermediate" input

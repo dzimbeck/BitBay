@@ -1,0 +1,31 @@
+BasedOnStyle: Chromium
+
+Language: Cpp
+
+IndentWidth: 4
+
+# Force pointers to the type for C++.
+
+AccessModifierOffset: -4
+
+AlignAfterOpenBracket: Align
+
+AlignConsecutiveAssignments: true
+
+AlignConsecutiveDeclarations: true
+
+AllowShortFunctionsOnASingleLine: Inline
+
+BreakBeforeBraces: Attach
+
+ColumnLimit: 100
+
+PointerAlignment: Left
+
+SortIncludes: true
+
+TabWidth: 4
+
+UseTab: ForIndentation
+
+FixNamespaceComments: true

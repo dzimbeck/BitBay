@@ -17,7 +17,7 @@ struct BlockIndexCacheObj {
     int nPegVotesInflate;
     int nPegVotesDeflate;
     int nPegVotesNochange;
-    unsigned int nFlags;
+    uint32_t nFlags;
     int64_t nMint;
     QString date;
 };
@@ -71,7 +71,7 @@ bool BlockchainModel::getItem(int h) const
             uint256 bhash = pblockindex->GetBlockHash();
             priv->cachePoints[pblockindex->nHeight] = bhash;
         }
-        pblockindex = pblockindex->pprev;
+        pblockindex = pblockindex->Prev();
     }
 
     while(pblockindex && pblockindex->nHeight <=h2) {
@@ -86,7 +86,7 @@ bool BlockchainModel::getItem(int h) const
                 QString::fromStdString(DateTimeStrFormat(pblockindex->GetBlockTime()))
         };
         priv->cache.insert(pblockindex->nHeight, obj);
-        pblockindex = pblockindex->pnext;
+        pblockindex = pblockindex->Next();
     }
 
     return true;

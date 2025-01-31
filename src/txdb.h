@@ -6,7 +6,7 @@
 #ifndef BITCOIN_TXDB_H
 #define BITCOIN_TXDB_H
 
-#include "txdb-leveldb.h"
 #include "pegdb-leveldb.h"
+#include "txdb-leveldb.h"
 
 #endif  // BITCOIN_TXDB_H

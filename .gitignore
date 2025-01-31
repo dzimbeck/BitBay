@@ -32,6 +32,7 @@ nodes
 db
 
 !src/leveldb/Makefile
+.qtc_clangd
 .qmake.stash
 bitbay-qt-local.pri
 pegops_tests-local.pri

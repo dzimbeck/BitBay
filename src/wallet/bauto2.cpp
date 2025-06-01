@@ -21,7 +21,6 @@ using namespace std;
 using namespace boost;
 using namespace json_spirit;
 
-using std::cout;
 using std::endl;
 using std::string;
 
@@ -91,6 +90,8 @@ static string call_rpcapi(string api_uri, string contract, string callsel, strin
 		params.push_back("latest");
 		string strRequest = JSONRPCRequest("eth_call", params, 1);
 		string strReply   = call_rpcapi_curl(api_uri, strRequest);
+		// LogPrintf("%s thread call_rpcapi %s %s callsel:%s data:%s out: %s\n", "bitbay-bauto2",
+		//           api_uri, contract, callsel, data, strReply);
 		if (strReply == "")
 			return "";
 		string             data;
@@ -111,13 +112,98 @@ static string call_rpcapi(string api_uri, string contract, string callsel, strin
 	}
 }
 
-vector<string> call_listHashes(string api_uri, string contract, int nonce) {
+static string call_minter(string api_uri, string data_contract) {
+	string skip;
+	string address_evm;
+	string minterSig   = "minter()";
+	string minterSel   = "0x07546172";
+	string result_data = call_rpcapi(api_uri, data_contract, minterSel, "");
+	if (result_data.empty())
+		return skip;
+	char*  res_cstr = (char*)(result_data.c_str());
+	size_t res_len  = result_data.size();
+	// abi start
+	struct eth_abi abi;
+	eth_abi_init(&abi, ETH_ABI_DECODE);
+	eth_abi_from_hex(&abi, res_cstr, res_len);
+	char* from_addr_cstr = new char[40 + 1];
+	eth_abi_address(&abi, &from_addr_cstr);
+	address_evm = string(from_addr_cstr, 40);
+	delete[] from_addr_cstr;
+	eth_abi_free(&abi);
+	// abi end
+	if (!address_evm.empty()) {
+		address_evm = "0x" + address_evm;
+	}
+	return address_evm;
+}
+
+int64_t call_processingTime(string api_uri, string admin_contract, int nonce) {
+	int64_t skip              = -1;
+	int64_t ptime             = 0;
+	string  processingTimeSig = "processingTime(uint256)";
+	string  processingTimeSel = "0x71350bc8";
+	uint256 nonce256(nonce);
+	string result_data = call_rpcapi(api_uri, admin_contract, processingTimeSel, nonce256.GetHex());
+	if (result_data.empty())
+		return skip;
+	char*  res_cstr = (char*)(result_data.c_str());
+	size_t res_len  = result_data.size();
+	// abi start
+	struct eth_abi abi;
+	eth_abi_init(&abi, ETH_ABI_DECODE);
+	eth_abi_from_hex(&abi, res_cstr, res_len);
+	vchtype res_arg_bytes;
+	res_arg_bytes.resize(32);
+	eth_abi_bytes32(&abi, res_arg_bytes.data());
+	char* hash_hex_cstr;
+	int   hash_hex_len = eth_hex_from_bytes(&hash_hex_cstr, res_arg_bytes.data(), 32);
+	if (hash_hex_len < 0) {
+		return skip;
+	}
+	uint256 d(hash_hex_cstr);
+	ptime = int64_t(d.GetLow64());
+	eth_abi_free(&abi);
+	// abi end
+	return ptime;
+}
+
+int64_t call_intervaltime(string api_uri, string admin_contract) {
+	int64_t skip            = -1;
+	int64_t itime           = 0;
+	string  intervaltimeSig = "intervaltime()";
+	string  intervaltimeSel = "0xb2930e05";
+	string  result_data     = call_rpcapi(api_uri, admin_contract, intervaltimeSel, "");
+	if (result_data.empty())
+		return skip;
+	char*  res_cstr = (char*)(result_data.c_str());
+	size_t res_len  = result_data.size();
+	// abi start
+	struct eth_abi abi;
+	eth_abi_init(&abi, ETH_ABI_DECODE);
+	eth_abi_from_hex(&abi, res_cstr, res_len);
+	vchtype res_arg_bytes;
+	res_arg_bytes.resize(32);
+	eth_abi_bytes32(&abi, res_arg_bytes.data());
+	char* hash_hex_cstr;
+	int   hash_hex_len = eth_hex_from_bytes(&hash_hex_cstr, res_arg_bytes.data(), 32);
+	if (hash_hex_len < 0) {
+		return skip;
+	}
+	uint256 d(hash_hex_cstr);
+	itime = int64_t(d.GetLow64());
+	eth_abi_free(&abi);
+	// abi end
+	return itime;
+}
+
+vector<string> call_listHashes(string api_uri, string admin_contract, int nonce) {
 	vector<string> skip;
 	vector<string> hashes;
 	string         lishHashesSig = "listHashes(uint256)";
 	string         listHashesSel = "0xfe473459";
 	uint256        nonce256(nonce);
-	string         result_data = call_rpcapi(api_uri, contract, listHashesSel, nonce256.GetHex());
+	string result_data = call_rpcapi(api_uri, admin_contract, listHashesSel, nonce256.GetHex());
 	if (result_data.empty())
 		return skip;
 	char*  res_cstr = (char*)(result_data.c_str());
@@ -128,7 +214,6 @@ vector<string> call_listHashes(string api_uri, string contract, int nonce) {
 	eth_abi_from_hex(&abi, res_cstr, res_len);
 	uint64_t res_arr_len = 0;
 	eth_abi_array(&abi, &res_arr_len);
-	// std::cout << "res_arr_len:" << res_arr_len << std::endl;
 	for (uint64_t i = 0; i < res_arr_len; i++) {
 		vchtype res_arg_bytes;
 		res_arg_bytes.resize(32);
@@ -139,7 +224,6 @@ vector<string> call_listHashes(string api_uri, string contract, int nonce) {
 			continue;
 		}
 		uint256 d(hash_hex_cstr);
-		// std::cout << "res_arg_len:" << i << " -> ok:" << d.GetHex() << std::endl;
 		hashes.push_back(d.GetHex());
 	}
 	eth_abi_array_end(&abi);
@@ -148,7 +232,7 @@ vector<string> call_listHashes(string api_uri, string contract, int nonce) {
 	return hashes;
 }
 
-string call_addresses(string api_uri, string contract, int nonce, int addr_idx) {
+string call_addresses(string api_uri, string admin_contract, int nonce, int addr_idx) {
 	string  skip;
 	string  address_evm;
 	string  addressesSig = "addresses(uint256,uint256)";
@@ -156,7 +240,7 @@ string call_addresses(string api_uri, string contract, int nonce, int addr_idx) 
 	uint256 nonce256(nonce);
 	uint256 addri256(addr_idx);
 	string  result_data =
-	    call_rpcapi(api_uri, contract, addressesSel, nonce256.GetHex() + addri256.GetHex());
+	    call_rpcapi(api_uri, admin_contract, addressesSel, nonce256.GetHex() + addri256.GetHex());
 	if (result_data.empty())
 		return skip;
 	char*  res_cstr = (char*)(result_data.c_str());
@@ -174,13 +258,13 @@ string call_addresses(string api_uri, string contract, int nonce, int addr_idx) 
 	return address_evm;
 }
 
-string call_recipient(string api_uri, string contract, int nonce, string address_evm) {
+string call_recipient(string api_uri, string admin_contract, int nonce, string address_evm) {
 	string  skip;
 	string  address_bay;
 	string  recipientSig = "recipient(uint256,address)";
 	string  recipientSel = "0xb881c304";
 	uint256 nonce256(nonce);
-	string  result_data = call_rpcapi(api_uri, contract, recipientSel,
+	string  result_data = call_rpcapi(api_uri, admin_contract, recipientSel,
 	                                  nonce256.GetHex() + "000000000000000000000000" + address_evm);
 	if (result_data.empty())
 		return skip;
@@ -199,13 +283,13 @@ string call_recipient(string api_uri, string contract, int nonce, string address
 	return address_bay;
 }
 
-int64_t call_highkey(string api_uri, string contract, int nonce, string address_evm) {
+int64_t call_highkey(string api_uri, string admin_contract, int nonce, string address_evm) {
 	int64_t skip       = -1;
 	int64_t highkey    = 0;
 	string  highkeySig = "highkey(uint256,address)";
 	string  highkeySel = "0xb2f76f37";
 	uint256 nonce256(nonce);
-	string  result_data = call_rpcapi(api_uri, contract, highkeySel,
+	string  result_data = call_rpcapi(api_uri, admin_contract, highkeySel,
 	                                  nonce256.GetHex() + "000000000000000000000000" + address_evm);
 	if (result_data.empty())
 		return skip;
@@ -231,7 +315,7 @@ int64_t call_highkey(string api_uri, string contract, int nonce, string address_
 }
 
 vector<int64_t> call_showReserve(string api_uri,
-                                 string contract,
+                                 string admin_contract,
                                  string address_evm,
                                  int    nonce,
                                  int    pegSteps,
@@ -241,7 +325,7 @@ vector<int64_t> call_showReserve(string api_uri,
 	string          showReserveSig = "showReserve(address,uint256)";
 	string          showReserveSel = "0x12c0df7e";
 	uint256         nonce256(nonce);
-	string          result_data = call_rpcapi(api_uri, contract, showReserveSel,
+	string          result_data = call_rpcapi(api_uri, admin_contract, showReserveSel,
 	                                          "000000000000000000000000" + address_evm + nonce256.GetHex());
 	if (result_data.empty())
 		return skip;
@@ -273,7 +357,7 @@ vector<int64_t> call_showReserve(string api_uri,
 }
 
 bool get_merkle_amount(string         api_uri,
-                       string         contract,
+                       string         admin_contract,
                        int            nonce,
                        int            pegSteps,
                        int            microSteps,
@@ -281,13 +365,12 @@ bool get_merkle_amount(string         api_uri,
                        int64_t&       amount) {
 	for (int i = 0; i < int(hashes.size()); i++) {
 		// get the "from" EVM address:
-		string address_evm = call_addresses(api_uri, contract, nonce, i);
-		// std::cout << "from address:" << address_evm << std::endl;
+		string address_evm = call_addresses(api_uri, admin_contract, nonce, i);
 		if (address_evm.empty())
 			return false;
 		// get the fractions:
 		vector<int64_t> fractions =
-		    call_showReserve(api_uri, contract, address_evm, nonce, pegSteps, microSteps);
+		    call_showReserve(api_uri, admin_contract, address_evm, nonce, pegSteps, microSteps);
 		if (fractions.empty())
 			return false;
 		for (size_t j = 0; j < size_t(pegSteps); j++)
@@ -310,12 +393,9 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 		// if (!first)
 		// first = false;
 		MilliSleep(600000);
-		// std::cout << "bitbay-bauto2" << std::endl;
-
 		if (GetAdjustedTime() - pindexBest->nTime > 60 * 60) {
 			continue;  // wait a sync
 		}
-
 		CPegDB      pegdb;
 		set<string> sTrustedStakers1, sTrustedStakers2;
 		pindexBest->ReadTrustedStakers1(pegdb, sTrustedStakers1);
@@ -332,14 +412,12 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 				if (fMine) {
 					string addr_txt = address.ToString();
 					if (sTrustedStakers1.count(addr_txt)) {
-						// std::cout << "bitbay-bauto2: has trusted staker1" << std::endl;
 						is_trusted_staker1 = true;
 						is_trusted_staker2 = false;
 						is_other_staker    = false;
 						break;
 					}
 					if (sTrustedStakers2.count(addr_txt)) {
-						// std::cout << "bitbay-bauto2: has trusted staker2" << std::endl;
 						is_trusted_staker1 = false;
 						is_trusted_staker2 = true;
 						is_other_staker    = false;
@@ -381,19 +459,47 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 			if (bridge_info.urls.empty())
 				continue;
 
-			string rpcapi   = *(bridge_info.urls.begin());
-			string contract = bridge_info.contract;
+			string rpcapi             = *(bridge_info.urls.begin());
+			string data_contract_addr = bridge_info.contract;
+
+			string admin_contract_addr = call_minter(rpcapi, data_contract_addr);
+			LogPrintf("%s thread: bridge %s, admin_contract_addr: %s\n", "bitbay-bauto2",
+			          bridge_name, admin_contract_addr);
+			if (admin_contract_addr.empty()) {
+				continue;
+			}
+
+			int64_t interval_time = call_intervaltime(rpcapi, admin_contract_addr);
+			LogPrintf("%s thread: bridge %s, intervaltime: %d\n", "bitbay-bauto2", bridge_name,
+			          interval_time);
+			if (interval_time < 0) {
+				continue;
+			}
 
 			for (int nonce = 0;; nonce++) {
 				bool completed = false;
 				CWalletDB(pwallet->strWalletFile)
 				    .ReadCompletedMerkleInNonce(bridge_info.hash, nonce, completed);
 
+				int64_t processing_time = call_processingTime(rpcapi, admin_contract_addr, nonce);
+				LogPrintf("%s thread: bridge %s, nonce %d has processing_time: %d\n",
+				          "bitbay-bauto2", bridge_name, nonce, processing_time);
+				if (processing_time <= 0) {
+					continue;
+				}
+				int64_t now_time = GetTime();
+				if (processing_time + interval_time > now_time) {
+					LogPrintf(
+					    "%s thread: bridge %s, nonce %d has non-mature processing time : %d\n",
+					    "bitbay-bauto2", bridge_name, nonce, processing_time);
+					continue;
+				}
+
 				if (!completed) {
-					vector<string> hashes = call_listHashes(rpcapi, contract, nonce);
+					vector<string> hashes = call_listHashes(rpcapi, admin_contract_addr, nonce);
 					if (hashes.empty())
 						break;
-					LogPrintf("%s thread: bridge: %s, todo nonce: %s has hashes\n", "bitbay-bauto2",
+					LogPrintf("%s thread: bridge %s, todo nonce: %d has hashes\n", "bitbay-bauto2",
 					          bridge_name, nonce);
 
 					merkle::TreeT<32, sha256_keccak> tree;
@@ -437,13 +543,8 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 							if (datas.size() > 1)
 								continue;
 							string scope = datas[0];
-							std::cout << "XXX" << datas[0] << " " << datas.size() << std::endl;
 							if (scope == "merkle") {
 								if (datas.size() == 6) {
-									std::cout << "XXX" << datas[0] << " " << datas.size() << " "
-									          << datas[1] << " " << datas[2] << " " << datas[3]
-									          << " vs " << bridge_info.name << " " << datas[4]
-									          << " vs " << merkle_str << std::endl;
 									string action = datas[2];
 									if (action == "add") {
 										string proposal_brname = datas[3];
@@ -467,8 +568,9 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 
 						if (!has_proposal) {
 							int64_t amount = 0;
-							if (!get_merkle_amount(rpcapi, contract, nonce, bridge_info.pegSteps,
-							                       bridge_info.microSteps, hashes, amount)) {
+							if (!get_merkle_amount(rpcapi, admin_contract_addr, nonce,
+							                       bridge_info.pegSteps, bridge_info.microSteps,
+							                       hashes, amount)) {
 								continue;  // until next attemp
 							}
 							if (amount == 0) {
@@ -560,13 +662,8 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 							if (datas.size() > 1)
 								continue;
 							string scope = datas[0];
-							std::cout << "YYY" << datas[0] << " " << datas.size() << std::endl;
 							if (scope == "merkle") {
 								if (datas.size() == 6) {
-									std::cout << "YYY" << datas[0] << " " << datas.size() << " "
-									          << datas[1] << " " << datas[2] << " " << datas[3]
-									          << " vs " << bridge_info.name << " " << datas[4]
-									          << " vs " << merkle_str << std::endl;
 									string action = datas[2];
 									if (action == "add") {
 										string proposal_brname = datas[3];
@@ -613,7 +710,7 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 					LogPrintf("%s thread: bridge %s, nonce: %s, todo txs\n", "bitbay-bauto2",
 					          bridge_name, nonce);
 					// merkle is mined, we can build and broadcast transactoins
-					vector<string> hashes = call_listHashes(rpcapi, contract, nonce);
+					vector<string> hashes = call_listHashes(rpcapi, admin_contract_addr, nonce);
 					if (hashes.empty())
 						break;
 
@@ -646,33 +743,24 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 					// read hashes detail
 					for (int i = 0; i < int(hashes.size()); i++) {
 						// get the "from" EVM address:
-						string address_evm = call_addresses(rpcapi, contract, nonce, i);
-						// std::cout << "from address:" << address_evm << std::endl;
+						string address_evm = call_addresses(rpcapi, admin_contract_addr, nonce, i);
 						if (address_evm.empty())
 							continue;
-
 						// get the "to" BAY address:
-						string address_bay = call_recipient(rpcapi, contract, nonce, address_evm);
-						// std::cout << "to bay address:" << address_bay << std::endl;
+						string address_bay =
+						    call_recipient(rpcapi, admin_contract_addr, nonce, address_evm);
 						if (address_bay.empty())
 							continue;
-
 						vector<int64_t> sections =
-						    call_showReserve(rpcapi, contract, address_evm, nonce,
+						    call_showReserve(rpcapi, admin_contract_addr, address_evm, nonce,
 						                     bridge_info.pegSteps, bridge_info.microSteps);
 						if (sections.empty())
 							continue;
-
-						// std::cout << "fractions:";
-						// for (size_t j = 0; j < sections.size(); j++)
-						//	std::cout << sections[j] << ",";
-						// std::cout << std::endl;
-
 						// get section (peg) highkey[nonce][address_evm]
-						int64_t section_peg = call_highkey(rpcapi, contract, nonce, address_evm);
+						int64_t section_peg =
+						    call_highkey(rpcapi, admin_contract_addr, nonce, address_evm);
 						if (section_peg < 0)
 							continue;
-
 						// recompute merkle leaf
 						string out_leaf_hex;
 						if (!ComputeMintMerkleLeaf(address_bay, sections, section_peg, nonce,
@@ -683,9 +771,6 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 							    "bitbay-bauto2", bridge_name, nonce, address_evm);
 							continue;
 						}
-
-						// std::cout << "hash:" << hashes[i] << " computed:" << out_leaf_hex
-						//           << std::endl;
 						if (hashes[i] != out_leaf_hex) {
 							LogPrintf(
 							    "%s thread: bridge %s, nonce: %s, todo txs, ComputeMintMerkleLeaf "
@@ -771,27 +856,18 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 								CTxDB    txdb("r");
 								CTxIndex txindex;
 								if (!txdb.ReadTxIndex(hashTx, txindex)) {
-									// std::cout << "NOT FOUND in TXDB" << std::endl;
 									txs_mined = false;
 								} else {
 									int depth = txindex.GetDepthInMainChain();
 									if (depth < nRecommendedConfirmations) {
-										// std::cout << "NOT CONFIRMATIONS " << depth << std::endl;
 										txs_mined = false;
 									}
 								}
 							}
-
 							CMerkleTx mtx(tx);
 							mtx.AcceptToMemoryPool(false);
-							// bool      ok =
-							// if (!ok) {
-							// 	std::cout << "NOT ACCEPTED" << std::endl;
-							// } else
-							// 	std::cout << "ACCEPTED" << std::endl;
 						}
 					}
-
 					// if all then mark nonce as completed in walletdb
 					if (txs_mined) {
 						CWalletDB(pwallet->strWalletFile)
@@ -800,8 +876,6 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 						    "%s thread: bridge %s, nonce: %s, computed merkle: %s, completed\n",
 						    "bitbay-bauto2", bridge_name, nonce, merkle_str);
 					}
-
-					// std::cout << "--" << std::endl;
 				}
 			}
 		}

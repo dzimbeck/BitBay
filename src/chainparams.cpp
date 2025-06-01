@@ -229,7 +229,8 @@ public:
 		sTrustedStakers2Init.insert("B6QNEmPwd3ZDdqWRp1o6cTXaDGnXwevkjA");
 		sTrustedStakers2Init.insert("BDAXuYqpAjvP6P1rCQmvcBabbXhkg9KPSb");
 
-		setTimeLockPassesInit.insert("023a168403ff82ee974c229143b6d441f22381776e26f9910b3a8d170dd4760a87");
+		setTimeLockPassesInit.insert(
+		    "023a168403ff82ee974c229143b6d441f22381776e26f9910b3a8d170dd4760a87");
 
 		ConsensusVotes tconsensus{4, 0, 0};
 		mapProposalConsensusInit[CChainParams::CONSENSUS_TSTAKERS] = tconsensus;
@@ -300,7 +301,6 @@ public:
 
 		hashGenesisBlock = genesis.GetHash();
 
-		std::cout << "hashGenesisBlock:" << hashGenesisBlock.ToString() << std::endl;
 		assert(hashGenesisBlock ==
 		       uint256("b0c3a1bedca21fcd17ad826e83c6ed1bdfc0fe85a7a22f360af78f8de35c090f"));
 
@@ -456,19 +456,6 @@ void SelectParams(CChainParams::Network network) {
 			assert(false && "Unimplemented network");
 			return;
 	}
-
-	std::cout << "select params ready" << std::endl;
-
-	//    {
-	//        CHashWriter hw(SER_GETHASH, 0); hw << string("nochange");
-	//        uint256 kb = hw.GetHash();
-	//        CKey key;
-	//        key.Set(kb.begin(), kb.end(), true);
-	//        CPubKey pk = key.GetPubKey();
-	//        assert(pk.IsValid());
-	//        std::cout << "nochange:" << CBitcoinAddress(pk.GetID()).ToString() << std::endl;
-	//    }
-	//    assert(false);
 }
 
 bool SelectParamsFromCommandLine() {

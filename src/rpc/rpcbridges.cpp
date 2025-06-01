@@ -39,7 +39,9 @@ Value bridges(const Array& params, bool fHelp) {
 
 	CPegDB                   pegdb;
 	map<string, CBridgeInfo> bridges;
-	bool                     ok = pindexBest->ReadBridges(pegdb, bridges);
+	bool                     ok        = pindexBest->ReadBridges(pegdb, bridges);
+	bool                     is_paused = false;
+	ok                                 = pindexBest->ReadBridgesPause(pegdb, is_paused);
 
 	for (const auto& it : bridges) {
 		string      name   = it.first;
@@ -78,6 +80,7 @@ Value bridges(const Array& params, bool fHelp) {
 			pd.nLiquid                  = pd.fractions.High(pd.peglevel);
 			pd.nReserve                 = pd.fractions.Low(pd.peglevel);
 			jbridge.push_back(Pair("pool", pd.ToString()));
+			jbridge.push_back(Pair("is_paused", is_paused));
 		}
 
 #ifdef ENABLE_WALLET

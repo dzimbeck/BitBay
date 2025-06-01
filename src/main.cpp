@@ -3439,7 +3439,7 @@ bool ProcessBlock(CNode* pfrom, CBlock* pblock) {
 			if (pfrom)
 				pfrom->Misbehaving(1);
 			return error(
-			    "ProcessBlock() : block-%d %s with timestamp before last checkpoint "
+			    "ProcessBlock() : block %s with timestamp before last checkpoint "
 			    "(delta: %d, blocktime: %d, checkpointtime: %d)",
 			    pblock->GetHash().ToString(), deltaTime, pblock->GetBlockTime(),
 			    pcheckpoint->nTime);

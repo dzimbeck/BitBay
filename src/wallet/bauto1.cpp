@@ -23,7 +23,6 @@ using namespace std;
 using namespace boost;
 using namespace json_spirit;
 
-using std::cout;
 using std::endl;
 using std::string;
 
@@ -64,7 +63,7 @@ static string sendrawtx_rpcapi(string api_uri, string txhex) {
 		string strReply   = call_rpcapi_curl(api_uri, strRequest);
 		if (strReply == "")
 			return "";
-		std::cout << "API sendrawtx_rpcapi response:" << strReply << std::endl;
+		LogPrintf("%s thread sendrawtx_rpcapi response: %s\n", "bitbay-bauto1", strReply);
 		string             data;
 		json_spirit::Value jval;
 		json_spirit::read_string(strReply, jval);
@@ -105,8 +104,8 @@ static string call_rpcapi(string api_uri, string contract, string callsel, strin
 		}
 		return data;
 	} catch (std::exception& e) {
-		LogPrintf("%s thread call_rpcapi %s %s callsel:%s data:%s strReply:%s err: %s\n", "bitbay-bauto1",
-		          api_uri, contract, callsel, data, strReply, e.what());
+		LogPrintf("%s thread call_rpcapi %s %s callsel:%s data:%s strReply:%s err: %s\n",
+		          "bitbay-bauto1", api_uri, contract, callsel, data, strReply, e.what());
 		return "";
 	}
 }
@@ -162,14 +161,40 @@ int64_t gasprice_rpcapi(string api_uri) {
 	}
 }
 
-string call_curators(string api_uri, string contract, int idx) {
+static string call_minter(string api_uri, string data_contract) {
+	string skip;
+	string address_evm;
+	string minterSig   = "minter()";
+	string minterSel   = "0x07546172";
+	string result_data = call_rpcapi(api_uri, data_contract, minterSel, "");
+	if (result_data.empty())
+		return skip;
+	char*  res_cstr = (char*)(result_data.c_str());
+	size_t res_len  = result_data.size();
+	// abi start
+	struct eth_abi abi;
+	eth_abi_init(&abi, ETH_ABI_DECODE);
+	eth_abi_from_hex(&abi, res_cstr, res_len);
+	char* from_addr_cstr = new char[40 + 1];
+	eth_abi_address(&abi, &from_addr_cstr);
+	address_evm = string(from_addr_cstr, 40);
+	delete[] from_addr_cstr;
+	eth_abi_free(&abi);
+	// abi end
+	if (!address_evm.empty()) {
+		address_evm = "0x" + address_evm;
+	}
+	return address_evm;
+}
+
+string call_curators(string api_uri, string admin_contract, int idx) {
 	string         skip;
 	string         address_evm;
 	vector<string> hashes;
 	string         curatorsSig = "curators(uint256)";
 	string         curatorsSel = "0xdff43434";
 	uint256        idx256(idx);
-	string         result_data = call_rpcapi(api_uri, contract, curatorsSel, idx256.GetHex());
+	string         result_data = call_rpcapi(api_uri, admin_contract, curatorsSel, idx256.GetHex());
 	if (result_data.empty())
 		return skip;
 	char*  res_cstr = (char*)(result_data.c_str());
@@ -187,13 +212,12 @@ string call_curators(string api_uri, string contract, int idx) {
 	return address_evm;
 }
 
-string call_proxy(string api_uri, string contract) {
-	string         skip;
-	string         address_evm;
-	vector<string> hashes;
-	string         proxySig    = "proxy()";
-	string         proxySel    = "0xec556889";
-	string         result_data = call_rpcapi(api_uri, contract, proxySel, "");
+string call_proxy(string api_uri, string admin_contract) {
+	string skip;
+	string address_evm;
+	string proxySig    = "proxy()";
+	string proxySel    = "0xec556889";
+	string result_data = call_rpcapi(api_uri, admin_contract, proxySel, "");
 	if (result_data.empty())
 		return skip;
 	char*  res_cstr = (char*)(result_data.c_str());
@@ -211,13 +235,12 @@ string call_proxy(string api_uri, string contract) {
 	return address_evm;
 }
 
-int64_t call_getSupply(string api_uri, string contract) {
-	int64_t        skip = -1;
-	int64_t        supply;
-	vector<string> hashes;
-	string         getSupplySig = "getSupply()";
-	string         getSupplySel = "0x6c9c2faf";
-	string         result_data  = call_rpcapi(api_uri, contract, getSupplySel, "");
+int64_t call_getSupply(string api_uri, string data_contract) {
+	int64_t skip = -1;
+	int64_t supply;
+	string  getSupplySig = "getSupply()";
+	string  getSupplySel = "0x6c9c2faf";
+	string  result_data  = call_rpcapi(api_uri, data_contract, getSupplySel, "");
 	if (result_data.empty())
 		return skip;
 	char*  res_cstr = (char*)(result_data.c_str());
@@ -241,14 +264,14 @@ int64_t call_getSupply(string api_uri, string contract) {
 	return supply;
 }
 
-int64_t call_myvotetimes(string api_uri, string contract, string address_evm, int votetype) {
+int64_t call_myvotetimes(string api_uri, string admin_contract, string address_evm, int votetype) {
 	int64_t skip = -1;
 	int64_t vtime;
 	string  myvotetimesSig = "myvotetimes(address,uint256)";
 	string  myvotetimesSel = "0xad84f03c";
 	uint256 votetype256(votetype);
 	string  result_data =
-	    call_rpcapi(api_uri, contract, myvotetimesSel,
+	    call_rpcapi(api_uri, admin_contract, myvotetimesSel,
 	                "000000000000000000000000" + address_evm + votetype256.GetHex());
 	if (result_data.empty())
 		return skip;
@@ -273,13 +296,13 @@ int64_t call_myvotetimes(string api_uri, string contract, string address_evm, in
 	return vtime;
 }
 
-string call_Merkles(string api_uri, string contract, int merkle_idx) {
+string call_Merkles(string api_uri, string admin_contract, int merkle_idx) {
 	string  skip;
 	string  merkle;
 	string  merklesSig = "Merkles(uint256)";
 	string  merklesSel = "0xe775f6cc";
 	uint256 merkleidx256(merkle_idx);
-	string  result_data = call_rpcapi(api_uri, contract, merklesSel, merkleidx256.GetHex());
+	string  result_data = call_rpcapi(api_uri, admin_contract, merklesSel, merkleidx256.GetHex());
 	if (result_data.empty())
 		return skip;
 	char*  res_cstr = (char*)(result_data.c_str());
@@ -304,24 +327,24 @@ string call_Merkles(string api_uri, string contract, int merkle_idx) {
 }
 
 static bool sync_pegindex(string                     rpcapi,
-                          string                     datacontract_addr,
+                          string                     data_contract_addr,
                           const CBridgeInfo&         bridge,
                           const set<string>&         sMineCurators,
                           const map<string, CKeyID>& mMineEvmPrivkeys,
-                          string                     contract,
+                          string                     admin_contract_addr,
                           CWallet*                   pwallet,
                           float                      max_priority_fee_per_gas_gwei,
                           float                      max_fee_per_gas_gwei) {
-	int64_t supply_evm = call_getSupply(rpcapi, "0x" + datacontract_addr);
+	int64_t supply_evm = call_getSupply(rpcapi, "0x" + data_contract_addr);
 	if (supply_evm < 0) {
 		return false;  // err
 	}
 	LogPrintf("%s thread: bridge %s, pegsync, datacontract:%s supply_evm:%d\n", "bitbay-bauto1",
-	          bridge.name, datacontract_addr, supply_evm);
+	          bridge.name, data_contract_addr, supply_evm);
 	int64_t supply_bay =
 	    pindexBest->nPegSupplyIndex * bridge.pegSteps * bridge.microSteps / PEG_SIZE;
 	LogPrintf("%s thread: bridge %s, pegsync, datacontract:%s supply_bay:%d\n", "bitbay-bauto1",
-	          bridge.name, datacontract_addr, supply_bay);
+	          bridge.name, data_contract_addr, supply_bay);
 	if (supply_bay == supply_evm) {
 		LogPrintf("%s thread: bridge %s, pegsync, NO CHANGE SUPPLY: %d --> %d\n", "bitbay-bauto1",
 		          bridge.name, supply_evm, supply_bay);
@@ -329,7 +352,8 @@ static bool sync_pegindex(string                     rpcapi,
 	}
 	int votetime_setSupply = 7;
 	for (const string& curator_addr : sMineCurators) {
-		int64_t votetimet = call_myvotetimes(rpcapi, contract, curator_addr, votetime_setSupply);
+		int64_t votetimet =
+		    call_myvotetimes(rpcapi, admin_contract_addr, curator_addr, votetime_setSupply);
 		if (votetimet < 0) {
 			LogPrintf("%s thread: bridge %s, pegsync, call_myvotetimes err %d\n", "bitbay-bauto1",
 			          bridge.name, votetimet);
@@ -410,9 +434,9 @@ static bool sync_pegindex(string                     rpcapi,
 		eth_abi_to_hex(&abi, &abi_hex_cstr, &abi_hexlen);
 		string abi_hex = string(abi_hex_cstr);
 		string txhash_hex;
-		string signed_tx =
-		    MakeTxEvm(bridge.chainId, nonce_acc, max_priority_fee_per_gas_gwei,
-		              max_fee_per_gas_gwei, gaslimit, contract, abi_hex, vchSecret, txhash_hex);
+		string signed_tx = MakeTxEvm(bridge.chainId, nonce_acc, max_priority_fee_per_gas_gwei,
+		                             max_fee_per_gas_gwei, gaslimit, admin_contract_addr, abi_hex,
+		                             vchSecret, txhash_hex);
 		LogPrintf("%s thread: bridge %s, pegsync, EIP-1559 Signed transaction: %s\n",
 		          "bitbay-bauto1", bridge.name, signed_tx);
 		LogPrintf("%s thread: bridge %s, pegsync, EIP-1559 Signed transaction hash: %s\n",
@@ -425,11 +449,11 @@ static bool sync_pegindex(string                     rpcapi,
 }
 
 static bool sync_merkles(string                     rpcapi,
-                         string                     datacontract_addr,
+                         string                     data_contract_addr,
                          const CBridgeInfo&         bridge,
                          const set<string>&         sMineCurators,
                          const map<string, CKeyID>& mMineEvmPrivkeys,
-                         string                     contract,
+                         string                     admin_contract_addr,
                          CWallet*                   pwallet,
                          float                      max_priority_fee_per_gas_gwei,
                          float                      max_fee_per_gas_gwei) {
@@ -460,8 +484,6 @@ static bool sync_merkles(string                     rpcapi,
 				section = args[1];
 				sMerklesOut.insert(merkle);
 				mMerkleOutSections[merkle] = std::atoi(section.c_str());
-				// std::cout << "bitbay-bauto1: bridge:" << rpcapi << " merkleout:" << merkle
-				//           << std::endl;
 			}
 		}
 		bridge_index = bridge_index->PrevBridgeCycleBlock();
@@ -481,7 +503,7 @@ static bool sync_merkles(string                     rpcapi,
 			}
 			continue;
 		}
-		merklehash = call_Merkles(rpcapi, contract, merkle_idx);
+		merklehash = call_Merkles(rpcapi, admin_contract_addr, merkle_idx);
 		if (merklehash.empty())
 			break;  // last one, break
 		mMerkleIndexes[merklehash] = merkle_idx;
@@ -510,7 +532,7 @@ static bool sync_merkles(string                     rpcapi,
 		int votetime_addMerkle = 9;
 		for (const string& curator_addr : sMineCurators) {
 			int64_t votetimet =
-			    call_myvotetimes(rpcapi, contract, curator_addr, votetime_addMerkle);
+			    call_myvotetimes(rpcapi, admin_contract_addr, curator_addr, votetime_addMerkle);
 			if (votetimet < 0) {
 				LogPrintf("%s thread: bridge %s, merkles, call_myvotetimes err %d\n",
 				          "bitbay-bauto1", bridge.name, votetimet);
@@ -592,9 +614,9 @@ static bool sync_merkles(string                     rpcapi,
 			eth_abi_to_hex(&abi, &abi_hex_cstr, &abi_hexlen);
 			string abi_hex = string(abi_hex_cstr);
 			string txhash_hex;
-			string signed_tx =
-			    MakeTxEvm(bridge.chainId, nonce_acc, max_priority_fee_per_gas_gwei,
-			              max_fee_per_gas_gwei, gaslimit, contract, abi_hex, vchSecret, txhash_hex);
+			string signed_tx = MakeTxEvm(bridge.chainId, nonce_acc, max_priority_fee_per_gas_gwei,
+			                             max_fee_per_gas_gwei, gaslimit, admin_contract_addr,
+			                             abi_hex, vchSecret, txhash_hex);
 			LogPrintf("%s thread: bridge %s, merkles, EIP-1559 Signed transaction: %s\n",
 			          "bitbay-bauto1", bridge.name, signed_tx);
 			LogPrintf("%s thread: bridge %s, merkles, EIP-1559 Signed transaction hash: %s\n",
@@ -684,12 +706,20 @@ void ThreadBrigeAuto1(CWallet* pwallet) {
 				continue;
 			}
 			LogPrintf("%s thread: bridge %s, is automated\n", "bitbay-bauto1", bridge_name);
-			string      rpcapi        = *(bridge_info.urls.begin());
-			string      contract      = bridge_info.contract;
+			string rpcapi             = *(bridge_info.urls.begin());
+			string data_contract_addr = bridge_info.contract;
+
+			string admin_contract_addr = call_minter(rpcapi, data_contract_addr);
+			LogPrintf("%s thread: bridge %s, admin_contract_addr: %s\n", "bitbay-bauto1",
+			          bridge_name, admin_contract_addr);
+			if (admin_contract_addr.empty()) {
+				continue;
+			}
+
 			bool        mine_curators = false;
 			set<string> sMineCurators;
 			for (int curator_idx = 0;; curator_idx++) {
-				string curator_addr = call_curators(rpcapi, contract, curator_idx);
+				string curator_addr = call_curators(rpcapi, admin_contract_addr, curator_idx);
 				if (curator_addr.empty()) {
 					break;
 				}
@@ -704,18 +734,14 @@ void ThreadBrigeAuto1(CWallet* pwallet) {
 				LogPrintf("%s thread: bridge %s, no curator\n", "bitbay-bauto1", bridge_name);
 				continue;  // to next bridge
 			}
-			// to know bitbaydata contract
-			string datacontract_addr = call_proxy(rpcapi, contract);
-			if (datacontract_addr.empty()) {
-				LogPrintf("%s thread: bridge %s, no datacontract\n", "bitbay-bauto1", bridge_name);
-				continue;  // not known
-			}
 			LogPrintf("%s thread: bridge %s, datacontract: %s\n", "bitbay-bauto1", bridge_name,
-			          datacontract_addr);
-			sync_pegindex(rpcapi, datacontract_addr, bridge_info, sMineCurators, mMineEvmPrivkeys,
-			              contract, pwallet, max_priority_fee_per_gas_gwei, max_fee_per_gas_gwei);
-			sync_merkles(rpcapi, datacontract_addr, bridge_info, sMineCurators, mMineEvmPrivkeys,
-			             contract, pwallet, max_priority_fee_per_gas_gwei, max_fee_per_gas_gwei);
+			          data_contract_addr);
+			sync_pegindex(rpcapi, data_contract_addr, bridge_info, sMineCurators, mMineEvmPrivkeys,
+			              admin_contract_addr, pwallet, max_priority_fee_per_gas_gwei,
+			              max_fee_per_gas_gwei);
+			sync_merkles(rpcapi, data_contract_addr, bridge_info, sMineCurators, mMineEvmPrivkeys,
+			             admin_contract_addr, pwallet, max_priority_fee_per_gas_gwei,
+			             max_fee_per_gas_gwei);
 		}
 	}
 }

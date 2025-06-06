@@ -485,14 +485,14 @@ void ThreadBrigeAuto2(CWallet* pwallet) {
 				LogPrintf("%s thread: bridge %s, nonce %d has processing_time: %d\n",
 				          "bitbay-bauto2", bridge_name, nonce, processing_time);
 				if (processing_time <= 0) {
-					continue;
+					break;
 				}
 				int64_t now_time = GetTime();
-				if (processing_time + interval_time > now_time) {
+				if (processing_time + 2 * interval_time > now_time) {
 					LogPrintf(
 					    "%s thread: bridge %s, nonce %d has non-mature processing time : %d\n",
 					    "bitbay-bauto2", bridge_name, nonce, processing_time);
-					continue;
+					break;
 				}
 
 				if (!completed) {

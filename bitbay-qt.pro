@@ -197,7 +197,7 @@ include(src/core.pri)
 
 QWT_CONFIG += QwtPlot
 QWT_CONFIG += QwtWidgets
-#DEFINES += QWT_MOC_INCLUDE
+DEFINES += QWT_MOC_INCLUDE
 mac:DEFINES += QWT_MOC_INCLUDE
 count(CICD, 1) {
     DEFINES += QWT_MOC_INCLUDE
